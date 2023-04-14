@@ -92,13 +92,15 @@ link_directories(${LLVM_LIBRARY_DIRS})
 file(GLOB_RECURSE C_SOURCES "src/*.c")
 file(GLOB_RECURSE CXX_SOURCES "src/*.cpp")
 file(GLOB_RECURSE CC_SOURCES "src/*.cc")
+file(GLOB_RECURSE INCLUDE_FILES "include/*.h")
+
 set(SOURCES ${C_SOURCES} ${CXX_SOURCES} ${CC_SOURCES}
         ${FLEX_Lexer_OUTPUTS} ${BISON_Parser_OUTPUT_SOURCE})
 
 # *********************
 
 
-add_executable(sysY ${SOURCES})
+add_executable(sysY ${SOURCES} ${INCLUDE_FILES})
 set_target_properties(sysY PROPERTIES C_STANDARD 11 CXX_STANDARD 17)
 #target_link_libraries(sysY
 #        LLVMX86AsmParser
