@@ -14,4 +14,8 @@ git push -u origin branch_name
 新分支首次需要-u，之后不需要），branch_name 可以不写，默认就是当前分支。
 比如： git push origin
 
-Tip：git checkout branch_name可以切换分支
+> Tip：
+> git checkout branch_name可以切换分支
+> 为了同步远程仓库，时不时使用 git fetch 命令
+> 各自在各自分支写作，时不时通过git merge合并到主分支后再同步到各自分支，或者直接各自分支相互merge，确定没问题后再merge主分支
+
