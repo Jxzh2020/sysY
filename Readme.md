@@ -1,13 +1,3 @@
-## 目录
-<!-- TOC -->
-  * [目录](#目录)
-  * [git](#git)
-  * [llvm](#llvm)
-    * [Clang](#clang)
-    * [lli](#lli)
-    * [llvm-link](#llvm-link)
-    * [其他有用的工具](#其他有用的工具)
-<!-- TOC -->
 ## git
 
 首先，配置本地git设置，使其能通过ssh连接github远程仓库。
