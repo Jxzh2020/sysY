@@ -102,18 +102,18 @@ set(SOURCES ${C_SOURCES} ${CXX_SOURCES} ${CC_SOURCES}
 
 add_executable(sysY ${SOURCES} ${INCLUDE_FILES})
 set_target_properties(sysY PROPERTIES C_STANDARD 11 CXX_STANDARD 17)
-#target_link_libraries(sysY
-#        LLVMX86AsmParser
-#        LLVMX86CodeGen
-#        LLVMAsmParser
-#        LLVMBitWriter
-#        LLVMRuntimeDyld
-#        LLVMExecutionEngine
-#        LLVMMCJIT
-#        z
-#        ncurses
-#        )
-#
+target_link_libraries(sysY
+        LLVMX86AsmParser
+        LLVMX86CodeGen
+        LLVMAsmParser
+        LLVMBitWriter
+        LLVMRuntimeDyld
+        LLVMExecutionEngine
+        LLVMMCJIT
+        z
+        ncurses
+        )
+
 #target_include_directories(sysY
 #    PRIVATE
 #        ${PROJECT_SOURCE_DIR}/src
