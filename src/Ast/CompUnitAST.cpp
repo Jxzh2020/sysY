@@ -14,5 +14,7 @@ llvm::Value* CompUnitAST::codegen() const{
     this->func_def->codegen();
     llvm::raw_ostream &OS = llvm::outs();
     IR::get()->getModule()->print(OS,nullptr);
+
+    bool Err = llvm::verifyModule(*IR::get()->getModule(), &llvm::errs());
     return nullptr;
 }

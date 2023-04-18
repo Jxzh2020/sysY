@@ -47,11 +47,14 @@ public:
     std::unique_ptr<llvm::IRBuilder<>>& getBuilder() { return Builder; }
     std::unique_ptr<llvm::Module>& getModule() { return TheModule; }
     std::map<std::string, llvm::Value *>& getNameMap() { return NamedValues; }
+    void EnterFunc(llvm::Function* cursor) { curFunc = cursor; }
+    llvm::Function* GetFunc() { return curFunc; }
 private:
     std::unique_ptr<llvm::LLVMContext> TheContext;
     std::unique_ptr<llvm::IRBuilder<>> Builder;
     std::unique_ptr<llvm::Module> TheModule;
     std::map<std::string, llvm::Value *> NamedValues;
+    llvm::Function* curFunc;
     static std::unique_ptr<IR> instance;
 };
 

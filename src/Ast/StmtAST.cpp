@@ -11,5 +11,13 @@ void StmtAST::Dump() const {
 }
 
 llvm::Value *StmtAST::codegen() const {
-    return nullptr;
+    // so far, only return inst is supported.
+    auto val = Exp->codegen();
+
+    //auto ret = llvm::ReturnInst::Create(*IR::get()->getContext(),llvm::ConstantInt::get(llvm::Type::getInt32Ty(*IR::get()->getContext()),0));
+    auto ret = llvm::ReturnInst::Create(*IR::get()->getContext(),val);
+    // add to the end of the current block
+    IR::get()->getBuilder()->Insert(ret);
+
+    return ret;
 }

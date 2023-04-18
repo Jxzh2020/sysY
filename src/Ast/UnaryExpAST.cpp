@@ -7,7 +7,7 @@
 void UnaryExpAST::Dump() const {
     std::cout << "UnaryExpAST { ";
     if( PrimaryExp == nullptr){
-        std::cout << (OpType == PLUS ? "PLUS" : OpType == MINUS ? "MINUS" : "COMPLEMENT");
+        std::cout << (OpType == PLUS ? "PLUS " : OpType == MINUS ? "MINUS " : "COMPLEMENT ");
         UnaryExp->Dump();
     }
     else
@@ -16,5 +16,27 @@ void UnaryExpAST::Dump() const {
 }
 
 llvm::Value *UnaryExpAST::codegen() const {
-    return nullptr;
+    llvm::Value* res;
+    auto zero_val = llvm::ConstantInt::get(llvm::Type::getInt32Ty(*IR::get()->getContext()), 0);
+
+    // UnaryOp UnaryExp form
+    if( PrimaryExp == nullptr){
+        switch(OpType){
+            case PLUS:
+                // PLUS does not affect the value
+                res = UnaryExp->codegen();
+                break;
+            case MINUS:
+                res = llvm::BinaryOperator::CreateNeg(UnaryExp->codegen());
+                break;
+            case COMPLEMENT:
+                res = llvm::BinaryOperator::CreateNot(UnaryExp->codegen());
+                break;
+        }
+    }
+    // PrimaryExp form
+    else{
+        res = PrimaryExp->codegen();
+    }
+    return res;
 }

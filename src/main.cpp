@@ -7,9 +7,9 @@
 
     Stmt        ::= "return" Exp ";";
     Exp         ::= UnaryExp;
+    UnaryExp    ::= PrimaryExp | UnaryOp UnaryExp;
     PrimaryExp  ::= "(" Exp ")" | Number;
     Number      ::= INT_CONST;
-    UnaryExp    ::= PrimaryExp | UnaryOp UnaryExp;
     UnaryOp     ::= "+" | "-" | "!";
  *
  *

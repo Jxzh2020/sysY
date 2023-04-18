@@ -17,4 +17,5 @@ IR::IR() {
 
     // Create a new builder for the module.
     Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
+    curFunc = nullptr;
 }

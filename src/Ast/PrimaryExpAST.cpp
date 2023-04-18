@@ -17,5 +17,14 @@ void PrimaryExpAST::Dump() const {
 }
 
 llvm::Value *PrimaryExpAST::codegen() const {
-    return nullptr;
+    llvm::Value* res;
+    // Number form
+    if( Exp == nullptr ){
+        res = Number->codegen();
+    }
+    // ( Exp ) form
+    else{
+        res = Exp->codegen();
+    }
+    return res;
 }

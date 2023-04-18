@@ -11,5 +11,6 @@ void ExpAST::Dump() const {
 }
 
 llvm::Value *ExpAST::codegen() const {
-    return nullptr;
+    // only one candidate, skip this node
+    return UnaryExp->codegen();
 }
