@@ -1,14 +1,24 @@
 %code requires {
   #include <memory>
   #include <string>
-  #include "Ast/Ast.h"
+  #include "Ast/BaseAST.h"
+  #include "Ast/CompUnitAST.h"
+  #include "Ast/FuncDefAST.h"
+  #include "Ast/FunctypeAST.h"
+  #include "Ast/BlockAST.h"
+  #include "Ast/StmtAST.h"
 }
 
 %{
 #include <iostream>
 #include <memory>
 #include <string>
-#include "Ast/Ast.h"
+#include "Ast/BaseAST.h"
+#include "Ast/CompUnitAST.h"
+#include "Ast/FuncDefAST.h"
+#include "Ast/FunctypeAST.h"
+#include "Ast/BlockAST.h"
+#include "Ast/StmtAST.h"
 
 // 声明 lexer 函数和错误处理函数
 int yylex();
