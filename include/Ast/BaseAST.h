@@ -21,6 +21,12 @@
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Verifier.h>
 
+enum UnaryOp {
+    PLUS,
+    MINUS,
+    COMPLEMENT
+};
+
 class BaseAST{
 public:
     virtual ~BaseAST() = default;

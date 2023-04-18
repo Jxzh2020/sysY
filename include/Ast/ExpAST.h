@@ -2,18 +2,18 @@
 // Created by Hao Zhong on 4/18/23.
 //
 
-#ifndef SYSY_STMTAST_H
-#define SYSY_STMTAST_H
+#ifndef SYSY_EXPAST_H
+#define SYSY_EXPAST_H
 
 #include "BaseAST.h"
 
-class StmtAST: public BaseAST{
+class ExpAST: public BaseAST {
 public:
-    std::unique_ptr<BaseAST> Exp;
+    std::unique_ptr<BaseAST> UnaryExp;
 
     void Dump() const override;
     [[nodiscard]] llvm::Value* codegen() const override;
 };
 
 
-#endif //SYSY_STMTAST_H
+#endif //SYSY_EXPAST_H

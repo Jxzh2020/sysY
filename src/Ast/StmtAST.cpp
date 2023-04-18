@@ -6,7 +6,7 @@
 
 void StmtAST::Dump() const {
     std::cout << "StmtAST { ";
-    std::cout << *number ;
+    Exp->Dump();
     std::cout << " }";
 }
 

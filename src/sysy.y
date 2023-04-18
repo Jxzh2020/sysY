@@ -7,6 +7,10 @@
   #include "Ast/FunctypeAST.h"
   #include "Ast/BlockAST.h"
   #include "Ast/StmtAST.h"
+  #include "Ast/ExpAST.h"
+  #include "Ast/UnaryExpAST.h"
+  #include "Ast/PrimaryExpAST.h"
+  #include "Ast/NumberAST.h"
 }
 
 %{
@@ -19,6 +23,10 @@
 #include "Ast/FunctypeAST.h"
 #include "Ast/BlockAST.h"
 #include "Ast/StmtAST.h"
+#include "Ast/ExpAST.h"
+#include "Ast/UnaryExpAST.h"
+#include "Ast/PrimaryExpAST.h"
+#include "Ast/NumberAST.h"
 
 // 声明 lexer 函数和错误处理函数
 int yylex();
@@ -38,10 +46,10 @@ using namespace std;
 
 %token INT RETURN
 %token <str_val> IDENT
+%token <int_val> UNARY_OP
 %token <int_val> INT_CONST
 
-%type <ast_val> FuncDef FuncType Block Stmt
-%type <str_val> Number
+%type <ast_val> FuncDef FuncType Block Stmt Exp UnaryExp PrimaryExp Number
 
 %%
 
@@ -80,16 +88,50 @@ Block
   ;
 
 Stmt
-  : RETURN Number ';' {
+  : RETURN Exp ';' {
     auto stmt = new StmtAST();
-    stmt->number = unique_ptr<std::string>($2);
+    stmt->Exp = unique_ptr<BaseAST>($2);
     $$ = stmt;
+  }
+  ;
+Exp
+  : UnaryExp {
+    auto exp = new ExpAST();
+    exp->UnaryExp = unique_ptr<BaseAST>($1);
+    $$ = exp;
+  }
+  ;
+UnaryExp
+  : PrimaryExp {
+    auto unary = new UnaryExpAST();
+    unary->PrimaryExp = unique_ptr<BaseAST>($1);
+    $$ = unary;
+  }
+  | UNARY_OP UnaryExp {
+    auto unary = new UnaryExpAST();
+    unary->UnaryExp = unique_ptr<BaseAST>($2);
+    unary->OpType = ( $1 == '+' ? PLUS : $1 == '-' ? MINUS : COMPLEMENT );
+    $$ = unary;
+  }
+  ;
+PrimaryExp
+  : '(' Exp ')' {
+    auto primary = new PrimaryExpAST();
+    primary->Exp = unique_ptr<BaseAST>($2);
+    $$ = primary;
+  }
+  | Number {
+    auto primary = new PrimaryExpAST();
+    primary->Number = unique_ptr<BaseAST>($1);
+    $$ = primary;
   }
   ;
 
 Number
   : INT_CONST {
-    $$ = new std::string(to_string($1));
+    auto number = new NumberAST();
+    number->value = $1;
+    $$ = number;
   }
   ;
 
