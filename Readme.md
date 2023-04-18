@@ -1,3 +1,8 @@
+## Platform
+This is a cmake project, which I believe it's working on Windows.
+To build on Windows, `LLVM` , `clang` and `cmake` is required.
+Once all the dependencies is ready, Visual Studio or Code is fine to edit the project.
+
 ## git
 
 首先，配置本地git设置，使其能通过ssh连接github远程仓库。
@@ -134,3 +139,15 @@ $ lli out.ll
 - `opt`：LLVM 模块化的优化器和分析器。它以 LLVM 源文件为输入，对其运行指定的优化或分析，然后生成优化文件或输出分析结果。这个工具将会在挑战任务中介绍，在此不再展开。
 
 New Bing YYDS|:)
+
+## Project
+
+```bash
+# Ast related classes and IR Genreation details
+./include/Ast
+./src/Ast
+
+```
+
+### Ast
+The base class is `BaseAST`, namely all the nodes being derived class of it.
