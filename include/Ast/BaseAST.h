@@ -28,6 +28,11 @@ public:
     [[nodiscard]] virtual llvm::Value* codegen() const = 0;
 };
 
+/*
+ * class IR maintains essential LLVM classes to create an in-memory form IR in one module.
+ * To use LLVM context, module, builder or namevalues, simply IR::get()->getXXX()
+ *
+ * */
 class IR{
 public:
     IR();
