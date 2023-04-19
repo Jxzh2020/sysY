@@ -89,3 +89,12 @@ M->print(OS, nullptr); // print LLVM IR to output stream
     ```
   
 ### Why there's only Neg unary operation for floating-point number?
+
+//
+
+### how to do constant expression in llvm ir?
+根据搜索结果，你可以使用`ConstantExpr`类来创建一个常量表达式，它是一个使用其他常量值的表达式来初始化的常量值。常量表达式使用标准的指令操作码来定义各种常量表达式。例如：
+
+%const = add i32 4, 2 %expr = getelementptr i32, i32* %const, i32 1
+
+常量表达式可以用于初始化全局变量，或者作为其他常量表达式的操作数。常量表达式也可以用于某些指令的操作数，例如switch和ret。

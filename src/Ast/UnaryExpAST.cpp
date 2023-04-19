@@ -27,10 +27,13 @@ llvm::Value *UnaryExpAST::codegen() const {
                 res = UnaryExp->codegen();
                 break;
             case MINUS:
-                res = llvm::BinaryOperator::CreateNeg(UnaryExp->codegen());
+                //res = llvm::ConstantExpr::getSub(zero_val,llvm::ConstantExpr::getPointerCast(UnaryExp->codegen(),llvm::Type::getInt32PtrTy(*IR::get()->getContext())));
+                res = IR::get()->getBuilder()->CreateSub(zero_val,UnaryExp->codegen());
+                //res = llvm::BinaryOperator::CreateNeg(UnaryExp->codegen());
                 break;
             case COMPLEMENT:
-                res = llvm::BinaryOperator::CreateNot(UnaryExp->codegen());
+                res = IR::get()->getBuilder()->CreateNeg(UnaryExp->codegen());
+                //res = llvm::BinaryOperator::CreateNot(UnaryExp->codegen());
                 break;
         }
     }
