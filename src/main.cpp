@@ -11,6 +11,14 @@
     PrimaryExp  ::= "(" Exp ")" | Number;
     Number      ::= INT_CONST;
     UnaryOp     ::= "+" | "-" | "!";
+
+    ;
+
+    Exp         ::= AddExp;
+
+    MulExp      ::= UnaryExp | MulExp ("*" | "/" | "%") UnaryExp;
+    AddExp      ::= MulExp | AddExp ("+" | "-") MulExp;
+
  *
  *
  * */

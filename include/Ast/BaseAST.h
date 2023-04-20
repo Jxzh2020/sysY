@@ -26,6 +26,11 @@ enum UnaryOp {
     MINUS,
     COMPLEMENT
 };
+enum BinaryOp {
+    MUL,
+    DIV,
+    MOD
+};
 
 class BaseAST{
 public:

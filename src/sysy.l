@@ -35,6 +35,9 @@ Hexadecimal   0[xX][0-9a-fA-F]+
 /* 一元操作符 */
 UnaryOp [-+!]
 
+/* 二元操作符 */
+BinaryOp [*/%]
+
 %%
 
 {WhiteSpace}    { /* 忽略, 不做任何操作 */ }
@@ -53,6 +56,8 @@ UnaryOp [-+!]
 {Hexadecimal}   { if(!is_comment()) { yylval.int_val = strtol(yytext, nullptr, 0); return INT_CONST; } }
 
 {UnaryOp} { if(!is_comment()) { yylval.int_val = (int)yytext[0]; return UNARY_OP; } }
+
+{BinaryOp} { if(!is_comment()) { yylval.int_val = (int)yytext[0]; return BINARY_OP; } }
 
 .               { if(!is_comment()) return yytext[0]; }
 

@@ -11,6 +11,8 @@
   #include "Ast/UnaryExpAST.h"
   #include "Ast/PrimaryExpAST.h"
   #include "Ast/NumberAST.h"
+  #include "Ast/MulExpAST.h"
+  #include "Ast/AddExpAST.h"
 }
 
 %{
@@ -27,6 +29,8 @@
 #include "Ast/UnaryExpAST.h"
 #include "Ast/PrimaryExpAST.h"
 #include "Ast/NumberAST.h"
+#include "Ast/MulExpAST.h"
+#include "Ast/AddExpAST.h"
 
 // 声明 lexer 函数和错误处理函数
 int yylex();
@@ -47,9 +51,10 @@ using namespace std;
 %token INT RETURN
 %token <str_val> IDENT
 %token <int_val> UNARY_OP
+%token <int_val> BINARY_OP
 %token <int_val> INT_CONST
 
-%type <ast_val> FuncDef FuncType Block Stmt Exp UnaryExp PrimaryExp Number
+%type <ast_val> FuncDef FuncType Block Stmt Exp UnaryExp PrimaryExp Number AddExp MulExp
 
 %%
 
@@ -95,9 +100,9 @@ Stmt
   }
   ;
 Exp
-  : UnaryExp {
+  : AddExp {
     auto exp = new ExpAST();
-    exp->UnaryExp = unique_ptr<BaseAST>($1);
+    exp->AddExp = unique_ptr<BaseAST>($1);
     $$ = exp;
   }
   ;
@@ -112,6 +117,34 @@ UnaryExp
     unary->UnaryExp = unique_ptr<BaseAST>($2);
     unary->OpType = ( $1 == '+' ? PLUS : $1 == '-' ? MINUS : COMPLEMENT );
     $$ = unary;
+  }
+  ;
+MulExp
+  : UnaryExp {
+    auto mul_exp = new MulExpAST();
+    mul_exp->UnaryExp = unique_ptr<BaseAST>($1);
+    $$ = mul_exp;
+  }
+  | MulExp BINARY_OP UnaryExp {
+    auto mul_exp = new MulExpAST();
+    mul_exp->MulExp = unique_ptr<BaseAST>($1);
+    mul_exp->type = $2 == '*' ? MUL : $2 == '/' ? DIV : MOD;
+    mul_exp->UnaryExp = unique_ptr<BaseAST>($3);
+    $$ = mul_exp;
+  }
+  ;
+AddExp
+  : MulExp {
+    auto add_exp = new AddExpAST();
+    add_exp->MulExp = unique_ptr<BaseAST>($1);
+    $$ = add_exp;
+  }
+  | AddExp UNARY_OP MulExp {
+    auto add_exp = new AddExpAST();
+    add_exp->AddExp = unique_ptr<BaseAST>($1);
+    add_exp->type = $2 == '+' ? PLUS : $2 == '-' ? MINUS : COMPLEMENT ;
+    add_exp->MulExp = unique_ptr<BaseAST>($3);
+    $$ = add_exp;
   }
   ;
 PrimaryExp
