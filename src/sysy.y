@@ -58,8 +58,10 @@ using namespace std;
 %token <str_val> IDENT
 %token <int_val> UNARY_OP
 %token <int_val> BINARY_OP
-%token <str_val> LOGIC_OP
-%token <str_val> COMP_OP
+%token <int_val> LOGIC_OP_OR
+%token <int_val> LOGIC_OP_AND
+%token <int_val> COMP_OP_EQ
+%token <int_val> COMP_OP_N
 
 %token <int_val> INT_CONST
 
@@ -110,9 +112,9 @@ Stmt
   }
   ;
 Exp
-  : AddExp {
+  : LOrExp {
     auto exp = new ExpAST();
-    exp->AddExp = unique_ptr<BaseAST>($1);
+    exp->LgExp = unique_ptr<BaseAST>($1);
     $$ = exp;
   }
   ;
@@ -167,6 +169,62 @@ PrimaryExp
     auto primary = new PrimaryExpAST();
     primary->Number = unique_ptr<BaseAST>($1);
     $$ = primary;
+  }
+  ;
+LOrExp
+  : LAndExp {
+    auto lg_exp = new LgExpAST();
+    lg_exp->LHS = unique_ptr<BaseAST>($1);
+    $$ = lg_exp;
+  }
+  | LOrExp LOGIC_OP_OR LAndExp {
+    auto lg_exp = new LgExpAST();
+    lg_exp->LHS = unique_ptr<BaseAST>($1);
+    lg_exp->type = static_cast<LogicOp>($2);
+    lg_exp->RHS = unique_ptr<BaseAST>($3);
+    $$ = lg_exp;
+  }
+  ;
+LAndExp
+  : EqExp {
+    auto lg_exp = new LgExpAST();
+    lg_exp->LHS = unique_ptr<BaseAST>($1);
+    $$ = lg_exp;
+  }
+  | LAndExp LOGIC_OP_AND EqExp {
+    auto lg_exp = new LgExpAST();
+    lg_exp->LHS = unique_ptr<BaseAST>($1);
+    lg_exp->type = static_cast<LogicOp>($2);
+    lg_exp->RHS = unique_ptr<BaseAST>($3);
+    $$ = lg_exp;
+  }
+  ;
+EqExp
+  : RelExp {
+    auto eq_exp = new CompExpAST();
+    eq_exp->LHS = unique_ptr<BaseAST>($1);
+    $$ = eq_exp;
+  }
+  | EqExp COMP_OP_EQ RelExp {
+    auto eq_exp = new CompExpAST();
+    eq_exp->LHS = unique_ptr<BaseAST>($1);
+    eq_exp->type = static_cast<CompOp>($2);
+    eq_exp->RHS = unique_ptr<BaseAST>($3);
+    $$ = eq_exp;
+  }
+  ;
+RelExp
+  : AddExp {
+    auto rel_exp = new CompExpAST();
+    rel_exp->LHS = unique_ptr<BaseAST>($1);
+    $$ = rel_exp;
+  }
+  | RelExp COMP_OP_N AddExp {
+    auto rel_exp = new CompExpAST();
+    rel_exp->LHS = unique_ptr<BaseAST>($1);
+    rel_exp->type = static_cast<CompOp>($2);
+    rel_exp->RHS = unique_ptr<BaseAST>($3);
+    $$ = rel_exp;
   }
   ;
 

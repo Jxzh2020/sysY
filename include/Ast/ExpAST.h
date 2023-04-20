@@ -9,7 +9,7 @@
 
 class ExpAST: public BaseAST {
 public:
-    std::unique_ptr<BaseAST> AddExp;
+    std::unique_ptr<BaseAST> LgExp;
 
     void Dump() const override;
     [[nodiscard]] llvm::Value* codegen() const override;

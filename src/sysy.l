@@ -19,7 +19,9 @@ using namespace std;
 WhiteSpace    [ \t\n\r]*
 LineComment   "//".*
 
-BlockComment \/\*[^\"'\\]*(?:(?:\\.|\"(?:[^\"\\\\]|\\\\.)*\"|'(?:[^'\\\\]|\\\\.)*')[^\"'\\]*)*\*\/(?=[^\"'\\]*(?:(?:\\.|\"(?:[^\"\\\\]|\\\\.)*\"|'(?:[^'\\\\]|\\\\.)*')[^\"'\\]*)*$)
+BlockComment  "/*"([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+"/"
+
+
 
 /* 标识符 */
 Identifier    [a-zA-Z_][a-zA-Z0-9_]*
@@ -36,10 +38,14 @@ UnaryOp [-+!]
 BinaryOp [*/%]
 
 /* 逻辑操作符 */
-LogicOp [><]=?
+LogicOp_OR \|\|
+
+LogicOp_AND &&
 
 /* 比较操作符 */
-CompOp [=!]=
+CompOp_EQ [=!]=
+
+CompOp_N [><]=?
 
 %%
 
@@ -59,9 +65,37 @@ CompOp [=!]=
 
 {BinaryOp} { yylval.int_val = (int)yytext[0]; return BINARY_OP; }
 
-{LogicOp} { yylval.str_val = new string(yytext); return LOGIC_OP; }
+{LogicOp_OR} {
+    yylval.int_val = OR;
+    return LOGIC_OP_OR;
+}
+{LogicOp_AND} {
+    yylval.int_val = AND;
+    return LOGIC_OP_AND;
+}
+{CompOp_EQ} {
+    if(yytext[0] == '=')
+        yylval.int_val = EQ;
+    else
+        yylval.int_val = NEQ;
+    return COMP_OP_EQ;
+}
 
-{CompOp} { yylval.str_val = new string(yytext); return COMP_OP; }
+{CompOp_N} {
+    if(yytext[0] == '>'){
+        if(yytext[1] == '\n')
+            yylval.int_val = GT;
+        else
+            yylval.int_val = GE;
+    }
+    else{
+        if(yytext[1] == '\n')
+            yylval.int_val = LT;
+        else
+            yylval.int_val = LE;
+    }
+    return COMP_OP_N;
+}
 
 {BlockComment} { /* 忽略块注释的内容 */ }
 

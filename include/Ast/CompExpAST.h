@@ -10,6 +10,9 @@
 class CompExpAST: public BaseAST {
 public:
     CompOp type;
+    // if RHS == nullptr, it's not an exp of this level!
+    std::unique_ptr<BaseAST> LHS;
+    std::unique_ptr<BaseAST> RHS;
 
     void Dump() const override;
     [[nodiscard]] llvm::Value* codegen() const override;

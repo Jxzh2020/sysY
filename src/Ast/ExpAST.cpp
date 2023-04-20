@@ -6,11 +6,11 @@
 
 void ExpAST::Dump() const {
     std::cout << "ExpAST { ";
-    AddExp->Dump();
+    LgExp->Dump();
     std::cout << " }";
 }
 
 llvm::Value *ExpAST::codegen() const {
     // only one candidate, skip this node
-    return AddExp->codegen();
+    return LgExp->codegen();
 }

@@ -22,10 +22,10 @@
 
  Trying to eliminate some AST derived class:
  Logic Expression: LgExpAST containing LOrExp, LAndExp, EqExp
- Logic Operation:  OR ||, AND &&, EQ ==, NEQ !=
+ Logic Operation:  OR ||, AND &&,
 
  Comparison Expression: CompExpAst containing RelExp
- Comparison Operation: LT <, GT >, LE <=, GE >=
+ Comparison Operation: LT <, GT >, LE <=, GE >=, EQ ==, NEQ !=
  *
  *
  * */

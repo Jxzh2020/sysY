@@ -34,14 +34,14 @@ enum BinaryOp {
 enum LogicOp {
     OR,
     AND,
-    EQ,
-    NEQ
 };
 enum CompOp {
     LT,
     GT,
     LE,
-    GE
+    GE,
+    EQ,
+    NEQ
 };
 
 class BaseAST{
