@@ -13,6 +13,9 @@
   #include "Ast/NumberAST.h"
   #include "Ast/MulExpAST.h"
   #include "Ast/AddExpAST.h"
+
+  #include "Ast/LgExpAST.h"
+  #include "Ast/CompExpAST.h"
 }
 
 %{
@@ -31,6 +34,9 @@
 #include "Ast/NumberAST.h"
 #include "Ast/MulExpAST.h"
 #include "Ast/AddExpAST.h"
+
+#include "Ast/LgExpAST.h"
+#include "Ast/CompExpAST.h"
 
 // 声明 lexer 函数和错误处理函数
 int yylex();
@@ -52,9 +58,13 @@ using namespace std;
 %token <str_val> IDENT
 %token <int_val> UNARY_OP
 %token <int_val> BINARY_OP
+%token <str_val> LOGIC_OP
+%token <str_val> COMP_OP
+
 %token <int_val> INT_CONST
 
 %type <ast_val> FuncDef FuncType Block Stmt Exp UnaryExp PrimaryExp Number AddExp MulExp
+%type <ast_val> LOrExp LAndExp EqExp RelExp
 
 %%
 

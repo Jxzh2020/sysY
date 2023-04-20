@@ -31,6 +31,18 @@ enum BinaryOp {
     DIV,
     MOD
 };
+enum LogicOp {
+    OR,
+    AND,
+    EQ,
+    NEQ
+};
+enum CompOp {
+    LT,
+    GT,
+    LE,
+    GE
+};
 
 class BaseAST{
 public:
@@ -41,7 +53,7 @@ public:
 
 /*
  * class IR maintains essential LLVM classes to create an in-memory form IR in one module.
- * To use LLVM context, module, builder or namevalues, simply IR::get()->getXXX()
+ * To use LLVM context, module, builder or name_values, simply IR::get()->getXXX()
  *
  * */
 class IR{

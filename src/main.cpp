@@ -6,19 +6,26 @@
     Block     ::= "{" Stmt "}";
 
     Stmt        ::= "return" Exp ";";
-    Exp         ::= UnaryExp;
+    Exp         ::= AddExp;
     UnaryExp    ::= PrimaryExp | UnaryOp UnaryExp;
     PrimaryExp  ::= "(" Exp ")" | Number;
     Number      ::= INT_CONST;
     UnaryOp     ::= "+" | "-" | "!";
-
-    ;
-
-    Exp         ::= AddExp;
-
     MulExp      ::= UnaryExp | MulExp ("*" | "/" | "%") UnaryExp;
     AddExp      ::= MulExp | AddExp ("+" | "-") MulExp;
 
+    Exp         ::= LOrExp;
+    RelExp      ::= AddExp | RelExp ("<" | ">" | "<=" | ">=") AddExp;
+    EqExp       ::= RelExp | EqExp ("==" | "!=") RelExp;
+    LAndExp     ::= EqExp | LAndExp "&&" EqExp;
+    LOrExp      ::= LAndExp | LOrExp "||" LAndExp;
+
+ Trying to eliminate some AST derived class:
+ Logic Expression: LgExpAST containing LOrExp, LAndExp, EqExp
+ Logic Operation:  OR ||, AND &&, EQ ==, NEQ !=
+
+ Comparison Expression: CompExpAst containing RelExp
+ Comparison Operation: LT <, GT >, LE <=, GE >=
  *
  *
  * */
