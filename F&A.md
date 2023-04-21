@@ -73,7 +73,7 @@ M->print(OS, nullptr); // print LLVM IR to output stream
     raw_ostream &OS = llvm::outs();
     ```
 - To create a raw_ostream object that outputs to a file, you can use the `llvm::raw_fd_ostream` class, which is a subclass of raw_ostream that takes a file descriptor as a parameter. For example:
-   
+
     ```cpp
     // Create a raw_ostream object that outputs to a file
     std::error_code EC;
@@ -81,13 +81,13 @@ M->print(OS, nullptr); // print LLVM IR to output stream
     ```
 
 - To create a `raw_ostream` object that outputs to a string, you can use the `llvm::raw_string_ostream` class, which is a subclass of raw_ostream that takes a reference to a string as a parameter. For example:
-  
+
     ```cpp
     // Create a raw_ostream object that outputs to a string
     std::string Str;
     raw_string_ostream OS(Str); // write to string Str
     ```
-  
+
 ### Why there's only Neg unary operation for floating-point number?
 
 //
@@ -98,3 +98,17 @@ M->print(OS, nullptr); // print LLVM IR to output stream
 %const = add i32 4, 2 %expr = getelementptr i32, i32* %const, i32 1
 
 常量表达式可以用于初始化全局变量，或者作为其他常量表达式的操作数。常量表达式也可以用于某些指令的操作数，例如switch和ret。
+
+### how to lookup an alloca value safely in llvm ir using c++ api?
+
+To lookup an alloca value safely in llvm ir using c++ api, you need to cast the llvm::Value* to llvm::AllocaInst* using the LLVM RTTI system1. For example:
+
+```cpp
+llvm::Value* val = someFunction(...); // val is an alloca value
+    if (llvm::AllocaInst* I = llvm::dyn_cast<llvm::AllocaInst>(val)) {
+    // do something with the alloca instruction I
+    }
+    else {
+    // not an alloca instruction
+    }
+```

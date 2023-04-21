@@ -20,6 +20,13 @@ llvm::Value *StmtAST::codegen() const {
     //auto ret = llvm::ReturnInst::Create(*IR::get()->getContext(),val);
     // add to the end of the current block
     //IR::get()->getBuilder()->Insert(ret);
-    builder->CreateRet(val);
+    llvm::Value* res;
+    if(auto I = llvm::dyn_cast<llvm::AllocaInst>(val))
+        res = IR::get()->getBuilder()->CreateLoad(I->getAllocatedType(),val);
+    else
+        res = val;
+
+    builder->CreateRet(res);
+
     return nullptr;
 }

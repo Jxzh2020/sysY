@@ -34,7 +34,8 @@
     ConstExp      ::= Exp;
     LVal          ::= IDENT;
     BlockItem     ::= Decl | Stmt;
-    PrimaryExp    ::= "(" Exp ")" | LVal | Number;
+->  PrimaryExp    ::= "(" Exp ")" | LVal | Number;
+ // here the first time LVal is selected, TODO here all are read only!
 
  // here modified a little bit
 
