@@ -1,0 +1,19 @@
+//
+// Created by Hao Zhong on 4/21/23.
+//
+
+#ifndef SYSY_DECLAST_H
+#define SYSY_DECLAST_H
+
+#include "BaseAST.h"
+
+class DeclAST: public BaseAST {
+public:
+    std::unique_ptr<BaseAST> ConstDecl;
+
+    void Dump() const override;
+    [[nodiscard]] llvm::Value* codegen() const override;
+};
+
+
+#endif //SYSY_DECLAST_H

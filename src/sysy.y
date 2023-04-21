@@ -16,6 +16,13 @@
 
   #include "Ast/LgExpAST.h"
   #include "Ast/CompExpAST.h"
+
+  #include "Ast/LValAST.h"
+  #include "Ast/BlockItemAST.h"
+  #include "Ast/DeclAST.h"
+  #include "Ast/ConstDeclAST.h"
+  #include "Ast/ConstExpAST.h"
+  #include "Ast/ConstInitValAST.h"
 }
 
 %{
@@ -38,6 +45,13 @@
 #include "Ast/LgExpAST.h"
 #include "Ast/CompExpAST.h"
 
+#include "Ast/LValAST.h"
+#include "Ast/BlockItemAST.h"
+#include "Ast/DeclAST.h"
+#include "Ast/ConstDeclAST.h"
+#include "Ast/ConstExpAST.h"
+#include "Ast/ConstInitValAST.h"
+
 // 声明 lexer 函数和错误处理函数
 int yylex();
 void yyerror(std::unique_ptr<BaseAST> &ast, const char *s);
@@ -52,9 +66,10 @@ using namespace std;
   std::string *str_val;
   int int_val;
   BaseAST *ast_val;
+  std::vector<BaseAST*>* vec_val;
 }
 
-%token INT RETURN
+%token INT RETURN CONST
 %token <str_val> IDENT
 %token <int_val> UNARY_OP
 %token <int_val> BINARY_OP
@@ -67,6 +82,10 @@ using namespace std;
 
 %type <ast_val> FuncDef FuncType Block Stmt Exp UnaryExp PrimaryExp Number AddExp MulExp
 %type <ast_val> LOrExp LAndExp EqExp RelExp
+
+%type <ast_val> Decl ConstDecl BType ConstDef ConstInitVal BlockItem LVal ConstExp
+
+%type <vec_val> BlockItems ConstDefs
 
 %%
 
@@ -96,13 +115,7 @@ FuncType
   }
   ;
 
-Block
-  : '{' Stmt '}' {
-    auto block = new BlockAST();
-    block->stmt = unique_ptr<BaseAST>($2);
-    $$ = block;
-  }
-  ;
+
 
 Stmt
   : RETURN Exp ';' {
@@ -157,18 +170,6 @@ AddExp
     add_exp->type = $2 == '+' ? PLUS : $2 == '-' ? MINUS : COMPLEMENT ;
     add_exp->MulExp = unique_ptr<BaseAST>($3);
     $$ = add_exp;
-  }
-  ;
-PrimaryExp
-  : '(' Exp ')' {
-    auto primary = new PrimaryExpAST();
-    primary->Exp = unique_ptr<BaseAST>($2);
-    $$ = primary;
-  }
-  | Number {
-    auto primary = new PrimaryExpAST();
-    primary->Number = unique_ptr<BaseAST>($1);
-    $$ = primary;
   }
   ;
 LOrExp
@@ -235,7 +236,136 @@ Number
     $$ = number;
   }
   ;
-
+Decl
+  : ConstDecl {
+    auto decl = new DeclAST();
+    decl->ConstDecl = unique_ptr<BaseAST>($1);
+    $$ = decl;
+  }
+  ;
+ConstDecl
+  : CONST BType ConstDef ConstDefs ';' {
+    auto decl = new ConstDeclAST();
+    decl->BType = unique_ptr<BaseAST>($2);
+    decl->ConstDefs.push_back(unique_ptr<BaseAST>($3));
+    if($4 == nullptr)
+        $$ = decl;
+    else{
+        for(auto i:*($4)){
+            decl->ConstDefs.push_back(unique_ptr<BaseAST>(i));
+        }
+        delete $4;
+        $$ = decl;
+    }
+  }
+  ;
+ConstDefs
+  : ConstDefs ',' ConstDef {
+      if($1 == nullptr){
+        auto vec = new vector<BaseAST*>;
+        vec->push_back($3);
+        $$ = vec;
+      }
+      else{
+        $1->push_back($3);
+        $$ = $1;
+      }
+  }
+  | { $$ = nullptr; }
+  ;
+BType
+  : INT {
+    auto b = new BTypeAST();
+    b->type = "int";
+    $$ = b;
+  }
+  ;
+ConstDef
+  : IDENT '=' ConstInitVal {
+    auto def = new ConstDefAST();
+    def->ident = *unique_ptr<string>($1);
+    def->ConstInitVal = unique_ptr<BaseAST>($3);
+    $$ = def;
+  }
+  ;
+ConstInitVal
+  : ConstExp {
+    auto val = new ConstInitValAST();
+    val->ConstExp = unique_ptr<BaseAST>($1);
+    $$ = val;
+  }
+  ;
+ConstExp
+  : Exp {
+    auto exp = new ConstExpAST();
+    exp->Exp = unique_ptr<BaseAST>($1);
+    $$ = exp;
+  }
+  ;
+LVal
+  : IDENT {
+    auto l_val = new LValAST();
+    l_val->ident = *unique_ptr<string>($1);
+    $$ = l_val;
+  }
+  ;
+BlockItem
+  : Decl {
+    auto item = new BlockItemAST();
+    item->Decl = unique_ptr<BaseAST>($1);
+    $$ = item;
+  }
+  | Stmt {
+    auto item = new BlockItemAST();
+    item->Stmt = unique_ptr<BaseAST>($1);
+    $$ = item;
+  }
+  ;
+PrimaryExp
+  : '(' Exp ')' {
+    auto primary = new PrimaryExpAST();
+    primary->Exp = unique_ptr<BaseAST>($2);
+    $$ = primary;
+  }
+  | LVal {
+    auto primary = new PrimaryExpAST();
+    primary->LVal = unique_ptr<BaseAST>($1);
+    $$ = primary;
+  }
+  | Number {
+    auto primary = new PrimaryExpAST();
+    primary->Number = unique_ptr<BaseAST>($1);
+    $$ = primary;
+  }
+  ;
+Block
+  : '{' BlockItems '}' {
+    auto block = new BlockAST();
+    if($2 == nullptr)
+        $$ = block;
+    else{
+        for(auto i: *$2){
+            block->BlockItems.push_back(unique_ptr<BaseAST>(i));
+        }
+        delete $2;
+        $$ = block;
+    }
+  }
+  ;
+BlockItems
+  : BlockItems BlockItem {
+      if($1 == nullptr){
+        auto vec = new vector<BaseAST*>;
+        vec->push_back($2);
+        $$ = vec;
+      }
+      else{
+        $1->push_back($2);
+        $$ = $1;
+      }
+  }
+  | { $$ = nullptr; }
+  ;
 %%
 
 // 定义错误处理函数, 其中第二个参数是错误信息

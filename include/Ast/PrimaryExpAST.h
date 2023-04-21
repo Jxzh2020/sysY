@@ -10,6 +10,7 @@
 class PrimaryExpAST: public BaseAST {
 public:
     std::unique_ptr<BaseAST> Exp;
+    std::unique_ptr<BaseAST> LVal;
     std::unique_ptr<BaseAST> Number;
 
     void Dump() const override;

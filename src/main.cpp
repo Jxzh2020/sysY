@@ -3,12 +3,10 @@
     CompUnit  ::= FuncDef;
     FuncDef   ::= FuncType IDENT "(" ")" Block;
     FuncType  ::= "int";
-    Block     ::= "{" Stmt "}";
 
     Stmt        ::= "return" Exp ";";
-    Exp         ::= AddExp;
     UnaryExp    ::= PrimaryExp | UnaryOp UnaryExp;
-    PrimaryExp  ::= "(" Exp ")" | Number;
+
     Number      ::= INT_CONST;
     UnaryOp     ::= "+" | "-" | "!";
     MulExp      ::= UnaryExp | MulExp ("*" | "/" | "%") UnaryExp;
@@ -26,6 +24,28 @@
 
  Comparison Expression: CompExpAst containing RelExp
  Comparison Operation: LT <, GT >, LE <=, GE >=, EQ ==, NEQ !=
+
+// adding new rules...
+
+    Decl          ::= ConstDecl;
+    BType         ::= "int";
+    ConstDef      ::= IDENT "=" ConstInitVal;
+    ConstInitVal  ::= ConstExp;
+    ConstExp      ::= Exp;
+    LVal          ::= IDENT;
+    BlockItem     ::= Decl | Stmt;
+    PrimaryExp    ::= "(" Exp ")" | LVal | Number;
+
+ // here modified a little bit
+
+    ConstDecl     ::= "const" BType ConstDef ConstDefs ";";
+    ConstDefs     ::= ConstDefs "," ConstDef | ;
+    Block         ::= "{" BlockItems "}";
+    BlockItems    ::= BlockItems BlockItem | ;
+
+
+
+
  *
  *
  * */
@@ -50,6 +70,9 @@ extern FILE *yyin;
 extern int yyparse(unique_ptr<BaseAST> &ast);
 
 int main(int argc, const char *argv[]) {
+    std::vector<std::unique_ptr<std::string>> l;
+    l.push_back(std::make_unique<std::string>("mm"));
+    std::cout << *l[0] << std::endl;
     // 解析命令行参数. 测试脚本/评测平台要求你的编译器能接收如下参数:
     // compiler 模式 输入文件 -o 输出文件
     assert(argc == 5);
@@ -60,11 +83,12 @@ int main(int argc, const char *argv[]) {
     // 打开输入文件, 并且指定 lexer 在解析的时候读取这个文件
     yyin = fopen(input, "r");
     assert(yyin);
-
+    std::cout << "lexer pass" << std::endl;
     // 调用 parser 函数, parser 函数会进一步调用 lexer 解析输入文件的
     unique_ptr<BaseAST> ast;
     auto ret = yyparse(ast);
     assert(!ret);
+    std::cout << "passer pass" << std::endl;
 
     // 输出解析得到的 AST, 其实就是个字符串
     // cout << *ast << endl;

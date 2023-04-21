@@ -52,8 +52,9 @@ CompOp_N [><]=?
 {WhiteSpace}    { /* 忽略, 不做任何操作 */ }
 {LineComment}   { /* 忽略, 不做任何操作 */ }
 
-"int"           {  return INT; }
-"return"        {  return RETURN; }
+"int"           { return INT; }
+"return"        { return RETURN; }
+"const"         { return CONST; }
 
 {Identifier}    { yylval.str_val = new string(yytext); return IDENT; }
 
