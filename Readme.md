@@ -158,14 +158,46 @@ Current Supported Grammar in ENBF:
     CompUnit  ::= FuncDef;
     FuncDef   ::= FuncType IDENT "(" ")" Block;
     FuncType  ::= "int";
-    Block     ::= "{" Stmt "}";
 
     Stmt        ::= "return" Exp ";";
-    Exp         ::= UnaryExp;
-    PrimaryExp  ::= "(" Exp ")" | Number;
-    Number      ::= INT_CONST;
     UnaryExp    ::= PrimaryExp | UnaryOp UnaryExp;
+
+    Number      ::= INT_CONST;
     UnaryOp     ::= "+" | "-" | "!";
+    MulExp      ::= UnaryExp | MulExp ("*" | "/" | "%") UnaryExp;
+    AddExp      ::= MulExp | AddExp ("+" | "-") MulExp;
+
+    Exp         ::= LOrExp;
+    RelExp      ::= AddExp | RelExp ("<" | ">" | "<=" | ">=") AddExp;
+    EqExp       ::= RelExp | EqExp ("==" | "!=") RelExp;
+    LAndExp     ::= EqExp | LAndExp "&&" EqExp;
+    LOrExp      ::= LAndExp | LOrExp "||" LAndExp;
+
+# Trying to eliminate some AST derived class:
+# Logic Expression: LgExpAST containing LOrExp, LAndExp, EqExp
+# Logic Operation:  OR ||, AND &&,
+
+# Comparison Expression: CompExpAst containing RelExp
+# Comparison Operation: LT <, GT >, LE <=, GE >=, EQ ==, NEQ !=
+
+# adding new rules...
+
+    Decl          ::= ConstDecl;
+    BType         ::= "int";
+    ConstDef      ::= IDENT "=" ConstInitVal;
+    ConstInitVal  ::= ConstExp;
+    ConstExp      ::= Exp;
+    LVal          ::= IDENT;
+    BlockItem     ::= Decl | Stmt;
+#  PrimaryExp    ::= "(" Exp ")" | LVal | Number;
+# here the first time LVal is selected, TODO here all are read only!
+
+# here modified a little bit
+
+    ConstDecl     ::= "const" BType ConstDef ConstDefs ";";
+    ConstDefs     ::= ConstDefs "," ConstDef | ;
+    Block         ::= "{" BlockItems "}";
+    BlockItems    ::= BlockItems BlockItem | ;
 ```
 
 ### Ast
