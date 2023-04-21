@@ -31,7 +31,8 @@ llvm::Value *PrimaryExpAST::codegen() const {
         res = Exp->codegen();
     }
     else{
-        res = LVal->codegen();
+        auto val = llvm::dyn_cast<llvm::AllocaInst>(LVal->codegen());
+        res = IR::get()->getBuilder()->CreateLoad(val->getAllocatedType(),val);
     }
     return res;
 }
