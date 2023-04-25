@@ -15,7 +15,9 @@ llvm::Value *ConstDeclAST::codegen() const {
     // TODO too sloppy
     for(auto& const_def:ConstDefs){
         auto pairs = dynamic_cast<ConstDefAST*>(const_def.get())->get_defs();
-        builder->CreateAlloca(type,pairs.second,pairs.first);
+        //builder->CreateAlloca(type,pairs.second,pairs.first);
+        auto res = builder->CreateAlloca(type,nullptr,pairs.first);
+        builder->CreateStore(pairs.second,res);
     }
     return nullptr;
 }

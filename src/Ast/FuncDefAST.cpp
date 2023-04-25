@@ -15,6 +15,7 @@ void FuncDefAST::Dump() const {
 llvm::Value *FuncDefAST::codegen() const {
     auto tmp = llvm::FunctionType::get(llvm::Type::getInt32Ty(*IR::get()->getContext()),false);
     auto F = llvm::Function::Create(tmp,llvm::Function::ExternalLinkage,this->ident,IR::get()->getModule().get());
+
     IR::get()->EnterFunc(F);
     block->codegen();
 //    llvm::BasicBlock *BB = llvm::BasicBlock::Create(*IR::get()->getContext(), "entry", F);

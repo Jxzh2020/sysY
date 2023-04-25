@@ -44,6 +44,20 @@
     Block         ::= "{" BlockItems "}";
     BlockItems    ::= BlockItems BlockItem | ;
 
+***********
+ *
+ *
+    Decl          ::= ConstDecl | VarDecl;
+    VarDef        ::= IDENT | IDENT "=" InitVal;
+    Stmt          ::= LVal "=" Exp ";"
+                    | "return" Exp ";";
+    VarDecl       ::= BType VarDef {"," VarDef} ";";
+
+
+    InitVal       ::= Exp;
+
+
+
 
 
 
@@ -59,6 +73,7 @@
 #include <string>
 #include <map>
 #include "Ast/BaseAST.h"
+#include <llvm/Support/raw_ostream.h>
 
 using namespace std;
 
@@ -94,7 +109,12 @@ int main(int argc, const char *argv[]) {
     // 输出解析得到的 AST, 其实就是个字符串
     // cout << *ast << endl;
 
-    ast->Dump();
+    ast->codegen();
+
+    std::error_code EC;
+    llvm::raw_fd_ostream ofs(output, EC);
+    IR::get()->getModule()->print(ofs,nullptr);
+
     cout << endl;
 
     return 0;

@@ -9,6 +9,7 @@
 
 class StmtAST: public BaseAST{
 public:
+    std::unique_ptr<BaseAST> LVal;
     std::unique_ptr<BaseAST> Exp;
 
     void Dump() const override;

@@ -23,6 +23,10 @@
   #include "Ast/ConstDeclAST.h"
   #include "Ast/ConstExpAST.h"
   #include "Ast/ConstInitValAST.h"
+
+  #include "Ast/VarDeclAST.h"
+  #include "Ast/VarDefAST.h"
+  #include "Ast/InitValAST.h"
 }
 
 %{
@@ -51,6 +55,10 @@
 #include "Ast/ConstDeclAST.h"
 #include "Ast/ConstExpAST.h"
 #include "Ast/ConstInitValAST.h"
+
+#include "Ast/VarDeclAST.h"
+#include "Ast/VarDefAST.h"
+#include "Ast/InitValAST.h"
 
 // 声明 lexer 函数和错误处理函数
 int yylex();
@@ -84,8 +92,9 @@ using namespace std;
 %type <ast_val> LOrExp LAndExp EqExp RelExp
 
 %type <ast_val> Decl ConstDecl BType ConstDef ConstInitVal BlockItem LVal ConstExp
+%type <ast_val> VarDecl InitVal VarDef
 
-%type <vec_val> BlockItems ConstDefs
+%type <vec_val> BlockItems ConstDefs VarDefs
 
 %%
 
@@ -121,6 +130,12 @@ Stmt
   : RETURN Exp ';' {
     auto stmt = new StmtAST();
     stmt->Exp = unique_ptr<BaseAST>($2);
+    $$ = stmt;
+  }
+  | LVal '=' Exp ';' {
+    auto stmt = new StmtAST();
+    stmt->LVal = unique_ptr<BaseAST>($1);
+    stmt->Exp = unique_ptr<BaseAST>($3);
     $$ = stmt;
   }
   ;
@@ -240,6 +255,11 @@ Decl
   : ConstDecl {
     auto decl = new DeclAST();
     decl->ConstDecl = unique_ptr<BaseAST>($1);
+    $$ = decl;
+  }
+  | VarDecl {
+    auto decl = new DeclAST();
+    decl->VarDecl = unique_ptr<BaseAST>($1);
     $$ = decl;
   }
   ;
@@ -365,6 +385,56 @@ BlockItems
       }
   }
   | { $$ = nullptr; }
+  ;
+InitVal
+  : Exp {
+    auto val = new InitValAST();
+    val->Exp = unique_ptr<BaseAST>($1);
+    $$ = val;
+  }
+  ;
+VarDecl
+  : BType VarDef VarDefs ';' {
+    auto var = new VarDeclAST();
+    var->BType = unique_ptr<BaseAST>($1);
+    var->VarDefs.push_back(unique_ptr<BaseAST>($2));
+    if($3 == nullptr)
+        $$ = var;
+    else{
+        for(auto i:*($3)){
+            var->VarDefs.push_back(unique_ptr<BaseAST>(i));
+        }
+        delete $3;
+        $$ = var;
+    }
+  }
+  ;
+VarDefs
+  : VarDefs ',' VarDef {
+    if($1 == nullptr){
+        auto vec = new vector<BaseAST*>;
+        vec->push_back($3);
+        $$ = vec;
+    }
+    else{
+        $1->push_back($3);
+        $$ = $1;
+    }
+  }
+  | { $$ = nullptr; }
+  ;
+VarDef
+  : IDENT {
+    auto var = new VarDefAST();
+    var->ident = *unique_ptr<string>($1);
+    $$ = var;
+  }
+  | IDENT '=' InitVal {
+    auto var = new VarDefAST();
+    var->ident = *unique_ptr<string>($1);
+    var->InitVal = unique_ptr<BaseAST>($3);
+    $$ = var;
+  }
   ;
 %%
 

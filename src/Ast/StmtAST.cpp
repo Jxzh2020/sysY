@@ -23,12 +23,16 @@ llvm::Value *StmtAST::codegen() const {
 
     // TODO not necessary
     llvm::Value* res;
-    if(auto I = llvm::dyn_cast<llvm::AllocaInst>(val))
-        res = IR::get()->getBuilder()->CreateLoad(I->getAllocatedType(),val);
-    else
-        res = val;
+    if(LVal == nullptr){
+        if(auto I = llvm::dyn_cast<llvm::AllocaInst>(val))
+            res = IR::get()->getBuilder()->CreateLoad(I->getAllocatedType(),val);
+        else
+            res = val;
+        res = builder->CreateRet(res);
+    }
+    else{
+        res = builder->CreateStore(val,LVal->codegen());   // assignment operation
+    }
 
-    builder->CreateRet(res);
-
-    return nullptr;
+    return res;
 }
