@@ -49,17 +49,17 @@
  *
     Decl          ::= ConstDecl | VarDecl;
     VarDef        ::= IDENT | IDENT "=" InitVal;
-    Stmt          ::= LVal "=" Exp ";"
-                    | "return" Exp ";";
+
     VarDecl       ::= BType VarDef {"," VarDef} ";";
 
 
     InitVal       ::= Exp;
 
-
-
-
-
+**************
+Stmt          ::= LVal "=" Exp ";"
+                | [Exp] ";"
+                | Block
+                | "return" [Exp] ";";
 
  *
  *

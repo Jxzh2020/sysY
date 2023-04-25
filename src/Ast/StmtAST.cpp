@@ -12,7 +12,6 @@ void StmtAST::Dump() const {
 
 llvm::Value *StmtAST::codegen() const {
     // so far, only return inst is supported.
-    auto val = Exp->codegen();
     auto& builder = IR::get()->getBuilder();
 
 
@@ -21,18 +20,44 @@ llvm::Value *StmtAST::codegen() const {
     // add to the end of the current block
     //IR::get()->getBuilder()->Insert(ret);
 
-    // TODO not necessary
+
     llvm::Value* res;
-    if(LVal == nullptr){
-        if(auto I = llvm::dyn_cast<llvm::AllocaInst>(val))
-            res = IR::get()->getBuilder()->CreateLoad(I->getAllocatedType(),val);
-        else
-            res = val;
-        res = builder->CreateRet(res);
+    llvm::BasicBlock* BB,*a_BB;
+
+    switch(type){
+        case ASSIGN:
+            res = builder->CreateStore(Exp->codegen(),LVal->codegen());   // assignment operation
+            break;
+        case EXP:
+            if(Exp == nullptr){
+                res = nullptr;
+                break;
+            }
+            else
+                res = Exp->codegen();
+            break;
+        case BLOCK:
+            IR::get()->NewLogicalBlockStart();
+            res = Block->codegen();
+            // after the inner block is down, return to outer branch logically;
+            IR::get()->NewLogicalBlockEnd();
+            break;
+        case RET:
+            // return ; void
+            if(Exp == nullptr){
+                res = IR::get()->getBuilder()->CreateRetVoid();
+            }
+            else{
+//                    if(auto I = llvm::dyn_cast<llvm::AllocaInst>(val))
+//                        res = IR::get()->getBuilder()->CreateLoad(I->getAllocatedType(),val);
+//                    else
+                res = Exp->codegen();
+                res = builder->CreateRet(res);
+            }
+            break;
     }
-    else{
-        res = builder->CreateStore(val,LVal->codegen());   // assignment operation
-    }
+
+
 
     return res;
 }

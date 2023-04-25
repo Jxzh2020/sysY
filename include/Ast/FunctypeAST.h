@@ -12,6 +12,7 @@ public:
     std::string type;
     void Dump() const override;
     [[nodiscard]] llvm::Value* codegen() const override;
+    [[nodiscard]] llvm::FunctionType* get_type() const;
 };
 
 

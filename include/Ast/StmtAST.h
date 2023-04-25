@@ -9,8 +9,15 @@
 
 class StmtAST: public BaseAST{
 public:
+    enum{
+        ASSIGN,
+        EXP,
+        BLOCK,
+        RET
+    } type;
     std::unique_ptr<BaseAST> LVal;
     std::unique_ptr<BaseAST> Exp;
+    std::unique_ptr<BaseAST> Block;
 
     void Dump() const override;
     [[nodiscard]] llvm::Value* codegen() const override;

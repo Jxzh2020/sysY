@@ -13,10 +13,18 @@ void BlockAST::Dump() const {
 
 llvm::Value *BlockAST::codegen() const {
     // create a basic block attached to parent function
-    llvm::BasicBlock *BB = llvm::BasicBlock::Create(*IR::get()->getContext(),"entry",IR::get()->GetFunc());
-    IR::get()->getBuilder()->SetInsertPoint(BB);
+    // moved to upper level
+//    llvm::BasicBlock *BB = llvm::BasicBlock::Create(*IR::get()->getContext(),"entry",IR::get()->getFunc());
+//    IR::get()->getBuilder()->SetInsertPoint(BB);
+
+    // empty block
+    if(BlockItems.empty())
+        return nullptr;
+
 
     for(auto& i:BlockItems)
         i->codegen();
-    return BB;
+
+    return nullptr;
 }
+

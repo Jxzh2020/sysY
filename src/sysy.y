@@ -127,15 +127,39 @@ FuncType
 
 
 Stmt
-  : RETURN Exp ';' {
+  : RETURN ';' {
     auto stmt = new StmtAST();
+    stmt->type = StmtAST::RET;
+    $$ = stmt;
+  }
+  | RETURN Exp ';' {
+    auto stmt = new StmtAST();
+    stmt->type = StmtAST::RET;
     stmt->Exp = unique_ptr<BaseAST>($2);
     $$ = stmt;
   }
   | LVal '=' Exp ';' {
     auto stmt = new StmtAST();
+    stmt->type = StmtAST::ASSIGN;
     stmt->LVal = unique_ptr<BaseAST>($1);
     stmt->Exp = unique_ptr<BaseAST>($3);
+    $$ = stmt;
+  }
+  | Block {
+    auto stmt = new StmtAST();
+    stmt->type = StmtAST::BLOCK;
+    stmt->Block = unique_ptr<BaseAST>($1);
+    $$ = stmt;
+  }
+  | Exp ';' {
+    auto stmt = new StmtAST();
+    stmt->type = StmtAST::EXP;
+    stmt->Exp = unique_ptr<BaseAST>($1);
+    $$ = stmt;
+  }
+  | ';' {
+    auto stmt = new StmtAST();
+    stmt->type = StmtAST::EXP;
     $$ = stmt;
   }
   ;
@@ -361,6 +385,7 @@ PrimaryExp
 Block
   : '{' BlockItems '}' {
     auto block = new BlockAST();
+    // 可能是空块
     if($2 == nullptr)
         $$ = block;
     else{
@@ -374,15 +399,15 @@ Block
   ;
 BlockItems
   : BlockItems BlockItem {
-      if($1 == nullptr){
+    if($1 == nullptr){
         auto vec = new vector<BaseAST*>;
         vec->push_back($2);
         $$ = vec;
-      }
-      else{
+    }
+    else{
         $1->push_back($2);
         $$ = $1;
-      }
+    }
   }
   | { $$ = nullptr; }
   ;

@@ -6,6 +6,7 @@
 #define SYSY_FUNCDEFAST_H
 
 #include "BaseAST.h"
+#include "FunctypeAST.h"
 
 class FuncDefAST : public BaseAST{
 public:

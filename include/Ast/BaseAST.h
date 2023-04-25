@@ -68,7 +68,8 @@ public:
     std::unique_ptr<llvm::Module>& getModule() { return TheModule; }
     std::map<std::string, llvm::Value *>& getNameMap() { return NamedValues; }
     void EnterFunc(llvm::Function* cursor) { curFunc = cursor; }
-    llvm::Function* GetFunc() { return curFunc; }
+    llvm::Function* getFunc() { return curFunc; }
+
 private:
     std::unique_ptr<llvm::LLVMContext> TheContext;
     std::unique_ptr<llvm::IRBuilder<>> Builder;
@@ -76,6 +77,51 @@ private:
     std::map<std::string, llvm::Value *> NamedValues;
     llvm::Function* curFunc;
     static std::unique_ptr<IR> instance;
+
+
+
+public:
+    void EnterBlock(llvm::BasicBlock* cursor) { curblock = cursor; }
+    llvm::BasicBlock* currentBlock() { return curblock; }
+    void setBlock(llvm::BasicBlock* p) { curblock = p; }
+
+    inline llvm::BasicBlock* getLBlock() { return logical_block_of[curblock]; }
+    inline llvm::BasicBlock* getFBlock() { return parent_block_of_logical[logical_block_of[curblock]]; }
+    std::vector<llvm::AllocaInst*>& getAlloca() { return alloca[logical_block_of[curblock]]; }
+    //void RetParent();
+
+private:
+
+    // current BB
+    llvm::BasicBlock* curblock;
+    // logical first BB ---> logical block (or scope) alloca inst
+    std::unordered_map<llvm::BasicBlock*,std::vector<llvm::AllocaInst*>> alloca;
+    // logical block first BB ----> real LLVM BasicBlocks
+    std::unordered_map<llvm::BasicBlock*,std::vector<llvm::BasicBlock*>> basic_blocks_of;
+    // logical block ---> parent logical block first BB
+    std::unordered_map<llvm::BasicBlock*,llvm::BasicBlock*> parent_block_of_logical;
+    // real block ---> logical block first BB
+    std::unordered_map<llvm::BasicBlock*,llvm::BasicBlock*> logical_block_of;
+    //
+    unsigned long long uid;
+
+public:
+    /*
+     * automatically manage logical blocks, users only care about basic blocks
+     * Usage:
+     * NewLogicalBlockStart();  // auto enter a new basic block
+     * block->codegen();
+     * NewLogicalBlockEnd();    // auto exit new logical block, release alloca and jump back to
+     *                          // current logical block's new basic block
+     *
+     *
+     */
+    std::string CreateName() { return std::to_string(uid++); }
+    void NewLogicalBlockStart();
+    void NewLogicalBlockEnd();
+    llvm::BasicBlock* NewBasicBlock();
+    void AddAlloca(llvm::AllocaInst*);
+
 };
 
 
