@@ -61,7 +61,25 @@ Stmt          ::= LVal "=" Exp ";"
                 | Block
                 | "return" [Exp] ";";
 
+****************语句块与作用域
  *
+ * 跳过 if 语句，while 语句
+ *
+****************函数
+ *
+    CompUnit    ::= FuncDef FuncDefs ;
+    FuncDefs    ::= FuncDefs FuncDef | ;
+
+    FuncDef     ::= FuncType IDENT "(" [FuncFParams] ")" Block;
+    FuncType    ::= "void" | "int";
+    FuncFParams ::= FuncFParam {"," FuncFParam};
+    FuncFParam  ::= BType IDENT;
+
+    UnaryExp    ::= ...
+                  | IDENT "(" [FuncRParams] ")"
+                  | ...;
+    FuncRParams ::= Exp {"," Exp};
+
  *
  * */
 

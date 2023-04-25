@@ -46,7 +46,26 @@ enum CompOp {
     EQ,
     NEQ
 };
+/**
+ * Some Contexts essential for logical and basic block inside a function,
+ * which maintains the logical structure of a function
+ */
+struct FuncContext{
+    FuncContext(): curblock(nullptr) { }
+    // current BB
+    llvm::BasicBlock* curblock;
+    // logical first BB ---> logical block (or scope) alloca inst
+    std::unordered_map<llvm::BasicBlock*,std::vector<llvm::AllocaInst*>> alloca;
+    // logical block first BB ----> real LLVM BasicBlocks
+    std::unordered_map<llvm::BasicBlock*,std::vector<llvm::BasicBlock*>> basic_blocks_of;
+    // logical block ---> parent logical block first BB
+    std::unordered_map<llvm::BasicBlock*,llvm::BasicBlock*> parent_block_of_logical;
+    // real block ---> logical block first BB
+    std::unordered_map<llvm::BasicBlock*,llvm::BasicBlock*> logical_block_of;
+    //
+    unsigned long long uid;
 
+};
 class BaseAST{
 public:
     virtual ~BaseAST() = default;
@@ -67,7 +86,13 @@ public:
     std::unique_ptr<llvm::IRBuilder<>>& getBuilder() { return Builder; }
     std::unique_ptr<llvm::Module>& getModule() { return TheModule; }
     std::map<std::string, llvm::Value *>& getNameMap() { return NamedValues; }
-    void EnterFunc(llvm::Function* cursor) { curFunc = cursor; }
+
+    /**
+     * Flush current function pointer and its logical context,
+     * Do this manually when a new FuncDef is derived.
+     *
+     */
+    void EnterFunc(llvm::Function* cursor) { if(func_list.find(cursor) == func_list.end()) { func_list[cursor] = std::unique_ptr<FuncContext>(new FuncContext()); } curFunc = cursor; Func_Context = func_list[cursor].get(); }
     llvm::Function* getFunc() { return curFunc; }
 
 private:
@@ -81,33 +106,25 @@ private:
 
 
 public:
-    void EnterBlock(llvm::BasicBlock* cursor) { curblock = cursor; }
-    llvm::BasicBlock* currentBlock() { return curblock; }
-    void setBlock(llvm::BasicBlock* p) { curblock = p; }
+    void EnterBlock(llvm::BasicBlock* cursor) { Func_Context->curblock = cursor; }
+    llvm::BasicBlock* currentBlock() { return Func_Context->curblock; }
+    void setBlock(llvm::BasicBlock* p) { Func_Context->curblock = p; }
 
-    inline llvm::BasicBlock* getLBlock() { return logical_block_of[curblock]; }
-    inline llvm::BasicBlock* getFBlock() { return parent_block_of_logical[logical_block_of[curblock]]; }
-    std::vector<llvm::AllocaInst*>& getAlloca() { return alloca[logical_block_of[curblock]]; }
+//    inline llvm::BasicBlock* getLBlock() { return logical_block_of[curblock]; }
+//    inline llvm::BasicBlock* getFBlock() { return parent_block_of_logical[logical_block_of[curblock]]; }
+//    std::vector<llvm::AllocaInst*>& getAlloca() { return alloca[logical_block_of[curblock]]; }
     //void RetParent();
 
 private:
+    std::unordered_map<llvm::Function*,std::unique_ptr<FuncContext>> func_list;
+    FuncContext* Func_Context;
 
-    // current BB
-    llvm::BasicBlock* curblock;
-    // logical first BB ---> logical block (or scope) alloca inst
-    std::unordered_map<llvm::BasicBlock*,std::vector<llvm::AllocaInst*>> alloca;
-    // logical block first BB ----> real LLVM BasicBlocks
-    std::unordered_map<llvm::BasicBlock*,std::vector<llvm::BasicBlock*>> basic_blocks_of;
-    // logical block ---> parent logical block first BB
-    std::unordered_map<llvm::BasicBlock*,llvm::BasicBlock*> parent_block_of_logical;
-    // real block ---> logical block first BB
-    std::unordered_map<llvm::BasicBlock*,llvm::BasicBlock*> logical_block_of;
-    //
-    unsigned long long uid;
+
 
 public:
-    /*
+    /**
      * automatically manage logical blocks, users only care about basic blocks
+     *
      * Usage:
      * NewLogicalBlockStart();  // auto enter a new basic block
      * block->codegen();
@@ -116,7 +133,7 @@ public:
      *
      *
      */
-    std::string CreateName() { return std::to_string(uid++); }
+    std::string CreateName() { return curFunc->getName().str()+std::to_string(Func_Context->uid++); }
     void NewLogicalBlockStart();
     void NewLogicalBlockEnd();
     llvm::BasicBlock* NewBasicBlock();

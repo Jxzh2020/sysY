@@ -94,18 +94,40 @@ using namespace std;
 %type <ast_val> Decl ConstDecl BType ConstDef ConstInitVal BlockItem LVal ConstExp
 %type <ast_val> VarDecl InitVal VarDef
 
-%type <vec_val> BlockItems ConstDefs VarDefs
+%type <vec_val> BlockItems ConstDefs VarDefs FuncDefs
 
 %%
 
 CompUnit
-  : FuncDef {
+  : FuncDef FuncDefs {
     auto comp_unit = make_unique<CompUnitAST>();
-    comp_unit->func_def = unique_ptr<BaseAST>($1);
-    ast = std::move(comp_unit);
+    comp_unit->func_defs.push_back(unique_ptr<BaseAST>($1));
+    if($2 == nullptr ){
+        ast = std::move(comp_unit);
+    }
+    else{
+        for(auto i: *$2){
+            comp_unit->func_defs.push_back(unique_ptr<BaseAST>(i));
+        }
+        delete $2;
+        ast = std::move(comp_unit);
+    }
   }
   ;
-
+FuncDefs
+  : FuncDefs FuncDef {
+    if($1 == nullptr){
+        auto defs = new vector<BaseAST*>;
+        defs->push_back($2);
+        $$ = defs;
+    }
+    else{
+        $1->push_back($2);
+        $$ = $1;
+    }
+  }
+  | { $$ = nullptr; }
+  ;
 FuncDef
   : FuncType IDENT '(' ')' Block {
     auto ast = new FuncDefAST();

@@ -18,8 +18,7 @@ IR::IR() {
     // Create a new builder for the module.
     Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
     curFunc = nullptr;
-    curblock = nullptr;
-    uid = 0;
+
 }
 
 //void IR::RetParent() {
@@ -43,50 +42,50 @@ IR::IR() {
 
 void IR::NewLogicalBlockStart() {
     auto l_b = llvm::BasicBlock::Create(*TheContext,this->CreateName(),curFunc);
-    basic_blocks_of[l_b].push_back(l_b);
+    Func_Context->basic_blocks_of[l_b].push_back(l_b);
 
     // if is the definition block
-    if(curblock == nullptr)
-        parent_block_of_logical[l_b] = nullptr;
+    if(Func_Context->curblock == nullptr)
+        Func_Context->parent_block_of_logical[l_b] = nullptr;
     // a nested block
     else{
-        parent_block_of_logical[l_b] = logical_block_of[curblock];
+        Func_Context->parent_block_of_logical[l_b] = Func_Context->logical_block_of[Func_Context->curblock];
         Builder->CreateBr(l_b);
     }
     Builder->SetInsertPoint(l_b);
-    curblock = l_b;
+    Func_Context->curblock = l_b;
 }
 
 void IR::NewLogicalBlockEnd() {
     // if is the definition block, no need to return to parent, and a RET inst is done manually.
-    if(parent_block_of_logical[logical_block_of[curblock]] == nullptr)
+    if(Func_Context->parent_block_of_logical[Func_Context->logical_block_of[Func_Context->curblock]] == nullptr)
         return ;
-    for(auto i: alloca[logical_block_of[curblock]]){
+    for(auto i: Func_Context->alloca[Func_Context->logical_block_of[Func_Context->curblock]]){
         Builder->CreateLifetimeEnd(i);
     }
 
     auto block = llvm::BasicBlock::Create(*TheContext,this->CreateName(),curFunc);
-    basic_blocks_of[parent_block_of_logical[logical_block_of[curblock]]].push_back(block);
-    logical_block_of[block] = parent_block_of_logical[logical_block_of[curblock]];
+    Func_Context->basic_blocks_of[Func_Context->parent_block_of_logical[Func_Context->logical_block_of[Func_Context->curblock]]].push_back(block);
+    Func_Context->logical_block_of[block] = Func_Context->parent_block_of_logical[Func_Context->logical_block_of[Func_Context->curblock]];
 
     // jump back to parent block
     Builder->CreateBr(block);
     Builder->SetInsertPoint(block);
     // switch to parent block
-    curblock = block;
+    Func_Context->curblock = block;
 }
 
 llvm::BasicBlock *IR::NewBasicBlock() {
     auto bb = llvm::BasicBlock::Create(*TheContext,CreateName(),curFunc);
-    basic_blocks_of[logical_block_of[curblock]].push_back(bb);
-    logical_block_of[bb] = logical_block_of[curblock];
+    Func_Context->basic_blocks_of[Func_Context->logical_block_of[Func_Context->curblock]].push_back(bb);
+    Func_Context->logical_block_of[bb] = Func_Context->logical_block_of[Func_Context->curblock];
     return bb;
 }
 
 void IR::AddAlloca(llvm::AllocaInst * al) {
-    alloca[logical_block_of[curblock]].push_back(al);
+    Func_Context->alloca[Func_Context->logical_block_of[Func_Context->curblock]].push_back(al);
     // top block
-    if(parent_block_of_logical[logical_block_of[curblock]] == nullptr)
+    if(Func_Context->parent_block_of_logical[Func_Context->logical_block_of[Func_Context->curblock]] == nullptr)
         return ;
     Builder->CreateLifetimeStart(al);
 }
