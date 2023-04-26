@@ -56,8 +56,5 @@ llvm::Value *StmtAST::codegen() const {
             }
             break;
     }
-
-
-
     return res;
 }

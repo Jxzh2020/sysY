@@ -15,7 +15,7 @@ llvm::Value *VarDeclAST::codegen() const {
     for(auto& var_def:VarDefs){
         auto pairs = dynamic_cast<VarDefAST*>(var_def.get())->get_defs();
         auto res = builder->CreateAlloca(type,nullptr,pairs.first);
-        IR::get()->AddAlloca(res);
+        IR::get()->AddAlloca(res,pairs.first);
         builder->CreateStore(pairs.second, res);
     }
     return nullptr;

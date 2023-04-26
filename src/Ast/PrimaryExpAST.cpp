@@ -31,8 +31,23 @@ llvm::Value *PrimaryExpAST::codegen() const {
         res = Exp->codegen();
     }
     else{
-        auto val = llvm::dyn_cast<llvm::AllocaInst>(LVal->codegen());
-        res = IR::get()->getBuilder()->CreateLoad(val->getAllocatedType(),val);
+        auto ret = LVal->codegen();
+        auto local = llvm::dyn_cast<llvm::AllocaInst>(ret);
+        // LVal is of local variable
+        if(local != nullptr)
+            res = IR::get()->getBuilder()->CreateLoad(local->getAllocatedType(),local);
+        else{
+            auto arg = llvm::dyn_cast<llvm::Argument>(ret);
+            if(arg != nullptr)
+                res = arg;
+            else{
+                auto global = llvm::dyn_cast<llvm::GlobalVariable>(ret);
+                if(global != nullptr)
+                    res = IR::get()->getBuilder()->CreateLoad(global->getType(),global);
+                else    // should exit already in LValAST
+                    res = nullptr;
+            }
+        }
     }
     return res;
 }

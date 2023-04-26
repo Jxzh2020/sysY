@@ -17,7 +17,7 @@ llvm::Value *ConstDeclAST::codegen() const {
         auto pairs = dynamic_cast<ConstDefAST*>(const_def.get())->get_defs();
         //builder->CreateAlloca(type,pairs.second,pairs.first);
         auto res = builder->CreateAlloca(type,nullptr,pairs.first);
-        IR::get()->AddAlloca(res);
+        IR::get()->AddAlloca(res,pairs.first);
         builder->CreateStore(pairs.second,res);
     }
     return nullptr;

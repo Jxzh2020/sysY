@@ -54,6 +54,8 @@ struct FuncContext{
     FuncContext(): curblock(nullptr) { }
     // current BB
     llvm::BasicBlock* curblock;
+    // to fully support variable shadowing, a local variable list is maintained
+    std::unordered_map<llvm::BasicBlock*,std::unique_ptr<std::unordered_map<std::string,llvm::AllocaInst*>>> name_map;
     // logical first BB ---> logical block (or scope) alloca inst
     std::unordered_map<llvm::BasicBlock*,std::vector<llvm::AllocaInst*>> alloca;
     // logical block first BB ----> real LLVM BasicBlocks
@@ -92,7 +94,7 @@ public:
      * Do this manually when a new FuncDef is derived.
      *
      */
-    void EnterFunc(llvm::Function* cursor) { if(func_list.find(cursor) == func_list.end()) { func_list[cursor] = std::unique_ptr<FuncContext>(new FuncContext()); } curFunc = cursor; Func_Context = func_list[cursor].get(); }
+    void EnterFunc(llvm::Function* cursor) { if(func_list.find(cursor) == func_list.end()) { func_list[cursor] = std::make_unique<FuncContext>(); } curFunc = cursor; Func_Context = func_list[cursor].get(); }
     llvm::Function* getFunc() { return curFunc; }
 
 private:
@@ -137,7 +139,10 @@ public:
     void NewLogicalBlockStart();
     void NewLogicalBlockEnd();
     llvm::BasicBlock* NewBasicBlock();
-    void AddAlloca(llvm::AllocaInst*);
+    void AddAlloca(llvm::AllocaInst*,const std::string&);
+    llvm::Value* GetAlloca(const std::string&);
+private:
+    llvm::Value* GetAlloca(const std::string&,llvm::BasicBlock*);
 
 };
 

@@ -22,6 +22,7 @@ llvm::Value *FuncDefAST::codegen() const {
     auto F = llvm::Function::Create(tmp,llvm::Function::ExternalLinkage,this->ident,IR::get()->getModule().get());
     if(block != nullptr){
         IR::get()->EnterFunc(F);
+        this->SetName(F);
         IR::get()->NewLogicalBlockStart();
         //this->SetAlloca(F);
         block->codegen();
@@ -37,7 +38,7 @@ llvm::Value *FuncDefAST::codegen() const {
     return F;
 }
 
-void FuncDefAST::SetAlloca(llvm::Function* F) const {
+void FuncDefAST::SetName(llvm::Function* F) const {
     auto& builder = IR::get()->getBuilder();
 //    for(auto& i:params){
 //        builder->CreateLoad(dynamic_cast<FuncFParamAST*>(i.get())->getType(),)
@@ -47,7 +48,9 @@ void FuncDefAST::SetAlloca(llvm::Function* F) const {
     // TODO how to access parameter by its name?
     auto argIter = F->arg_begin();
     auto argEnd = F->arg_end();
+    auto paraIter = params.begin();
     for( ; argIter != argEnd; argIter++){
-        builder->CreateLoad(argIter->getType(),argIter);
+        argIter->setName(dynamic_cast<FuncFParamAST*>(paraIter->get())->getName());
+        paraIter++;
     }
 }

@@ -18,6 +18,7 @@ IR::IR() {
     // Create a new builder for the module.
     Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
     curFunc = nullptr;
+    Func_Context = nullptr;
 
 }
 
@@ -43,6 +44,7 @@ IR::IR() {
 void IR::NewLogicalBlockStart() {
     auto l_b = llvm::BasicBlock::Create(*TheContext,this->CreateName(),curFunc);
     Func_Context->basic_blocks_of[l_b].push_back(l_b);
+    Func_Context->logical_block_of[l_b] = l_b;
 
     // if is the definition block
     if(Func_Context->curblock == nullptr)
@@ -82,10 +84,44 @@ llvm::BasicBlock *IR::NewBasicBlock() {
     return bb;
 }
 
-void IR::AddAlloca(llvm::AllocaInst * al) {
+void IR::AddAlloca(llvm::AllocaInst * al, const std::string& o_name) {
+    /****    Add to Alloca list   ****/
     Func_Context->alloca[Func_Context->logical_block_of[Func_Context->curblock]].push_back(al);
+
+    /****    Construct Name mapping to support shadowing    ****/
+    if(Func_Context->name_map.find(Func_Context->logical_block_of[Func_Context->curblock]) == Func_Context->name_map.end()){
+        Func_Context->name_map[Func_Context->logical_block_of[Func_Context->curblock]] = std::make_unique<std::unordered_map<std::string,llvm::AllocaInst*>>();
+    }
+    auto &map = Func_Context->name_map[Func_Context->logical_block_of[Func_Context->curblock]];
+    if(map->find(o_name) != map->end()){
+        std::cout << "Error! Repeated variable name in one block!" << std::endl;
+        exit(1);
+    }
+    (*map)[o_name] = al;
+
+
+    /****    Set Variable LifeTime    ****/
     // top block
     if(Func_Context->parent_block_of_logical[Func_Context->logical_block_of[Func_Context->curblock]] == nullptr)
         return ;
     Builder->CreateLifetimeStart(al);
+}
+
+llvm::Value *IR::GetAlloca(const std::string &name) {
+    return GetAlloca(name,Func_Context->curblock);
+}
+
+llvm::Value *IR::GetAlloca(const std::string & name, llvm::BasicBlock *cur) {
+    if(cur == nullptr)
+        return nullptr;
+    if(Func_Context->name_map.find(Func_Context->logical_block_of[cur]) == Func_Context->name_map.end()){
+        std::cout << "name_map of current logical block missing!" << std::endl;
+        exit(1);
+    }
+    auto &map = Func_Context->name_map[Func_Context->logical_block_of[cur]];
+    if(map.get()->find(name) == map->end()){
+        return GetAlloca(name,Func_Context->parent_block_of_logical[Func_Context->logical_block_of[cur]]);
+    }
+    else
+        return (*map)[name];
 }
