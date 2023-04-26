@@ -43,6 +43,7 @@ IR::IR() {
 
 void IR::NewLogicalBlockStart() {
     auto l_b = llvm::BasicBlock::Create(*TheContext,this->CreateName(),curFunc);
+    // TODO wired usage
     Func_Context->basic_blocks_of[l_b].push_back(l_b);
     Func_Context->logical_block_of[l_b] = l_b;
 
@@ -112,11 +113,11 @@ llvm::Value *IR::GetAlloca(const std::string &name) {
 }
 
 llvm::Value *IR::GetAlloca(const std::string & name, llvm::BasicBlock *cur) {
-    if(cur == nullptr)
+    if(cur == nullptr){
         return nullptr;
+    }
     if(Func_Context->name_map.find(Func_Context->logical_block_of[cur]) == Func_Context->name_map.end()){
-        std::cout << "name_map of current logical block missing!" << std::endl;
-        exit(1);
+        return GetAlloca(name,Func_Context->parent_block_of_logical[Func_Context->logical_block_of[cur]]);
     }
     auto &map = Func_Context->name_map[Func_Context->logical_block_of[cur]];
     if(map.get()->find(name) == map->end()){
