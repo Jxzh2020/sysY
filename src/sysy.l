@@ -53,6 +53,7 @@ CompOp_N [><]=?
 {LineComment}   { /* 忽略, 不做任何操作 */ }
 
 "int"           { return INT; }
+"void"          { return VOID; }
 "return"        { return RETURN; }
 "const"         { return CONST; }
 

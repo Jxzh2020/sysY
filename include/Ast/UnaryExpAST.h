@@ -13,6 +13,9 @@ public:
     std::unique_ptr<BaseAST> UnaryExp;
     UnaryOp OpType;
 
+    std::vector<std::unique_ptr<BaseAST>> params;
+    std::string ident;
+
     void Dump() const override;
     [[nodiscard]] llvm::Value* codegen() const override;
 };

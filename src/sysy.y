@@ -27,6 +27,8 @@
   #include "Ast/VarDeclAST.h"
   #include "Ast/VarDefAST.h"
   #include "Ast/InitValAST.h"
+
+  #include "Ast/FuncFParamAST.h"
 }
 
 %{
@@ -60,6 +62,8 @@
 #include "Ast/VarDefAST.h"
 #include "Ast/InitValAST.h"
 
+#include "Ast/FuncFParamAST.h"
+
 // 声明 lexer 函数和错误处理函数
 int yylex();
 void yyerror(std::unique_ptr<BaseAST> &ast, const char *s);
@@ -77,7 +81,7 @@ using namespace std;
   std::vector<BaseAST*>* vec_val;
 }
 
-%token INT RETURN CONST
+%token INT RETURN CONST VOID
 %token <str_val> IDENT
 %token <int_val> UNARY_OP
 %token <int_val> BINARY_OP
@@ -94,7 +98,10 @@ using namespace std;
 %type <ast_val> Decl ConstDecl BType ConstDef ConstInitVal BlockItem LVal ConstExp
 %type <ast_val> VarDecl InitVal VarDef
 
+%type <ast_val> FuncFParam
+
 %type <vec_val> BlockItems ConstDefs VarDefs FuncDefs
+%type <vec_val> FuncFParams DFuncFParams FuncRParams DExps
 
 %%
 
@@ -129,19 +136,61 @@ FuncDefs
   | { $$ = nullptr; }
   ;
 FuncDef
-  : FuncType IDENT '(' ')' Block {
+  : FuncType IDENT '(' FuncFParams ')' Block {
     auto ast = new FuncDefAST();
     ast->func_type = unique_ptr<BaseAST>($1);
     ast->ident = *unique_ptr<string>($2);
-    ast->block = unique_ptr<BaseAST>($5);
-    $$ = ast;
+    if($4 != nullptr){
+        for(auto i : *$4)
+            ast->params.push_back(unique_ptr<BaseAST>(i));
+        delete $4;
+        ast->block = unique_ptr<BaseAST>($6);
+        $$ = ast;
+    }
+    else{
+        ast->block = unique_ptr<BaseAST>($6);
+        $$ = ast;
+    }
   }
   ;
-
+FuncFParams
+  : FuncFParam {
+    auto vec = new vector<BaseAST*>;
+    vec->push_back($1);
+    $$ = vec;
+  }
+  | DFuncFParams ',' FuncFParam {
+    $1->push_back($3);
+    $$ = $1;
+  }
+  | { $$ = nullptr; }
+DFuncFParams
+  : DFuncFParams ',' FuncFParam {
+    $1->push_back($3);
+    $$ = $1;
+  }
+  | FuncFParam {
+    auto vec = new vector<BaseAST*>;
+    vec->push_back($1);
+    $$ = vec;
+  }
+  ;
+FuncFParam
+  : BType IDENT {
+    auto para = new FuncFParamAST();
+    para->BType = unique_ptr<BaseAST>($1);
+    para->ident = *unique_ptr<string>($2);
+    $$ = para;
+  };
 FuncType
   : INT {
     auto ast = new FunctypeAST();
     ast->type = string("int");
+    $$ = ast;
+  }
+  | VOID {
+    auto ast = new FunctypeAST();
+    ast->type = string("void");
     $$ = ast;
   }
   ;
@@ -204,7 +253,42 @@ UnaryExp
     unary->OpType = ( $1 == '+' ? PLUS : $1 == '-' ? MINUS : COMPLEMENT );
     $$ = unary;
   }
+  | IDENT '(' FuncRParams ')' {
+    auto unary = new UnaryExpAST();
+    unary->ident = *unique_ptr<string>($1);
+    if($3 == nullptr)
+        $$ = unary;
+    else{
+        for(auto i: *$3)
+            unary->params.push_back(unique_ptr<BaseAST>(i));
+        delete $3;
+        $$ = unary;
+    }
+  }
   ;
+FuncRParams
+  : Exp {
+    auto param = new vector<BaseAST*>;
+    param->push_back($1);
+    $$ = param;
+  }
+  | DExps ',' Exp { // keeping the parameter order is important
+    $1->push_back($3);
+    $$ = $1;
+  }
+  | { $$ = nullptr; }
+  ;
+DExps
+  : DExps ',' Exp {
+    $1->push_back($3);
+    $$ = $1;
+  }
+  | Exp {
+    auto param = new vector<BaseAST*>;
+    param->push_back($1);
+    $$ = param;
+  };
+
 MulExp
   : UnaryExp {
     auto mul_exp = new MulExpAST();

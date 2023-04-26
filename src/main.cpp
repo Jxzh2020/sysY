@@ -69,16 +69,21 @@ Stmt          ::= LVal "=" Exp ";"
  *
     CompUnit    ::= FuncDef FuncDefs ;
     FuncDefs    ::= FuncDefs FuncDef | ;
-
-    FuncDef     ::= FuncType IDENT "(" [FuncFParams] ")" Block;
-    FuncType    ::= "void" | "int";
-    FuncFParams ::= FuncFParam {"," FuncFParam};
-    FuncFParam  ::= BType IDENT;
-
     UnaryExp    ::= ...
                   | IDENT "(" [FuncRParams] ")"
                   | ...;
+    FuncFParam  ::= BType IDENT;
+    FuncDef     ::= FuncType IDENT "(" [FuncFParams] ")" Block;
+    FuncType    ::= "void" | "int";
+
+
+
+
+    FuncFParams ::= FuncFParam | DFuncFParams ',' FuncFParam | ;
+    DFuncFParams ::= DFuncFParams ',' FuncFParam | FuncFParam ;
     FuncRParams ::= Exp {"," Exp};
+
+
 
  *
  * */

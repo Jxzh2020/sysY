@@ -7,15 +7,18 @@
 
 #include "BaseAST.h"
 #include "FunctypeAST.h"
+#include "FuncFParamAST.h"
 
 class FuncDefAST : public BaseAST{
 public:
     std::unique_ptr<BaseAST> func_type;
     std::string ident;
     std::unique_ptr<BaseAST> block;
+    std::vector<std::unique_ptr<BaseAST>> params;
 
     void Dump() const override;
     [[nodiscard]] llvm::Value* codegen() const override;
+    void SetAlloca(llvm::Function*) const;
 };
 
 
