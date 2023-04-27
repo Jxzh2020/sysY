@@ -94,8 +94,11 @@ public:
      * Do this manually when a new FuncDef is derived.
      *
      */
-    void EnterFunc(llvm::Function* cursor) { if(func_list.find(cursor) == func_list.end()) { func_list[cursor] = std::make_unique<FuncContext>(); } curFunc = cursor; Func_Context = func_list[cursor].get(); }
+    void EnterFunc(llvm::Function* cursor) { isglobe = false; if(func_list.find(cursor) == func_list.end()) { func_list[cursor] = std::make_unique<FuncContext>(); } curFunc = cursor; Func_Context = func_list[cursor].get(); }
+    void ExitFunc() { isglobe = true; }
+    bool isGlobeBlock() { return isglobe; }
     llvm::Function* getFunc() { return curFunc; }
+    void AddGlobe(llvm::GlobalVariable* p) { global_variable.push_back(std::unique_ptr<llvm::GlobalVariable>(p));}
 
 private:
     std::unique_ptr<llvm::LLVMContext> TheContext;
@@ -104,6 +107,8 @@ private:
     std::map<std::string, llvm::Value *> NamedValues;
     llvm::Function* curFunc;
     static std::unique_ptr<IR> instance;
+    bool isglobe;
+    std::vector<std::unique_ptr<llvm::GlobalVariable>> global_variable;
 
 
 

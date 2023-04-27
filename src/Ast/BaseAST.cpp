@@ -19,6 +19,7 @@ IR::IR() {
     Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
     curFunc = nullptr;
     Func_Context = nullptr;
+    isglobe = true;
 
 }
 

@@ -1,11 +1,10 @@
 /*
  *
-    CompUnit  ::= FuncDef;
-    FuncDef   ::= FuncType IDENT "(" ")" Block;
-    FuncType  ::= "int";
+    CompUnit    ::= FuncDef FuncDefs ;
+    FuncDef     ::= FuncType IDENT "(" [FuncFParams] ")" Block;
+    FuncType    ::= "void" | "int";
 
-    Stmt        ::= "return" Exp ";";
-    UnaryExp    ::= PrimaryExp | UnaryOp UnaryExp;
+    UnaryExp    ::= PrimaryExp | UnaryOp UnaryExp | IDENT "(" [FuncRParams] ")";
 
     Number      ::= INT_CONST;
     UnaryOp     ::= "+" | "-" | "!";
@@ -27,7 +26,6 @@
 
 // adding new rules...
 
-    Decl          ::= ConstDecl;
     BType         ::= "int";
     ConstDef      ::= IDENT "=" ConstInitVal;
     ConstInitVal  ::= ConstExp;
@@ -45,47 +43,33 @@
     BlockItems    ::= BlockItems BlockItem | ;
 
 ***********
- *
- *
     Decl          ::= ConstDecl | VarDecl;
     VarDef        ::= IDENT | IDENT "=" InitVal;
-
     VarDecl       ::= BType VarDef {"," VarDef} ";";
-
-
     InitVal       ::= Exp;
-
 **************
-Stmt          ::= LVal "=" Exp ";"
+    Stmt     ::= LVal "=" Exp ";"
                 | [Exp] ";"
                 | Block
                 | "return" [Exp] ";";
-
 ****************语句块与作用域
  *
  * 跳过 if 语句，while 语句
  *
 ****************函数
- *
-    CompUnit    ::= FuncDef FuncDefs ;
     FuncDefs    ::= FuncDefs FuncDef | ;
-    UnaryExp    ::= ...
-                  | IDENT "(" [FuncRParams] ")"
-                  | ...;
     FuncFParam  ::= BType IDENT;
-    FuncDef     ::= FuncType IDENT "(" [FuncFParams] ")" Block;
-    FuncType    ::= "void" | "int";
-
-
-
-
     FuncFParams ::= FuncFParam | DFuncFParams ',' FuncFParam | ;
     DFuncFParams ::= DFuncFParams ',' FuncFParam | FuncFParam ;
     FuncRParams ::= Exp {"," Exp};
 
-
-
+****************
  *
+ * 跳过sysY库函数
+ *
+*****************
+    CompUnit ::= [CompUnit] (Decl | FuncDef);
+
  * */
 
 
@@ -123,6 +107,7 @@ int main(int argc, const char *argv[]) {
     std::cout << "lexer pass" << std::endl;
     // 调用 parser 函数, parser 函数会进一步调用 lexer 解析输入文件的
     unique_ptr<BaseAST> ast;
+
     auto ret = yyparse(ast);
     assert(!ret);
     std::cout << "passer pass" << std::endl;

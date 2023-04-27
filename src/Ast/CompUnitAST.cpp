@@ -6,15 +6,17 @@
 
 void CompUnitAST::Dump() const {
     std::cout << "CompUnitAST { ";
-    for(auto &func_def:func_defs)
+    for(auto &func_def:this->globe)
         func_def->Dump();
     std::cout << " }" << std::endl;
     this->codegen();
 }
 llvm::Value* CompUnitAST::codegen() const{
-    for(auto& func_def:func_defs){
+    for(auto& item:this->globe){
+
+        //
         // TODO
-        func_def->codegen();
+        item->codegen();
     }
 //    llvm::raw_ostream &OS = llvm::outs();
 //    IR::get()->getModule()->print(OS,nullptr);

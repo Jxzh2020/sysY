@@ -10,7 +10,7 @@
 class CompUnitAST : public BaseAST{
 public:
     // 用智能指针管理对象
-    std::vector<std::unique_ptr<BaseAST>> func_defs;
+    std::vector<std::unique_ptr<BaseAST>> globe;
 
     void Dump() const override;
     [[nodiscard]] llvm::Value* codegen() const override;

@@ -155,12 +155,11 @@ To generate a `llvm ir` in=memory form, use `BaseAST::codegen()`.
 Current Supported Grammar in ENBF:
 
 ```bash
-    CompUnit  ::= FuncDef;
-    FuncDef   ::= FuncType IDENT "(" ")" Block;
-    FuncType  ::= "int";
+CompUnit    ::= FuncDef FuncDefs ;
+    FuncDef     ::= FuncType IDENT "(" [FuncFParams] ")" Block;
+    FuncType    ::= "void" | "int";
 
-    Stmt        ::= "return" Exp ";";
-    UnaryExp    ::= PrimaryExp | UnaryOp UnaryExp;
+    UnaryExp    ::= PrimaryExp | UnaryOp UnaryExp | IDENT "(" [FuncRParams] ")";
 
     Number      ::= INT_CONST;
     UnaryOp     ::= "+" | "-" | "!";
@@ -173,31 +172,43 @@ Current Supported Grammar in ENBF:
     LAndExp     ::= EqExp | LAndExp "&&" EqExp;
     LOrExp      ::= LAndExp | LOrExp "||" LAndExp;
 
-# Trying to eliminate some AST derived class:
-# Logic Expression: LgExpAST containing LOrExp, LAndExp, EqExp
-# Logic Operation:  OR ||, AND &&,
+ Trying to eliminate some AST derived class:
+ Logic Expression: LgExpAST containing LOrExp, LAndExp, EqExp
+ Logic Operation:  OR ||, AND &&,
 
-# Comparison Expression: CompExpAst containing RelExp
-# Comparison Operation: LT <, GT >, LE <=, GE >=, EQ ==, NEQ !=
+ Comparison Expression: CompExpAst containing RelExp
+ Comparison Operation: LT <, GT >, LE <=, GE >=, EQ ==, NEQ !=
 
-# adding new rules...
-
-    Decl          ::= ConstDecl;
     BType         ::= "int";
     ConstDef      ::= IDENT "=" ConstInitVal;
     ConstInitVal  ::= ConstExp;
     ConstExp      ::= Exp;
     LVal          ::= IDENT;
     BlockItem     ::= Decl | Stmt;
-#  PrimaryExp    ::= "(" Exp ")" | LVal | Number;
-# here the first time LVal is selected, TODO here all are read only!
+    PrimaryExp    ::= "(" Exp ")" | LVal | Number;
 
-# here modified a little bit
 
     ConstDecl     ::= "const" BType ConstDef ConstDefs ";";
     ConstDefs     ::= ConstDefs "," ConstDef | ;
     Block         ::= "{" BlockItems "}";
     BlockItems    ::= BlockItems BlockItem | ;
+
+
+    Decl          ::= ConstDecl | VarDecl;
+    VarDef        ::= IDENT | IDENT "=" InitVal;
+    VarDecl       ::= BType VarDef {"," VarDef} ";";
+    InitVal       ::= Exp;
+
+    Stmt          ::= LVal "=" Exp ";"
+                    | [Exp] ";"
+                    | Block
+                    | "return" [Exp] ";";
+
+    FuncDefs      ::= FuncDefs FuncDef | ;
+    FuncFParam    ::= BType IDENT;
+    FuncFParams   ::= FuncFParam | DFuncFParams ',' FuncFParam | ;
+    DFuncFParams  ::= DFuncFParams ',' FuncFParam | FuncFParam ;
+    FuncRParams   ::= Exp {"," Exp};
 ```
 
 ### Ast

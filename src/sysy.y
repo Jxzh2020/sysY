@@ -100,40 +100,43 @@ using namespace std;
 
 %type <ast_val> FuncFParam
 
-%type <vec_val> BlockItems ConstDefs VarDefs FuncDefs
-%type <vec_val> FuncFParams DFuncFParams FuncRParams DExps
+%type <vec_val> BlockItems ConstDefs VarDefs
+%type <vec_val> FuncFParams DFuncFParams FuncRParams DExps CompUnits
 
 %%
 
 CompUnit
-  : FuncDef FuncDefs {
+  : CompUnits {
     auto comp_unit = make_unique<CompUnitAST>();
-    comp_unit->func_defs.push_back(unique_ptr<BaseAST>($1));
-    if($2 == nullptr ){
-        ast = std::move(comp_unit);
+    if($1 == nullptr){
+        cout << "Empty File?" << endl;
+        exit(0);
     }
-    else{
-        for(auto i: *$2){
-            comp_unit->func_defs.push_back(unique_ptr<BaseAST>(i));
-        }
-        delete $2;
-        ast = std::move(comp_unit);
-    }
+    for(auto i: *$1)
+        comp_unit->globe.push_back(unique_ptr<BaseAST>(i));
+    delete $1;
+    ast = std::move(comp_unit);
   }
   ;
-FuncDefs
-  : FuncDefs FuncDef {
-    if($1 == nullptr){
-        auto defs = new vector<BaseAST*>;
-        defs->push_back($2);
-        $$ = defs;
-    }
-    else{
-        $1->push_back($2);
-        $$ = $1;
-    }
+CompUnits
+  : CompUnits FuncDef {
+    $1->push_back($2);
+    $$ = $1;
   }
-  | { $$ = nullptr; }
+  | CompUnits Decl {
+    $1->push_back($2);
+    $$ = $1;
+  }
+  | Decl {
+      auto units = new vector<BaseAST*>;
+      units->push_back($1);
+      $$ = units;
+  }
+  | FuncDef {
+    auto units = new vector<BaseAST*>;
+    units->push_back($1);
+    $$ = units;
+  }
   ;
 FuncDef
   : FuncType IDENT '(' FuncFParams ')' Block {
@@ -555,15 +558,15 @@ VarDefs
   | { $$ = nullptr; }
   ;
 VarDef
-  : IDENT {
-    auto var = new VarDefAST();
-    var->ident = *unique_ptr<string>($1);
-    $$ = var;
-  }
-  | IDENT '=' InitVal {
+  : IDENT '=' InitVal {
     auto var = new VarDefAST();
     var->ident = *unique_ptr<string>($1);
     var->InitVal = unique_ptr<BaseAST>($3);
+    $$ = var;
+  }
+  | IDENT {
+    auto var = new VarDefAST();
+    var->ident = *unique_ptr<string>($1);
     $$ = var;
   }
   ;

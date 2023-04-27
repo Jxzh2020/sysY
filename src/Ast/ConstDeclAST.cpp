@@ -15,10 +15,21 @@ llvm::Value *ConstDeclAST::codegen() const {
     // TODO too sloppy
     for(auto& const_def:ConstDefs){
         auto pairs = dynamic_cast<ConstDefAST*>(const_def.get())->get_defs();
-        //builder->CreateAlloca(type,pairs.second,pairs.first);
-        auto res = builder->CreateAlloca(type,nullptr,pairs.first);
-        IR::get()->AddAlloca(res,pairs.first);
-        builder->CreateStore(pairs.second,res);
+        if(!IR::get()->isGlobeBlock()) {
+            //builder->CreateAlloca(type,pairs.second,pairs.first);
+            auto res = builder->CreateAlloca(type, nullptr, pairs.first);
+            IR::get()->AddAlloca(res, pairs.first);
+            builder->CreateStore(pairs.second, res);
+        }
+        else{
+            auto gl = new llvm::GlobalVariable(*IR::get()->getModule(),
+                                               type,
+                                               true,
+                                               llvm::GlobalValue::ExternalLinkage,
+                                               llvm::dyn_cast<llvm::Constant>(pairs.second),
+                                               pairs.first);
+            //IR::get()->AddGlobe(gl);
+        }
     }
     return nullptr;
 }

@@ -14,9 +14,20 @@ llvm::Value *VarDeclAST::codegen() const {
     //
     for(auto& var_def:VarDefs){
         auto pairs = dynamic_cast<VarDefAST*>(var_def.get())->get_defs();
-        auto res = builder->CreateAlloca(type,nullptr,pairs.first);
-        IR::get()->AddAlloca(res,pairs.first);
-        builder->CreateStore(pairs.second, res);
+        if(!IR::get()->isGlobeBlock()){
+            auto res = builder->CreateAlloca(type,nullptr,pairs.first);
+            IR::get()->AddAlloca(res,pairs.first);
+            builder->CreateStore(pairs.second, res);
+        }
+        else{
+            auto gl = new llvm::GlobalVariable(*IR::get()->getModule(),
+                                               type,
+                                               false,
+                                               llvm::GlobalValue::ExternalLinkage,
+                                               llvm::dyn_cast<llvm::Constant>(pairs.second),
+                                               pairs.first);
+            //IR::get()->AddGlobe(gl);
+        }
     }
     return nullptr;
 }

@@ -27,6 +27,7 @@ llvm::Value *FuncDefAST::codegen() const {
         //this->SetAlloca(F);
         block->codegen();
         IR::get()->NewLogicalBlockEnd();
+        IR::get()->ExitFunc();
     }
     // TODO Function Declaration
     else{
