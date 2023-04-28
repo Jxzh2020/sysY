@@ -13,7 +13,7 @@ llvm::Type *PrimitiveTypeAST::get_type() const {
         return nullptr;
 }
 
-llvm::FunctionType *PrimitiveTypeAST::get_type(const std::vector<std::unique_ptr<BaseAST>> &params) const {
+llvm::FunctionType *PrimitiveTypeAST::get_type(const std::vector <std::unique_ptr<BaseAST>> &params) const {
     // TODO FuncFParam AST push_back inside loop, fixed
     std::vector<llvm::Type *> types;
     types.reserve(params.size());

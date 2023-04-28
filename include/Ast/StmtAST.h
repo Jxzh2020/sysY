@@ -26,7 +26,8 @@ public:
     void Dump() const override;
 
     [[nodiscard]] llvm::Value *codegen() const override;
-    llvm::Value* bool_convert() const ;
+
+    llvm::Value *bool_convert() const;
 };
 
 
