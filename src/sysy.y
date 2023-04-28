@@ -81,7 +81,7 @@ using namespace std;
   std::vector<BaseAST*>* vec_val;
 }
 
-%token INT RETURN CONST VOID
+%token INT RETURN CONST VOID IF ELSE
 %token <str_val> IDENT
 %token <int_val> UNARY_OP
 %token <int_val> BINARY_OP
@@ -102,7 +102,7 @@ using namespace std;
 
 %type <vec_val> BlockItems ConstDefs VarDefs
 %type <vec_val> FuncFParams DFuncFParams FuncRParams DExps CompUnits
-
+%type <ast_val> Matched Unmatched
 %%
 
 CompUnit
@@ -191,10 +191,17 @@ PrimitiveType
     $$ = ast;
   }
   ;
-
-
-
 Stmt
+  : Matched {
+    dynamic_cast<StmtAST*>($1)->matched = true;
+    $$ = $1;
+  }
+  | Unmatched {
+    dynamic_cast<StmtAST*>($1)->matched = false;
+    $$ = $1;
+  }
+  ;
+Matched
   : RETURN ';' {
     auto stmt = new StmtAST();
     stmt->type = StmtAST::RET;
@@ -230,7 +237,37 @@ Stmt
     stmt->type = StmtAST::EXP;
     $$ = stmt;
   }
+  | IF '(' Exp ')' Matched ELSE Matched {
+    dynamic_cast<StmtAST*>($5)->matched = true;
+    dynamic_cast<StmtAST*>($7)->matched = true;
+
+    auto stmt = new StmtAST();
+    stmt->type = StmtAST::IF;
+    stmt->Exp = unique_ptr<BaseAST>($3);
+    stmt->if_stmt = unique_ptr<BaseAST>($5);
+    stmt->else_stmt = unique_ptr<BaseAST>($7);
+    $$ = stmt;
+  }
   ;
+Unmatched
+  : IF '(' Exp ')' Stmt {
+    auto stmt = new StmtAST();
+    stmt->type = StmtAST::IF;
+    stmt->Exp = unique_ptr<BaseAST>($3);
+    stmt->if_stmt = unique_ptr<BaseAST>($5);
+    $$ = stmt;
+  }
+  | IF '(' Exp ')' Matched ELSE Unmatched {
+    dynamic_cast<StmtAST*>($5)->matched = true;
+    dynamic_cast<StmtAST*>($7)->matched = false;
+
+    auto stmt = new StmtAST();
+    stmt->type = StmtAST::IF;
+    stmt->Exp = unique_ptr<BaseAST>($3);
+    stmt->if_stmt = unique_ptr<BaseAST>($5);
+    stmt->else_stmt = unique_ptr<BaseAST>($7);
+    $$ = stmt;
+  };
 Exp
   : LOrExp {
     auto exp = new ExpAST();

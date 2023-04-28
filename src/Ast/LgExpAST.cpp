@@ -15,7 +15,6 @@ llvm::Value *LgExpAST::codegen() const {
         res = LHS->codegen();
         return res;
     }
-
     switch (type) {
         case OR:
             res = builder->CreateLogicalOr(LHS->codegen(), RHS->codegen());

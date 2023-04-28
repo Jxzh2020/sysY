@@ -53,6 +53,40 @@ llvm::Value *StmtAST::codegen() const {
                 res = builder->CreateRet(res);
             }
             break;
+        case IF:
+            auto true_bb = IR::get()->NewBasicBlock();
+            auto false_bb = IR::get()->NewBasicBlock();
+            auto b_ret = bool_convert();
+            builder->CreateCondBr(b_ret,true_bb,false_bb);
+            // has only if stmt, false_bb is the next bb.
+            if(else_stmt == nullptr){
+                IR::get()->EnterBlock(true_bb);
+                if_stmt->codegen();
+                builder->CreateBr(false_bb);
+                IR::get()->EnterBlock(false_bb);
+            }
+            else{
+                auto next_bb = IR::get()->NewBasicBlock();
+                IR::get()->EnterBlock(true_bb);
+                if_stmt->codegen();
+                builder->CreateBr(next_bb);
+                IR::get()->EnterBlock(false_bb);
+                else_stmt->codegen();
+                builder->CreateBr(next_bb);
+                IR::get()->EnterBlock(next_bb);
+            }
+            res = nullptr;
     }
     return res;
+}
+
+llvm::Value *StmtAST::bool_convert() const {
+    auto res = Exp->codegen();
+    if(res->getType() == llvm::Type::getInt1Ty(*IR::get()->getContext())){
+        return res;
+    }
+    // not a boolean type
+    else{
+        return IR::get()->getBuilder()->CreateICmpNE(res,llvm::ConstantInt::get(*IR::get()->getContext(),llvm::APInt(32,0)));
+    }
 }

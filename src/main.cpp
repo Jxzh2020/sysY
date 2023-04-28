@@ -47,11 +47,7 @@
     VarDef        ::= IDENT | IDENT "=" InitVal;
     VarDecl       ::= BType VarDef {"," VarDef} ";";
     InitVal       ::= Exp;
-**************
-    Stmt     ::= LVal "=" Exp ";"
-                | [Exp] ";"
-                | Block
-                | "return" [Exp] ";";
+
 ****************语句块与作用域
  *
  * 跳过 if 语句，while 语句
@@ -69,7 +65,36 @@
  *
 *****************
     CompUnit ::= [CompUnit] (Decl | FuncDef);
+*****************
+ *
+ * if 语句
+ *
 
+Stmt          ::= LVal "=" Exp ";"
+                | [Exp] ";"
+                | Block
+                | "if" "(" Exp ")" Stmt ["else" Stmt]
+                | "return" [Exp] ";";
+
+---> Not good for parsing and constructing AST :    "if" "(" Exp ")" Stmt ["else" Stmt]
+     Now change it to the follow derivation:
+
+     // note this contains priority of if-else combination implicitly!
+     Stmt -> IF '(' Exp ')' Stmt ElseClause
+     ElseClause -> ELSE Stmt | ;
+     // above would cause reduce shift conflict in bison,
+     // now, we define that Stmt between if and else must not be unpaired if-else,
+     // namely any if-else between another if-else must be paired.
+
+     Stmt -> Matched | Unmatched
+     Matched -> IF '(' Exp ')' Matched Else Matched | Origin_Stmt
+     Unmatched -> IF '(' Exp ')' Stmt | IF '(' Exp ')' Matched ELSE Unmatched
+
+ *
+ *
+ *
+ *
+*****************
  * */
 
 

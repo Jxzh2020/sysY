@@ -131,7 +131,7 @@ private:
 
 
 public:
-    void EnterBlock(llvm::BasicBlock *cursor) { Func_Context->curblock = cursor; }
+    void EnterBlock(llvm::BasicBlock *cursor) { Func_Context->curblock = cursor; Builder->SetInsertPoint(cursor); }
 
     llvm::BasicBlock *currentBlock() { return Func_Context->curblock; }
 
