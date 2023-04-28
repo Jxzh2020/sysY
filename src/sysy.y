@@ -4,7 +4,6 @@
   #include "Ast/BaseAST.h"
   #include "Ast/CompUnitAST.h"
   #include "Ast/FuncDefAST.h"
-  #include "Ast/FunctypeAST.h"
   #include "Ast/BlockAST.h"
   #include "Ast/StmtAST.h"
   #include "Ast/ExpAST.h"
@@ -29,6 +28,7 @@
   #include "Ast/InitValAST.h"
 
   #include "Ast/FuncFParamAST.h"
+  #include "Ast/PrimitiveTypeAST.h"
 }
 
 %{
@@ -38,7 +38,6 @@
 #include "Ast/BaseAST.h"
 #include "Ast/CompUnitAST.h"
 #include "Ast/FuncDefAST.h"
-#include "Ast/FunctypeAST.h"
 #include "Ast/BlockAST.h"
 #include "Ast/StmtAST.h"
 #include "Ast/ExpAST.h"
@@ -63,6 +62,7 @@
 #include "Ast/InitValAST.h"
 
 #include "Ast/FuncFParamAST.h"
+#include "Ast/PrimitiveTypeAST.h"
 
 // 声明 lexer 函数和错误处理函数
 int yylex();
@@ -92,10 +92,10 @@ using namespace std;
 
 %token <int_val> INT_CONST
 
-%type <ast_val> FuncDef FuncType Block Stmt Exp UnaryExp PrimaryExp Number AddExp MulExp
+%type <ast_val> FuncDef PrimitiveType Block Stmt Exp UnaryExp PrimaryExp Number AddExp MulExp
 %type <ast_val> LOrExp LAndExp EqExp RelExp
 
-%type <ast_val> Decl ConstDecl BType ConstDef ConstInitVal BlockItem LVal ConstExp
+%type <ast_val> Decl ConstDecl ConstDef ConstInitVal BlockItem LVal ConstExp
 %type <ast_val> VarDecl InitVal VarDef
 
 %type <ast_val> FuncFParam
@@ -139,7 +139,7 @@ CompUnits
   }
   ;
 FuncDef
-  : FuncType IDENT '(' FuncFParams ')' Block {
+  : PrimitiveType IDENT '(' FuncFParams ')' Block {
     auto ast = new FuncDefAST();
     ast->func_type = unique_ptr<BaseAST>($1);
     ast->ident = *unique_ptr<string>($2);
@@ -157,13 +157,7 @@ FuncDef
   }
   ;
 FuncFParams
-  : FuncFParam {
-    auto vec = new vector<BaseAST*>;
-    vec->push_back($1);
-    $$ = vec;
-  }
-  | DFuncFParams ',' FuncFParam {
-    $1->push_back($3);
+  : DFuncFParams {
     $$ = $1;
   }
   | { $$ = nullptr; }
@@ -179,20 +173,20 @@ DFuncFParams
   }
   ;
 FuncFParam
-  : BType IDENT {
+  : PrimitiveType IDENT {
     auto para = new FuncFParamAST();
-    para->BType = unique_ptr<BaseAST>($1);
+    para->PrimitiveType = unique_ptr<BaseAST>($1);
     para->ident = *unique_ptr<string>($2);
     $$ = para;
   };
-FuncType
+PrimitiveType
   : INT {
-    auto ast = new FunctypeAST();
+    auto ast = new PrimitiveTypeAST();
     ast->type = string("int");
     $$ = ast;
   }
   | VOID {
-    auto ast = new FunctypeAST();
+    auto ast = new PrimitiveTypeAST();
     ast->type = string("void");
     $$ = ast;
   }
@@ -397,9 +391,9 @@ Decl
   }
   ;
 ConstDecl
-  : CONST BType ConstDef ConstDefs ';' {
+  : CONST PrimitiveType ConstDef ConstDefs ';' {
     auto decl = new ConstDeclAST();
-    decl->BType = unique_ptr<BaseAST>($2);
+    decl->PrimitiveType = unique_ptr<BaseAST>($2);
     decl->ConstDefs.push_back(unique_ptr<BaseAST>($3));
     if($4 == nullptr)
         $$ = decl;
@@ -425,13 +419,6 @@ ConstDefs
       }
   }
   | { $$ = nullptr; }
-  ;
-BType
-  : INT {
-    auto b = new BTypeAST();
-    b->type = "int";
-    $$ = b;
-  }
   ;
 ConstDef
   : IDENT '=' ConstInitVal {
@@ -528,9 +515,9 @@ InitVal
   }
   ;
 VarDecl
-  : BType VarDef VarDefs ';' {
+  : PrimitiveType VarDef VarDefs ';' {
     auto var = new VarDeclAST();
-    var->BType = unique_ptr<BaseAST>($1);
+    var->PrimitiveType = unique_ptr<BaseAST>($1);
     var->VarDefs.push_back(unique_ptr<BaseAST>($2));
     if($3 == nullptr)
         $$ = var;

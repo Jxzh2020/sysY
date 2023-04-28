@@ -10,7 +10,7 @@ void ConstDeclAST::Dump() const {
 
 // TODO: better create alloca here, since  types are unknown if more than one type is supported
 llvm::Value *ConstDeclAST::codegen() const {
-    auto type = dynamic_cast<BTypeAST*>(BType.get())->get_type();
+    auto type = dynamic_cast<PrimitiveTypeAST*>(PrimitiveType.get())->get_type();
     auto& builder = IR::get()->getBuilder();
     // TODO too sloppy
     for(auto& const_def:ConstDefs){

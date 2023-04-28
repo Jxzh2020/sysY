@@ -17,7 +17,7 @@ llvm::Value *FuncDefAST::codegen() const {
     // maybe not a good idea, since arguments need alloca?
     // It seems fine to do like this, argument loading is not part of explicit basic block
 
-    auto tmp = dynamic_cast<FunctypeAST*>(func_type.get())->get_type(params);    //llvm::FunctionType::get(llvm::Type::getInt32Ty(*IR::get()->getContext()),false);
+    auto tmp = dynamic_cast<PrimitiveTypeAST*>(func_type.get())->get_type(params);    //llvm::FunctionType::get(llvm::Type::getInt32Ty(*IR::get()->getContext()),false);
 
     auto F = llvm::Function::Create(tmp,llvm::Function::ExternalLinkage,this->ident,IR::get()->getModule().get());
     if(block != nullptr){

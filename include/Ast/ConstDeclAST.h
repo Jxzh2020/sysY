@@ -7,11 +7,11 @@
 
 #include "BaseAST.h"
 #include "ConstDefAST.h"
-#include "BTypeAST.h"
+#include "PrimitiveTypeAST.h"
 
 class ConstDeclAST: public BaseAST {
 public:
-    std::unique_ptr<BaseAST> BType;
+    std::unique_ptr<BaseAST> PrimitiveType;
     std::vector<std::unique_ptr<BaseAST>> ConstDefs;
 
     void Dump() const override;

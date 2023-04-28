@@ -8,11 +8,11 @@
 
 #include "BaseAST.h"
 #include "VarDefAST.h"
-#include "BTypeAST.h"
+#include "PrimitiveTypeAST.h"
 
 class VarDeclAST: public BaseAST {
 public:
-    std::unique_ptr<BaseAST> BType;
+    std::unique_ptr<BaseAST> PrimitiveType;
     std::vector<std::unique_ptr<BaseAST>> VarDefs;
 
     void Dump() const override;

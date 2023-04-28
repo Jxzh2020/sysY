@@ -6,12 +6,12 @@
 #define SYSY_FUNCFPARAMAST_H
 
 #include "BaseAST.h"
-#include "BTypeAST.h"
+#include "PrimitiveTypeAST.h"
 
 class FuncFParamAST: public BaseAST {
 public:
     std::string ident;
-    std::unique_ptr<BaseAST> BType;
+    std::unique_ptr<BaseAST> PrimitiveType;
 
     const std::string& getName() const;
     llvm::Type* getType() const;

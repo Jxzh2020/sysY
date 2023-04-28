@@ -9,7 +9,7 @@ void VarDeclAST::Dump() const {
 }
 
 llvm::Value *VarDeclAST::codegen() const {
-    auto type = dynamic_cast<BTypeAST*>(BType.get())->get_type();
+    auto type = dynamic_cast<PrimitiveTypeAST*>(PrimitiveType.get())->get_type();
     auto& builder = IR::get()->getBuilder();
     //
     for(auto& var_def:VarDefs){

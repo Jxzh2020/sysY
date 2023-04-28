@@ -9,5 +9,5 @@ const std::string &FuncFParamAST::getName() const {
 }
 
 llvm::Type *FuncFParamAST::getType() const {
-    return dynamic_cast<BTypeAST*>(BType.get())->get_type();
+    return dynamic_cast<PrimitiveTypeAST*>(PrimitiveType.get())->get_type();
 }
