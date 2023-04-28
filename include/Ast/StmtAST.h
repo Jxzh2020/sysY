@@ -27,10 +27,11 @@ public:
     std::unique_ptr<BaseAST> else_stmt;
 
     void Dump() const override;
+    [[nodiscard]] bool isBranch() const { return type == BREAK || type == CONTINUE; }
 
     [[nodiscard]] llvm::Value *codegen() const override;
 
-    llvm::Value *bool_convert() const;
+    [[nodiscard]] llvm::Value *bool_convert() const;
 };
 
 

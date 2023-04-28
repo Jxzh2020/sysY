@@ -99,6 +99,17 @@ Stmt          ::= LVal "=" Exp ";"
                 | ...
  *
 *****************
+ *
+ *
+ * To fix continue or break,
+ * both the ast node would set IR::hasBranch true.
+ * there are three derivations:
+ *
+ *      Block <- Stmt   : end the invalid insts parsing.        ---> upper level cancel logical end
+ *      IF <- Stmt      : replace the original flow control     ---> no upper level influence ?
+ *      WHILE <- Stmt   : replace the original flow control     ---> no upper level influence ?
+ *
+ *
  * */
 
 

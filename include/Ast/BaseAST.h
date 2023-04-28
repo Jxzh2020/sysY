@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <memory>
+#include <stack>
 #include <string>
 #include <map>
 #include <llvm/ADT/APFloat.h>
@@ -52,7 +53,7 @@ enum CompOp {
  * which maintains the logical structure of a function
  */
 struct FuncContext {
-    FuncContext() : curblock(nullptr) {}
+    FuncContext() : curblock(nullptr), uid(0) {}
 
     // current BB
     llvm::BasicBlock *curblock;
@@ -128,9 +129,27 @@ private:
     static std::unique_ptr<IR> instance;
     bool isglobe;
     std::vector<std::unique_ptr<llvm::GlobalVariable>> global_variable;
+    // [condition bb, false bb]
+    std::stack<std::pair<llvm::BasicBlock*,llvm::BasicBlock*>> while_bb;
+    bool hasBranch;
+
+/** To support break and continue clause, some inf should remain during Stmts parsing.
+ *
+ *
+ * */
+public:
+    bool hasBranchAtEnd() const { return hasBranch; }
+    void SetBranch() { hasBranch = true; }
+    void ClearBranch() { hasBranch = false; }
 
 
 public:
+    bool isInWhile() { return !while_bb.empty() ;}
+    llvm::BasicBlock* false_bb() { return while_bb.top().second; }
+    llvm::BasicBlock* condition_bb() { return while_bb.top().first; }
+    // [condition bb, false bb]
+    void push_while(std::pair<llvm::BasicBlock*, llvm::BasicBlock*> in) { while_bb.push(in); }
+    void pop_while() { while_bb.pop(); }
     void EnterBlock(llvm::BasicBlock *cursor) {
         Func_Context->curblock = cursor;
         Builder->SetInsertPoint(cursor);

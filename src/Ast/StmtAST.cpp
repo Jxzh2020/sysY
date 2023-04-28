@@ -81,6 +81,7 @@ llvm::Value *StmtAST::codegen() const {
             false_bb = IR::get()->NewBasicBlock();
 
             builder->CreateBr(t_bb);
+            IR::get()->push_while(std::make_pair(t_bb,false_bb));
             // enter while clause
             IR::get()->EnterBlock(t_bb);
             // enter while or skip
@@ -90,14 +91,32 @@ llvm::Value *StmtAST::codegen() const {
             // jump back to while clause
             builder->CreateBr(t_bb);
             // skip while stmt, compilation goes on
+            IR::get()->pop_while();
             IR::get()->EnterBlock(false_bb);
             res = nullptr;
             break;
         case BREAK:
-            ;
+            res = nullptr;
+            if(!IR::get()->isInWhile()){
+                std::cout << "break Not in loop." << std::endl;
+                exit(1);
+            }
+            else{
+                builder->CreateBr(IR::get()->false_bb());
+                IR::get()->SetBranch();
+            }
             break;
         case CONTINUE:
             ;
+            res = nullptr;
+            if(!IR::get()->isInWhile()){
+                std::cout << "continue Not in loop." << std::endl;
+                exit(1);
+            }
+            else{
+                builder->CreateBr(IR::get()->condition_bb());
+                IR::get()->SetBranch();
+            }
             break;
     }
     return res;

@@ -20,7 +20,7 @@ IR::IR() {
     curFunc = nullptr;
     Func_Context = nullptr;
     isglobe = true;
-
+    hasBranch = false;
 }
 
 //void IR::RetParent() {

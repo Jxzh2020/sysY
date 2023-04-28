@@ -21,9 +21,12 @@ llvm::Value *BlockAST::codegen() const {
     if (BlockItems.empty())
         return nullptr;
 
-
-    for (auto &i: BlockItems)
-        i->codegen();
+    for (auto &i: BlockItems){
+        if(dynamic_cast<StmtAST*>(i.get())->isBranch()){
+            i->codegen();
+            break;
+        }
+    }
 
     return nullptr;
 }

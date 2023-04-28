@@ -6,6 +6,7 @@
 #define SYSY_BLOCKAST_H
 
 #include "BaseAST.h"
+#include "StmtAST.h"
 
 class BlockAST : public BaseAST {
 public:

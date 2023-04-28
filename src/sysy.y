@@ -249,10 +249,14 @@ Matched
     $$ = stmt;
   }
   | BREAK ';' {
-  ;
+    auto stmt = new StmtAST();
+    stmt->type = StmtAST::BREAK;
+    $$ = stmt;
   }
   | CONTINUE ';' {
-  ;
+    auto stmt = new StmtAST();
+    stmt->type = StmtAST::CONTINUE;
+    $$ = stmt;
   }
   | WHILE '(' Exp ')' Stmt {
     auto stmt = new StmtAST();
