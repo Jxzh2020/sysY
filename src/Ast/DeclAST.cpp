@@ -6,7 +6,7 @@
 
 void DeclAST::Dump() const {
     std::cout << "DeclAST { ";
-    if(VarDecl == nullptr)
+    if (VarDecl == nullptr)
         ConstDecl->Dump();
     else
         VarDecl->Dump();
@@ -14,7 +14,7 @@ void DeclAST::Dump() const {
 }
 
 llvm::Value *DeclAST::codegen() const {
-    if(ConstDecl == nullptr)
+    if (ConstDecl == nullptr)
         return VarDecl->codegen();
     else
         return ConstDecl->codegen();

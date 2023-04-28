@@ -9,14 +9,14 @@ void LgExpAST::Dump() const {
 }
 
 llvm::Value *LgExpAST::codegen() const {
-    llvm::Value* res;
-    auto& builder = IR::get()->getBuilder();
-    if(RHS == nullptr){
+    llvm::Value *res;
+    auto &builder = IR::get()->getBuilder();
+    if (RHS == nullptr) {
         res = LHS->codegen();
         return res;
     }
 
-    switch(type){
+    switch (type) {
         case OR:
             res = builder->CreateLogicalOr(LHS->codegen(), RHS->codegen());
             break;

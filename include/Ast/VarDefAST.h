@@ -7,13 +7,15 @@
 
 #include "BaseAST.h"
 
-class VarDefAST: public BaseAST {
+class VarDefAST : public BaseAST {
 public:
     std::string ident;
     std::unique_ptr<BaseAST> InitVal;
 
     void Dump() const override;
-    [[nodiscard]] llvm::Value* codegen() const override;
+
+    [[nodiscard]] llvm::Value *codegen() const override;
+
     std::pair<const std::string &, llvm::Value *> get_defs() const;
 
 };

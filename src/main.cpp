@@ -90,6 +90,7 @@ using namespace std;
 // 你的代码编辑器/IDE 很可能找不到这个文件, 然后会给你报错 (虽然编译不会出错)
 // 看起来会很烦人, 于是干脆采用这种看起来 dirty 但实际很有效的手段
 extern FILE *yyin;
+
 extern int yyparse(unique_ptr<BaseAST> &ast);
 
 int main(int argc, const char *argv[]) {
@@ -117,7 +118,7 @@ int main(int argc, const char *argv[]) {
     std::error_code EC;
     //llvm::raw_fd_ostream ofs(output, EC);
     llvm::raw_fd_ostream ofs("test.ll", EC);
-    IR::get()->getModule()->print(ofs,nullptr);
+    IR::get()->getModule()->print(ofs, nullptr);
 
     cout << endl;
 

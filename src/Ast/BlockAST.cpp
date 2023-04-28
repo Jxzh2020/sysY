@@ -6,7 +6,7 @@
 
 void BlockAST::Dump() const {
     std::cout << "BlockAST { ";
-    for(auto& i:BlockItems)
+    for (auto &i: BlockItems)
         i->Dump();
     std::cout << " }";
 }
@@ -18,11 +18,11 @@ llvm::Value *BlockAST::codegen() const {
 //    IR::get()->getBuilder()->SetInsertPoint(BB);
 
     // empty block
-    if(BlockItems.empty())
+    if (BlockItems.empty())
         return nullptr;
 
 
-    for(auto& i:BlockItems)
+    for (auto &i: BlockItems)
         i->codegen();
 
     return nullptr;

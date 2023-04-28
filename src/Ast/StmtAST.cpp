@@ -12,7 +12,7 @@ void StmtAST::Dump() const {
 
 llvm::Value *StmtAST::codegen() const {
     // so far, only return inst is supported.
-    auto& builder = IR::get()->getBuilder();
+    auto &builder = IR::get()->getBuilder();
 
 
     //auto ret = llvm::ReturnInst::Create(*IR::get()->getContext(),llvm::ConstantInt::get(llvm::Type::getInt32Ty(*IR::get()->getContext()),0));
@@ -21,19 +21,18 @@ llvm::Value *StmtAST::codegen() const {
     //IR::get()->getBuilder()->Insert(ret);
 
 
-    llvm::Value* res;
-    llvm::BasicBlock* BB,*a_BB;
+    llvm::Value *res;
+    llvm::BasicBlock *BB, *a_BB;
 
-    switch(type){
+    switch (type) {
         case ASSIGN:
-            res = builder->CreateStore(Exp->codegen(),LVal->codegen());   // assignment operation
+            res = builder->CreateStore(Exp->codegen(), LVal->codegen());   // assignment operation
             break;
         case EXP:
-            if(Exp == nullptr){
+            if (Exp == nullptr) {
                 res = nullptr;
                 break;
-            }
-            else
+            } else
                 res = Exp->codegen();
             break;
         case BLOCK:
@@ -44,10 +43,9 @@ llvm::Value *StmtAST::codegen() const {
             break;
         case RET:
             // return ; void
-            if(Exp == nullptr){
+            if (Exp == nullptr) {
                 res = IR::get()->getBuilder()->CreateRetVoid();
-            }
-            else{
+            } else {
 //                    if(auto I = llvm::dyn_cast<llvm::AllocaInst>(val))
 //                        res = IR::get()->getBuilder()->CreateLoad(I->getAllocatedType(),val);
 //                    else

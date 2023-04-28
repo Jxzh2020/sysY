@@ -9,5 +9,5 @@ void NumberAST::Dump() const {
 }
 
 llvm::Value *NumberAST::codegen() const {
-    return llvm::ConstantInt::get(llvm::Type::getInt32Ty(*IR::get()->getContext()),value);
+    return llvm::ConstantInt::get(llvm::Type::getInt32Ty(*IR::get()->getContext()), value);
 }

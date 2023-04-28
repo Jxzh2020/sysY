@@ -6,10 +6,9 @@
 
 void MulExpAST::Dump() const {
     std::cout << "MulExp { ";
-    if( MulExp == nullptr){
+    if (MulExp == nullptr) {
         UnaryExp->Dump();
-    }
-    else{
+    } else {
         MulExp->Dump();
         std::cout << (type == MUL ? "MUL " : type == DIV ? "DIV " : "MOD ");
         UnaryExp->Dump();
@@ -18,23 +17,23 @@ void MulExpAST::Dump() const {
 }
 
 llvm::Value *MulExpAST::codegen() const {
-    if(MulExp == nullptr){
-       return UnaryExp->codegen();
+    if (MulExp == nullptr) {
+        return UnaryExp->codegen();
     }
 
     auto LHS = MulExp->codegen();
     auto RHS = UnaryExp->codegen();
-    llvm::Value* res;
+    llvm::Value *res;
 
     switch (type) {
         case MUL:
-            res = IR::get()->getBuilder()->CreateMul(LHS,RHS);
+            res = IR::get()->getBuilder()->CreateMul(LHS, RHS);
             break;
         case DIV:
-            res = IR::get()->getBuilder()->CreateSDiv(LHS,RHS);
+            res = IR::get()->getBuilder()->CreateSDiv(LHS, RHS);
             break;
         case MOD:
-            res = IR::get()->getBuilder()->CreateSRem(LHS,RHS);;
+            res = IR::get()->getBuilder()->CreateSRem(LHS, RHS);;
             break;
     }
     return res;

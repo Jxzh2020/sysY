@@ -7,14 +7,16 @@
 
 #include "BaseAST.h"
 
-class ConstDefAST: public BaseAST {
+class ConstDefAST : public BaseAST {
 public:
     std::string ident;
     std::unique_ptr<BaseAST> ConstInitVal;
 
     void Dump() const override;
-    [[nodiscard]] llvm::Value* codegen() const override;
-    [[nodiscard]] std::pair<const std::string& , llvm::Value*> get_defs() const;
+
+    [[nodiscard]] llvm::Value *codegen() const override;
+
+    [[nodiscard]] std::pair<const std::string &, llvm::Value *> get_defs() const;
 };
 
 

@@ -6,10 +6,9 @@
 
 void AddExpAST::Dump() const {
     std::cout << "AddExp { ";
-    if( AddExp == nullptr){
+    if (AddExp == nullptr) {
         MulExp->Dump();
-    }
-    else{
+    } else {
         AddExp->Dump();
         std::cout << (type == PLUS ? "PLUS " : "MINUS ");
         MulExp->Dump();
@@ -18,20 +17,20 @@ void AddExpAST::Dump() const {
 }
 
 llvm::Value *AddExpAST::codegen() const {
-    if(AddExp == nullptr){
+    if (AddExp == nullptr) {
         return MulExp->codegen();
     }
 
-    llvm::Value* res;
+    llvm::Value *res;
     auto LHS = AddExp->codegen();
     auto RHS = MulExp->codegen();
 
-    switch(type){
+    switch (type) {
         case PLUS:
-            res = IR::get()->getBuilder()->CreateAdd(LHS,RHS);
+            res = IR::get()->getBuilder()->CreateAdd(LHS, RHS);
             break;
         case MINUS:
-            res = IR::get()->getBuilder()->CreateSub(LHS,RHS);
+            res = IR::get()->getBuilder()->CreateSub(LHS, RHS);
             break;
         default:
             res = nullptr;

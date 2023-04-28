@@ -6,30 +6,29 @@
 
 void UnaryExpAST::Dump() const {
     std::cout << "UnaryExpAST { ";
-    if( PrimaryExp == nullptr){
+    if (PrimaryExp == nullptr) {
         std::cout << (OpType == PLUS ? "PLUS " : OpType == MINUS ? "MINUS " : "COMPLEMENT ");
         UnaryExp->Dump();
-    }
-    else
+    } else
         PrimaryExp->Dump();
     std::cout << " }";
 }
 
 llvm::Value *UnaryExpAST::codegen() const {
-    llvm::Value* res;
+    llvm::Value *res;
     auto zero_val = llvm::ConstantInt::get(llvm::Type::getInt32Ty(*IR::get()->getContext()), 0);
 
-    if(ident.empty()){  // still exp, not a function call
+    if (ident.empty()) {  // still exp, not a function call
         // UnaryOp UnaryExp form
-        if( PrimaryExp == nullptr){
-            switch(OpType){
+        if (PrimaryExp == nullptr) {
+            switch (OpType) {
                 case PLUS:
                     // PLUS does not affect the value
                     res = UnaryExp->codegen();
                     break;
                 case MINUS:
                     //res = llvm::ConstantExpr::getSub(zero_val,llvm::ConstantExpr::getPointerCast(UnaryExp->codegen(),llvm::Type::getInt32PtrTy(*IR::get()->getContext())));
-                    res = IR::get()->getBuilder()->CreateSub(zero_val,UnaryExp->codegen());
+                    res = IR::get()->getBuilder()->CreateSub(zero_val, UnaryExp->codegen());
                     //res = llvm::BinaryOperator::CreateNeg(UnaryExp->codegen());
                     break;
                 case COMPLEMENT:
@@ -38,20 +37,18 @@ llvm::Value *UnaryExpAST::codegen() const {
                     break;
             }
         }
-        // PrimaryExp form
-        else{
+            // PrimaryExp form
+        else {
             res = PrimaryExp->codegen();
         }
-    }
-    else{   // a function call
-        std::vector<llvm::Value*> vals;
-        if(params.empty()){ // no parameters
+    } else {   // a function call
+        std::vector<llvm::Value *> vals;
+        if (params.empty()) { // no parameters
             res = IR::get()->getBuilder()->CreateCall(IR::get()->getModule()->getFunction(ident));
-        }
-        else{
-            for(auto &i: params)
+        } else {
+            for (auto &i: params)
                 vals.push_back(i->codegen());
-            res = IR::get()->getBuilder()->CreateCall(IR::get()->getModule()->getFunction(ident),vals);
+            res = IR::get()->getBuilder()->CreateCall(IR::get()->getModule()->getFunction(ident), vals);
         }
     }
     return res;

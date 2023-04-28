@@ -8,15 +8,17 @@
 #include "BaseAST.h"
 #include "FuncFParamAST.h"
 
-class PrimitiveTypeAST: public BaseAST {
+class PrimitiveTypeAST : public BaseAST {
 public:
     std::string type;
 
-    [[nodiscard]] llvm::Type* get_type() const;
-    [[nodiscard]] llvm::FunctionType* get_type(const std::vector<std::unique_ptr<BaseAST>>& ) const;
+    [[nodiscard]] llvm::Type *get_type() const;
+
+    [[nodiscard]] llvm::FunctionType *get_type(const std::vector<std::unique_ptr<BaseAST>> &) const;
 
     void Dump() const override {}
-    [[nodiscard]] llvm::Value* codegen() const override { return nullptr;}
+
+    [[nodiscard]] llvm::Value *codegen() const override { return nullptr; }
 
 };
 

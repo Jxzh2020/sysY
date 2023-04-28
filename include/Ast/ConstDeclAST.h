@@ -9,13 +9,14 @@
 #include "ConstDefAST.h"
 #include "PrimitiveTypeAST.h"
 
-class ConstDeclAST: public BaseAST {
+class ConstDeclAST : public BaseAST {
 public:
     std::unique_ptr<BaseAST> PrimitiveType;
     std::vector<std::unique_ptr<BaseAST>> ConstDefs;
 
     void Dump() const override;
-    [[nodiscard]] llvm::Value* codegen() const override;
+
+    [[nodiscard]] llvm::Value *codegen() const override;
 };
 
 

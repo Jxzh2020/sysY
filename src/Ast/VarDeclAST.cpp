@@ -9,17 +9,16 @@ void VarDeclAST::Dump() const {
 }
 
 llvm::Value *VarDeclAST::codegen() const {
-    auto type = dynamic_cast<PrimitiveTypeAST*>(PrimitiveType.get())->get_type();
-    auto& builder = IR::get()->getBuilder();
+    auto type = dynamic_cast<PrimitiveTypeAST *>(PrimitiveType.get())->get_type();
+    auto &builder = IR::get()->getBuilder();
     //
-    for(auto& var_def:VarDefs){
-        auto pairs = dynamic_cast<VarDefAST*>(var_def.get())->get_defs();
-        if(!IR::get()->isGlobeBlock()){
-            auto res = builder->CreateAlloca(type,nullptr,pairs.first);
-            IR::get()->AddAlloca(res,pairs.first);
+    for (auto &var_def: VarDefs) {
+        auto pairs = dynamic_cast<VarDefAST *>(var_def.get())->get_defs();
+        if (!IR::get()->isGlobeBlock()) {
+            auto res = builder->CreateAlloca(type, nullptr, pairs.first);
+            IR::get()->AddAlloca(res, pairs.first);
             builder->CreateStore(pairs.second, res);
-        }
-        else{
+        } else {
             auto gl = new llvm::GlobalVariable(*IR::get()->getModule(),
                                                type,
                                                false,

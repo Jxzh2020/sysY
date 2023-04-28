@@ -7,13 +7,14 @@
 
 #include "BaseAST.h"
 
-class DeclAST: public BaseAST {
+class DeclAST : public BaseAST {
 public:
     std::unique_ptr<BaseAST> ConstDecl;
     std::unique_ptr<BaseAST> VarDecl;
 
     void Dump() const override;
-    [[nodiscard]] llvm::Value* codegen() const override;
+
+    [[nodiscard]] llvm::Value *codegen() const override;
 };
 
 

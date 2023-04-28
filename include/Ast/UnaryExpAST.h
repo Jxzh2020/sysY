@@ -7,7 +7,7 @@
 
 #include "BaseAST.h"
 
-class UnaryExpAST: public BaseAST {
+class UnaryExpAST : public BaseAST {
 public:
     std::unique_ptr<BaseAST> PrimaryExp;
     std::unique_ptr<BaseAST> UnaryExp;
@@ -17,7 +17,8 @@ public:
     std::string ident;
 
     void Dump() const override;
-    [[nodiscard]] llvm::Value* codegen() const override;
+
+    [[nodiscard]] llvm::Value *codegen() const override;
 };
 
 

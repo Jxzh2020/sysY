@@ -7,12 +7,13 @@
 
 #include "BaseAST.h"
 
-class InitValAST: public BaseAST {
+class InitValAST : public BaseAST {
 public:
     std::unique_ptr<BaseAST> Exp;
 
     void Dump() const override;
-    [[nodiscard]] llvm::Value* codegen() const override;
+
+    [[nodiscard]] llvm::Value *codegen() const override;
 };
 
 

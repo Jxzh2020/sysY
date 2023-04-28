@@ -7,12 +7,13 @@
 
 #include "BaseAST.h"
 
-class LValAST: public BaseAST {
+class LValAST : public BaseAST {
 public:
     std::string ident;
 
     void Dump() const override;
-    [[nodiscard]] llvm::Value* codegen() const override;
+
+    [[nodiscard]] llvm::Value *codegen() const override;
 };
 
 

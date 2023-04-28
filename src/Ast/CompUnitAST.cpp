@@ -6,13 +6,14 @@
 
 void CompUnitAST::Dump() const {
     std::cout << "CompUnitAST { ";
-    for(auto &func_def:this->globe)
+    for (auto &func_def: this->globe)
         func_def->Dump();
     std::cout << " }" << std::endl;
     this->codegen();
 }
-llvm::Value* CompUnitAST::codegen() const{
-    for(auto& item:this->globe){
+
+llvm::Value *CompUnitAST::codegen() const {
+    for (auto &item: this->globe) {
 
         //
         // TODO

@@ -9,7 +9,7 @@
 #include "PrimitiveTypeAST.h"
 #include "FuncFParamAST.h"
 
-class FuncDefAST : public BaseAST{
+class FuncDefAST : public BaseAST {
 public:
     std::unique_ptr<BaseAST> func_type;
     std::string ident;
@@ -17,8 +17,10 @@ public:
     std::vector<std::unique_ptr<BaseAST>> params;
 
     void Dump() const override;
-    [[nodiscard]] llvm::Value* codegen() const override;
-    void SetName(llvm::Function*) const;
+
+    [[nodiscard]] llvm::Value *codegen() const override;
+
+    void SetName(llvm::Function *) const;
 };
 
 

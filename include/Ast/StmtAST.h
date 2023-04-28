@@ -7,9 +7,9 @@
 
 #include "BaseAST.h"
 
-class StmtAST: public BaseAST{
+class StmtAST : public BaseAST {
 public:
-    enum{
+    enum {
         ASSIGN,
         EXP,
         BLOCK,
@@ -20,7 +20,8 @@ public:
     std::unique_ptr<BaseAST> Block;
 
     void Dump() const override;
-    [[nodiscard]] llvm::Value* codegen() const override;
+
+    [[nodiscard]] llvm::Value *codegen() const override;
 };
 
 

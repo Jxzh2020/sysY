@@ -7,7 +7,7 @@
 
 #include "BaseAST.h"
 
-class LgExpAST: public BaseAST {
+class LgExpAST : public BaseAST {
 public:
     LogicOp type;
     // if RHS == nullptr, it's not an exp of this level!
@@ -15,7 +15,8 @@ public:
     std::unique_ptr<BaseAST> RHS;
 
     void Dump() const override;
-    [[nodiscard]] llvm::Value* codegen() const override;
+
+    [[nodiscard]] llvm::Value *codegen() const override;
 };
 
 

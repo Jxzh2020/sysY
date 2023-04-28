@@ -10,13 +10,14 @@
 #include "VarDefAST.h"
 #include "PrimitiveTypeAST.h"
 
-class VarDeclAST: public BaseAST {
+class VarDeclAST : public BaseAST {
 public:
     std::unique_ptr<BaseAST> PrimitiveType;
     std::vector<std::unique_ptr<BaseAST>> VarDefs;
 
     void Dump() const override;
-    [[nodiscard]] llvm::Value* codegen() const override;
+
+    [[nodiscard]] llvm::Value *codegen() const override;
 };
 
 

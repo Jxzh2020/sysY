@@ -7,14 +7,15 @@
 
 #include "BaseAST.h"
 
-class AddExpAST: public BaseAST {
+class AddExpAST : public BaseAST {
 public:
     std::unique_ptr<BaseAST> MulExp;
     std::unique_ptr<BaseAST> AddExp;
     UnaryOp type;
 
     void Dump() const override;
-    [[nodiscard]] llvm::Value* codegen() const override;
+
+    [[nodiscard]] llvm::Value *codegen() const override;
 };
 
 

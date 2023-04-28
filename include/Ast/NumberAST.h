@@ -7,12 +7,13 @@
 
 #include "BaseAST.h"
 
-class NumberAST: public BaseAST {
+class NumberAST : public BaseAST {
 public:
     int value;
 
     void Dump() const override;
-    [[nodiscard]] llvm::Value* codegen() const override;
+
+    [[nodiscard]] llvm::Value *codegen() const override;
 };
 
 

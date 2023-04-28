@@ -7,13 +7,14 @@
 
 #include "BaseAST.h"
 
-class BlockItemAST: public BaseAST {
+class BlockItemAST : public BaseAST {
 public:
     std::unique_ptr<BaseAST> Decl;
     std::unique_ptr<BaseAST> Stmt;
 
     void Dump() const override;
-    [[nodiscard]] llvm::Value* codegen() const override;
+
+    [[nodiscard]] llvm::Value *codegen() const override;
 };
 
 
