@@ -20,14 +20,23 @@ llvm::Value *BlockAST::codegen() const {
     // empty block
     if (BlockItems.empty())
         return nullptr;
-
     for (auto &i: BlockItems){
-        if(dynamic_cast<StmtAST*>(i.get())->isBranch()){
-            i->codegen();
+        i->codegen();
+        if(dynamic_cast<BlockItemAST*>(i.get())->isBranch()){
             break;
         }
     }
-
     return nullptr;
+}
+
+bool BlockAST::isBranch() const {
+    // TODO std::any_of
+
+    for(auto& i : BlockItems){
+        auto stmt = dynamic_cast<BlockItemAST*>(i.get());
+        if(stmt->isBranch() == true)
+            return true;
+    }
+    return false;
 }
 

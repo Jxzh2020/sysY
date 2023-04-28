@@ -16,3 +16,10 @@ llvm::Value *BlockItemAST::codegen() const {
         res = Decl->codegen();
     return res;
 }
+
+bool BlockItemAST::isBranch() const {
+    if(Stmt == nullptr)
+        return false;
+    else
+        return dynamic_cast<StmtAST*>(Stmt.get())->isBranch();
+}

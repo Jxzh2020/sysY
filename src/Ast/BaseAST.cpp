@@ -61,6 +61,9 @@ void IR::NewLogicalBlockStart() {
 }
 
 void IR::NewLogicalBlockEnd() {
+    // if at the end of block is a branch, do nothing
+    if(hasBranch)
+        return ;
     // if is the definition block, no need to return to parent, and a RET inst is done manually.
     if (Func_Context->parent_block_of_logical[Func_Context->logical_block_of[Func_Context->curblock]] == nullptr)
         return;

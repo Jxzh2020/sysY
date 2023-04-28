@@ -6,6 +6,7 @@
 #define SYSY_STMTAST_H
 
 #include "BaseAST.h"
+#include "BlockAST.h"
 
 class StmtAST : public BaseAST {
 public:
@@ -27,7 +28,7 @@ public:
     std::unique_ptr<BaseAST> else_stmt;
 
     void Dump() const override;
-    [[nodiscard]] bool isBranch() const { return type == BREAK || type == CONTINUE; }
+    [[nodiscard]] bool isBranch() const;
 
     [[nodiscard]] llvm::Value *codegen() const override;
 

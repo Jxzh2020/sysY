@@ -105,10 +105,26 @@ Stmt          ::= LVal "=" Exp ";"
  * both the ast node would set IR::hasBranch true.
  * there are three derivations:
  *
+ *
+ *      {
+ *          ...
+ *          ...
+ *          ...
+ *          break;
+ *          ... // delete
+ *          ... // delete
+ *      }
+ *
  *      Block <- Stmt   : end the invalid insts parsing.        ---> upper level cancel logical end
  *      IF <- Stmt      : replace the original flow control     ---> no upper level influence ?
  *      WHILE <- Stmt   : replace the original flow control     ---> no upper level influence ?
  *
+ *
+ *  Note:
+ *      Only if, else, while these three kind of stmt can ClearBranch,
+ *      others don't have flow control
+ *
+ *  if and else all branch
  *
  * */
 

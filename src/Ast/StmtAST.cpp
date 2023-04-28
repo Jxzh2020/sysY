@@ -61,16 +61,37 @@ llvm::Value *StmtAST::codegen() const {
             if (else_stmt == nullptr) {
                 IR::get()->EnterBlock(true_bb);
                 if_stmt->codegen();
-                builder->CreateBr(false_bb);
+                if(IR::get()->hasBranchAtEnd()){
+                    // true_bb 已经结束了， 取消末尾branch标识
+                    IR::get()->ClearBranch();
+                }
+                // 只有在末尾不是 break 或者 continue 的时候，才设置 true_bb 的默认跳转
+                else{
+                    builder->CreateBr(false_bb);
+                }
                 IR::get()->EnterBlock(false_bb);
             } else {
                 auto next_bb = IR::get()->NewBasicBlock();
                 IR::get()->EnterBlock(true_bb);
                 if_stmt->codegen();
-                builder->CreateBr(next_bb);
+                if(IR::get()->hasBranchAtEnd()){
+                    // true_bb 已经结束了， 取消末尾branch标识
+                    IR::get()->ClearBranch();
+                }
+                    // 只有在末尾不是 break 或者 continue 的时候，才设置 true_bb 的默认跳转
+                else{
+                    builder->CreateBr(next_bb);
+                }
                 IR::get()->EnterBlock(false_bb);
                 else_stmt->codegen();
-                builder->CreateBr(next_bb);
+                if(IR::get()->hasBranchAtEnd()){
+                    // false_bb 已经结束了， 取消末尾branch标识
+                    IR::get()->ClearBranch();
+                }
+                    // 只有在末尾不是 break 或者 continue 的时候，才设置 false_bb 的默认跳转
+                else{
+                    builder->CreateBr(next_bb);
+                }
                 IR::get()->EnterBlock(next_bb);
             }
             res = nullptr;
@@ -88,8 +109,15 @@ llvm::Value *StmtAST::codegen() const {
             builder->CreateCondBr(bool_convert(), true_bb, false_bb);
             IR::get()->EnterBlock(true_bb);
             if_stmt->codegen();
-            // jump back to while clause
-            builder->CreateBr(t_bb);
+            if(IR::get()->hasBranchAtEnd()){
+                // while 已经结束了， 取消末尾branch标识
+                IR::get()->ClearBranch();
+            }
+                // 只有在末尾不是 break 或者 continue 的时候，才设置 while 的默认跳转
+            else{
+                // jump back to while clause
+                builder->CreateBr(t_bb);
+            }
             // skip while stmt, compilation goes on
             IR::get()->pop_while();
             IR::get()->EnterBlock(false_bb);
@@ -132,4 +160,12 @@ llvm::Value *StmtAST::bool_convert() const {
         return IR::get()->getBuilder()->CreateICmpNE(res, llvm::ConstantInt::get(*IR::get()->getContext(),
                                                                                  llvm::APInt(32, 0)));
     }
+}
+
+bool StmtAST::isBranch() const {
+    bool has_branch_block = false;
+    if(type == BLOCK){
+        has_branch_block = dynamic_cast<BlockAST*>(Block.get())->isBranch();
+    }
+    return type == BREAK || type == CONTINUE || has_branch_block;
 }

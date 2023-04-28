@@ -6,6 +6,7 @@
 #define SYSY_BLOCKITEMAST_H
 
 #include "BaseAST.h"
+#include "StmtAST.h"
 
 class BlockItemAST : public BaseAST {
 public:
@@ -15,6 +16,7 @@ public:
     void Dump() const override;
 
     [[nodiscard]] llvm::Value *codegen() const override;
+    bool isBranch() const;
 };
 
 
