@@ -22,7 +22,7 @@ llvm::Value *StmtAST::codegen() const {
 
 
     llvm::Value *res;
-    llvm::BasicBlock *BB, *a_BB;
+    llvm::BasicBlock *true_bb, *false_bb, *t_bb;
 
     switch (type) {
         case ASSIGN:
@@ -54,10 +54,9 @@ llvm::Value *StmtAST::codegen() const {
             }
             break;
         case IF:
-            auto true_bb = IR::get()->NewBasicBlock();
-            auto false_bb = IR::get()->NewBasicBlock();
-            auto b_ret = bool_convert();
-            builder->CreateCondBr(b_ret, true_bb, false_bb);
+            true_bb = IR::get()->NewBasicBlock();
+            false_bb = IR::get()->NewBasicBlock();
+            builder->CreateCondBr(bool_convert(), true_bb, false_bb);
             // has only if stmt, false_bb is the next bb.
             if (else_stmt == nullptr) {
                 IR::get()->EnterBlock(true_bb);
@@ -75,6 +74,31 @@ llvm::Value *StmtAST::codegen() const {
                 IR::get()->EnterBlock(next_bb);
             }
             res = nullptr;
+            break;
+        case WHILE:
+            t_bb = IR::get()->NewBasicBlock();
+            true_bb = IR::get()->NewBasicBlock();
+            false_bb = IR::get()->NewBasicBlock();
+
+            builder->CreateBr(t_bb);
+            // enter while clause
+            IR::get()->EnterBlock(t_bb);
+            // enter while or skip
+            builder->CreateCondBr(bool_convert(), true_bb, false_bb);
+            IR::get()->EnterBlock(true_bb);
+            if_stmt->codegen();
+            // jump back to while clause
+            builder->CreateBr(t_bb);
+            // skip while stmt, compilation goes on
+            IR::get()->EnterBlock(false_bb);
+            res = nullptr;
+            break;
+        case BREAK:
+            ;
+            break;
+        case CONTINUE:
+            ;
+            break;
     }
     return res;
 }

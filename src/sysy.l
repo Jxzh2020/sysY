@@ -58,6 +58,9 @@ CompOp_N [><]=?
 "const"         { return CONST; }
 "if"            { return IF; }
 "else"          { return ELSE; }
+"while"         { return WHILE; }
+"continue"      { return CONTINUE; }
+"break"         { return BREAK; }
 
 {Identifier}    { yylval.str_val = new string(yytext); return IDENT; }
 
@@ -87,13 +90,13 @@ CompOp_N [><]=?
 
 {CompOp_N} {
     if(yytext[0] == '>'){
-        if(yytext[1] == '\n')
+        if(yytext[1] == '\0')
             yylval.int_val = GT;
         else
             yylval.int_val = GE;
     }
     else{
-        if(yytext[1] == '\n')
+        if(yytext[1] == '\0')
             yylval.int_val = LT;
         else
             yylval.int_val = LE;

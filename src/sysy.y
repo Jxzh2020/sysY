@@ -81,7 +81,7 @@ using namespace std;
   std::vector<BaseAST*>* vec_val;
 }
 
-%token INT RETURN CONST VOID IF ELSE
+%token INT RETURN CONST VOID IF ELSE WHILE CONTINUE BREAK
 %token <str_val> IDENT
 %token <int_val> UNARY_OP
 %token <int_val> BINARY_OP
@@ -246,6 +246,19 @@ Matched
     stmt->Exp = unique_ptr<BaseAST>($3);
     stmt->if_stmt = unique_ptr<BaseAST>($5);
     stmt->else_stmt = unique_ptr<BaseAST>($7);
+    $$ = stmt;
+  }
+  | BREAK ';' {
+  ;
+  }
+  | CONTINUE ';' {
+  ;
+  }
+  | WHILE '(' Exp ')' Stmt {
+    auto stmt = new StmtAST();
+    stmt->type = StmtAST::WHILE;
+    stmt->Exp = unique_ptr<BaseAST>($3);
+    stmt->if_stmt = unique_ptr<BaseAST>($5);
     $$ = stmt;
   }
   ;
