@@ -21,7 +21,8 @@ LineComment   "//".*
 
 BlockComment  "/*"([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+"/"
 
-
+/* 单个字符 */
+Char (\'.\')|(\'\\n\')
 
 /* 标识符 */
 Identifier    [a-zA-Z_][a-zA-Z0-9_]*
@@ -105,7 +106,7 @@ CompOp_N [><]=?
 }
 
 {BlockComment} { /* 忽略块注释的内容 */ }
-
+{Char}          { if(yytext[3] == '\0') yylval.int_val = (int)yytext[1]; else yylval.int_val = 10; return INT_CONST; }
 .               {  return yytext[0]; }
 
 %%
