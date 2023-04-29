@@ -21,6 +21,7 @@ public:
         CONTINUE
     } type;
     bool matched;
+    bool isEndBranch;   // for if-else, if both branches are branch insts
     std::unique_ptr<BaseAST> LVal;
     std::unique_ptr<BaseAST> Exp;
     std::unique_ptr<BaseAST> Block;
@@ -30,7 +31,7 @@ public:
     void Dump() const override;
     [[nodiscard]] bool isBranch() const;
 
-    [[nodiscard]] llvm::Value *codegen() const override;
+    [[nodiscard]] llvm::Value *codegen() override;
 
     [[nodiscard]] llvm::Value *bool_convert() const;
 };

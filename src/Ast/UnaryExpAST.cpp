@@ -14,7 +14,7 @@ void UnaryExpAST::Dump() const {
     std::cout << " }";
 }
 
-llvm::Value *UnaryExpAST::codegen() const {
+llvm::Value *UnaryExpAST::codegen() {
     llvm::Value *res;
     auto zero_val = llvm::ConstantInt::get(llvm::Type::getInt32Ty(*IR::get()->getContext()), 0);
 

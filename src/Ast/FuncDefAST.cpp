@@ -12,7 +12,7 @@ void FuncDefAST::Dump() const {
     std::cout << " }";
 }
 
-llvm::Value *FuncDefAST::codegen() const {
+llvm::Value *FuncDefAST::codegen() {
 
     // maybe not a good idea, since arguments need alloca?
     // It seems fine to do like this, argument loading is not part of explicit basic block

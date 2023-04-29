@@ -14,7 +14,7 @@ public:
 
     void Dump() const override;
     [[nodiscard]] bool isBranch() const;
-    [[nodiscard]] llvm::Value *codegen() const override;
+    [[nodiscard]] llvm::Value *codegen() override;
 };
 
 

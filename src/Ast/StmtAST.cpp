@@ -10,7 +10,9 @@ void StmtAST::Dump() const {
     std::cout << " }";
 }
 
-llvm::Value *StmtAST::codegen() const {
+llvm::Value *StmtAST::codegen() {
+    isEndBranch = false;
+
     // so far, only return inst is supported.
     auto &builder = IR::get()->getBuilder();
 
@@ -52,6 +54,8 @@ llvm::Value *StmtAST::codegen() const {
                 res = Exp->codegen();
                 res = builder->CreateRet(res);
             }
+            IR::get()->SetBranch();
+            isEndBranch = true;
             break;
         case IF:
             true_bb = IR::get()->NewBasicBlock();
@@ -75,6 +79,7 @@ llvm::Value *StmtAST::codegen() const {
                 IR::get()->EnterBlock(true_bb);
                 if_stmt->codegen();
                 if(IR::get()->hasBranchAtEnd()){
+                    isEndBranch = true;
                     // true_bb 已经结束了， 取消末尾branch标识
                     IR::get()->ClearBranch();
                 }
@@ -90,6 +95,7 @@ llvm::Value *StmtAST::codegen() const {
                 }
                     // 只有在末尾不是 break 或者 continue 的时候，才设置 false_bb 的默认跳转
                 else{
+                    isEndBranch = false;
                     builder->CreateBr(next_bb);
                 }
                 IR::get()->EnterBlock(next_bb);
@@ -133,6 +139,7 @@ llvm::Value *StmtAST::codegen() const {
                 builder->CreateBr(IR::get()->false_bb());
                 IR::get()->SetBranch();
             }
+            isEndBranch = true;
             break;
         case CONTINUE:
             ;
@@ -145,12 +152,14 @@ llvm::Value *StmtAST::codegen() const {
                 builder->CreateBr(IR::get()->condition_bb());
                 IR::get()->SetBranch();
             }
+            isEndBranch = true;
             break;
     }
     return res;
 }
 
 llvm::Value *StmtAST::bool_convert() const {
+
     auto res = Exp->codegen();
     if (res->getType() == llvm::Type::getInt1Ty(*IR::get()->getContext())) {
         return res;
@@ -163,9 +172,11 @@ llvm::Value *StmtAST::bool_convert() const {
 }
 
 bool StmtAST::isBranch() const {
+    // codegen() evaluates if a stmt is an EndBranch
+    return isEndBranch;
     bool has_branch_block = false;
     if(type == BLOCK){
         has_branch_block = dynamic_cast<BlockAST*>(Block.get())->isBranch();
     }
-    return type == BREAK || type == CONTINUE || has_branch_block;
+    return type == RET || type == BREAK || type == CONTINUE || has_branch_block;
 }

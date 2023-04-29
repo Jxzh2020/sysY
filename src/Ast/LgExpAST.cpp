@@ -8,7 +8,7 @@ void LgExpAST::Dump() const {
 
 }
 
-llvm::Value *LgExpAST::codegen() const {
+llvm::Value *LgExpAST::codegen() {
     llvm::Value *res;
     auto &builder = IR::get()->getBuilder();
     if (RHS == nullptr) {

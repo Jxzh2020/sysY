@@ -8,7 +8,7 @@ void CompExpAST::Dump() const {
 
 }
 
-llvm::Value *CompExpAST::codegen() const {
+llvm::Value *CompExpAST::codegen() {
     llvm::Value *res;
     if (RHS == nullptr) {
         res = LHS->codegen();

@@ -16,7 +16,7 @@ void AddExpAST::Dump() const {
     std::cout << " }";
 }
 
-llvm::Value *AddExpAST::codegen() const {
+llvm::Value *AddExpAST::codegen() {
     if (AddExp == nullptr) {
         return MulExp->codegen();
     }

@@ -8,7 +8,7 @@ void BlockItemAST::Dump() const {
 
 }
 
-llvm::Value *BlockItemAST::codegen() const {
+llvm::Value *BlockItemAST::codegen() {
     llvm::Value *res;
     if (Decl == nullptr)
         res = Stmt->codegen();

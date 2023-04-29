@@ -8,6 +8,6 @@ void InitValAST::Dump() const {
 
 }
 
-llvm::Value *InitValAST::codegen() const {
+llvm::Value *InitValAST::codegen() {
     return Exp->codegen();
 }

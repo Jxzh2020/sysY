@@ -8,7 +8,7 @@ void LValAST::Dump() const {
 
 }
 
-llvm::Value *LValAST::codegen() const {
+llvm::Value *LValAST::codegen() {
     // TODO: unsolved constant assignment
 
     // 1. local variable, it seems that LLVM automatically shadows variables in nested logical blocks

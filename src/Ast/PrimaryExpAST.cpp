@@ -18,7 +18,7 @@ void PrimaryExpAST::Dump() const {
     std::cout << " }";
 }
 
-llvm::Value *PrimaryExpAST::codegen() const {
+llvm::Value *PrimaryExpAST::codegen() {
     llvm::Value *res;
     // Number form
     if (Number != nullptr) {

@@ -9,12 +9,10 @@ void CompUnitAST::Dump() const {
     for (auto &func_def: this->globe)
         func_def->Dump();
     std::cout << " }" << std::endl;
-    this->codegen();
 }
 
-llvm::Value *CompUnitAST::codegen() const {
+llvm::Value *CompUnitAST::codegen() {
     for (auto &item: this->globe) {
-
         //
         // TODO
         item->codegen();

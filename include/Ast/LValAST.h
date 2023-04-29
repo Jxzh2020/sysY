@@ -13,7 +13,7 @@ public:
 
     void Dump() const override;
 
-    [[nodiscard]] llvm::Value *codegen() const override;
+    [[nodiscard]] llvm::Value *codegen() override;
 };
 
 

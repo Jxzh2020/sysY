@@ -8,6 +8,6 @@ void ConstExpAST::Dump() const {
 
 }
 
-llvm::Value *ConstExpAST::codegen() const {
+llvm::Value *ConstExpAST::codegen() {
     return Exp->codegen();
 }

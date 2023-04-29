@@ -8,7 +8,7 @@ void VarDefAST::Dump() const {
 
 }
 
-llvm::Value *VarDefAST::codegen() const {
+llvm::Value *VarDefAST::codegen() {
     // -> IDENT
     llvm::Value *res;
     auto &builder = IR::get()->getBuilder();

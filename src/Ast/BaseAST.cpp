@@ -21,6 +21,8 @@ IR::IR() {
     Func_Context = nullptr;
     isglobe = true;
     hasBranch = false;
+
+    declare_libfunc();
 }
 
 //void IR::RetParent() {
@@ -130,4 +132,14 @@ llvm::Value *IR::GetAlloca(const std::string &name, llvm::BasicBlock *cur) {
         return GetAlloca(name, Func_Context->parent_block_of_logical[Func_Context->logical_block_of[cur]]);
     } else
         return (*map)[name];
+}
+
+void IR::declare_libfunc() {
+    auto int_type = llvm::Type::getInt32Ty(*TheContext);
+    auto void_type = llvm::Type::getVoidTy(*TheContext);
+
+    llvm::Function::Create(llvm::FunctionType::get(int_type,false),llvm::GlobalValue::ExternalLinkage,"getint",TheModule.get());
+    llvm::Function::Create(llvm::FunctionType::get(int_type,false),llvm::GlobalValue::ExternalLinkage,"getch",TheModule.get());
+    llvm::Function::Create(llvm::FunctionType::get(void_type,{ int_type },false),llvm::GlobalValue::ExternalLinkage,"putint",TheModule.get());
+    llvm::Function::Create(llvm::FunctionType::get(void_type,{ int_type },false),llvm::GlobalValue::ExternalLinkage,"putch",TheModule.get());
 }

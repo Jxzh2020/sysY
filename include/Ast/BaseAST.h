@@ -78,7 +78,7 @@ public:
 
     virtual void Dump() const = 0;
 
-    [[nodiscard]] virtual llvm::Value *codegen() const = 0;
+    [[nodiscard]] virtual llvm::Value *codegen() = 0;
 };
 
 /*
@@ -110,6 +110,7 @@ public:
         if (func_list.find(cursor) == func_list.end()) { func_list[cursor] = std::make_unique<FuncContext>(); }
         curFunc = cursor;
         Func_Context = func_list[cursor].get();
+        ClearBranch();
     }
 
     void ExitFunc() { isglobe = true; }
@@ -194,6 +195,17 @@ public:
     llvm::Value *GetAlloca(const std::string &);
 
 private:
+    /** declare lib functions
+     *  int getint();：输入一个整数，返回对应的整数值。
+     *  int getch();：输入一个字符，返回字符对应的 ASCII 码值。
+     *  void putint(int);：输出一个整数的值。
+     *  void putch(int);：输出一个 ASCII 码对应的字符。传入的整数参数取值范围为 0~255。
+     *
+     *  int getarray(int []);：输入一串整数，第 1 个整数代表后续要输入的整数个数，该个数通过返回值返回；后续的整数通过传入的数组参数返回。getarray() 不会检查调用者提供的数组是否有足够的空间容纳输入的一串整数。
+     *  void putarray(int, int[]); 第 1 个参数表示要输出的整数个数（假设为 N），后面应该跟上要输出的 N 个整数的数组。putarray() 在输出时会在整数之间安插空格。
+     *
+     */
+    void declare_libfunc();
     llvm::Value *GetAlloca(const std::string &, llvm::BasicBlock *);
 
 };

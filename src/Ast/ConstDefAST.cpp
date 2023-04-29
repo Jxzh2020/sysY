@@ -8,7 +8,7 @@ void ConstDefAST::Dump() const {
 
 }
 
-llvm::Value *ConstDefAST::codegen() const {
+llvm::Value *ConstDefAST::codegen() {
     // deleted
     auto &builder = IR::get()->getBuilder();
     auto down = ConstInitVal->codegen();
