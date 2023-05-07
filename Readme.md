@@ -155,9 +155,9 @@ To generate a `llvm ir` in=memory form, use `BaseAST::codegen()`.
 Current Supported Grammar in ENBF:
 
 ```bash
-CompUnit    ::= FuncDef FuncDefs ;
-    FuncDef     ::= FuncType IDENT "(" [FuncFParams] ")" Block;
-    FuncType    ::= "void" | "int";
+    CompUnit    ::= [CompUnit] (Decl | FuncDef);
+    FuncDef     ::= PrimitiveType IDENT "(" [FuncFParams] ")" Block;
+    PrimitiveType    ::= "void" | "int";
 
     UnaryExp    ::= PrimaryExp | UnaryOp UnaryExp | IDENT "(" [FuncRParams] ")";
 
@@ -179,7 +179,6 @@ CompUnit    ::= FuncDef FuncDefs ;
  Comparison Expression: CompExpAst containing RelExp
  Comparison Operation: LT <, GT >, LE <=, GE >=, EQ ==, NEQ !=
 
-    BType         ::= "int";
     ConstDef      ::= IDENT "=" ConstInitVal;
     ConstInitVal  ::= ConstExp;
     ConstExp      ::= Exp;
@@ -188,7 +187,7 @@ CompUnit    ::= FuncDef FuncDefs ;
     PrimaryExp    ::= "(" Exp ")" | LVal | Number;
 
 
-    ConstDecl     ::= "const" BType ConstDef ConstDefs ";";
+    ConstDecl     ::= "const" PrimitiveType ConstDef ConstDefs ";";
     ConstDefs     ::= ConstDefs "," ConstDef | ;
     Block         ::= "{" BlockItems "}";
     BlockItems    ::= BlockItems BlockItem | ;
@@ -196,16 +195,27 @@ CompUnit    ::= FuncDef FuncDefs ;
 
     Decl          ::= ConstDecl | VarDecl;
     VarDef        ::= IDENT | IDENT "=" InitVal;
-    VarDecl       ::= BType VarDef {"," VarDef} ";";
+    VarDecl       ::= PrimitiveType VarDef {"," VarDef} ";";
     InitVal       ::= Exp;
 
-    Stmt          ::= LVal "=" Exp ";"
+    Stmt          ::= Matched 
+    
+                      
+    Matched       ::= LVal "=" Exp ";"
                     | [Exp] ";"
                     | Block
-                    | "return" [Exp] ";";
+                    | "return" [Exp] ";"
+                    | IF '(' Exp ')' Matched Else Matched
+                    | "while" "(" Exp ")" Stmt
+                    | "break" ";"
+                    | "continue" ";" ;
+    
+    Unmatched     ::= IF '(' Exp ')' Stmt 
+                    | IF '(' Exp ')' Matched ELSE Unmatched
+                    
 
     FuncDefs      ::= FuncDefs FuncDef | ;
-    FuncFParam    ::= BType IDENT;
+    FuncFParam    ::= PrimitiveType IDENT;
     FuncFParams   ::= FuncFParam | DFuncFParams ',' FuncFParam | ;
     DFuncFParams  ::= DFuncFParams ',' FuncFParam | FuncFParam ;
     FuncRParams   ::= Exp {"," Exp};

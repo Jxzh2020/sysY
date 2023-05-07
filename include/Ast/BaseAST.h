@@ -10,6 +10,7 @@
 #include <stack>
 #include <string>
 #include <map>
+#include <unordered_map>
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/STLExtras.h>
 #include <llvm/IR/BasicBlock.h>

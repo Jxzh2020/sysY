@@ -99,7 +99,7 @@ set(SOURCES ${C_SOURCES} ${CXX_SOURCES} ${CC_SOURCES}
 
 # *********************
 
-
+set(CMAKE_BUILD_TYPE "Debug")
 add_executable(sysY ${SOURCES} ${INCLUDE_FILES})
 set_target_properties(sysY PROPERTIES C_STANDARD 11 CXX_STANDARD 17)
 target_link_libraries(sysY
