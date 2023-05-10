@@ -1,4 +1,5 @@
 ## Platform
+
 This is a cmake project, which I believe it's working on Windows.
 To build on Windows, `LLVM` , `clang` and `cmake` is required.
 Once all the dependencies is ready, Visual Studio or Code is fine to edit the project.
@@ -28,9 +29,11 @@ Once all the dependencies is ready, Visual Studio or Code is fine to edit the pr
 
 ## llvm
 
-LLVM 工具链里有很多有意思的工具，下面我们会选择其中对实验较为重要的几个进行介绍。这一部分会涉及到后面的知识，看不懂其中的一些地方是正常的。当然如果你对 LLVM 工具链和 LLVM IR 比较熟悉，可以直接跳过此节。
+LLVM 工具链里有很多有意思的工具，下面我们会选择其中对实验较为重要的几个进行介绍。这一部分会涉及到后面的知识，看不懂其中的一些地方是正常的。当然如果你对
+LLVM 工具链和 LLVM IR 比较熟悉，可以直接跳过此节。
 
 在开始介绍前，让我们先编写一个最简单的 a + b 程序作为测试文件。
+
 ```cpp
 //main.c
 int main(){
@@ -39,6 +42,7 @@ int main(){
     return a + b;
 }
 ```
+
 ### Clang
 
 Clang 作为 LLVM project 的一个子项目，是 LLVM 项目中 c/c++/obj-c 语言的前端，其用法与 GCC 基本相同。
@@ -70,7 +74,8 @@ $ clang -c main.c -o main.o
 
 ### lli
 
-`lli` 会解释或以 JIT 的形式运行 `.bc` 和 `.ll` 程序。其中，`.bc` 是 LLVM IR 的二进制格式（方便存储），`.ll` 是 LLVM IR 的可读代码格式（给人看的）。
+`lli` 会解释或以 JIT 的形式运行 `.bc` 和 `.ll` 程序。其中，`.bc` 是 LLVM IR 的二进制格式（方便存储），`.ll` 是 LLVM IR
+的可读代码格式（给人看的）。
 
 在实验中，我们只需要用最简单的形式直接使用指令即可。以 `main.c` 为例：
 
@@ -90,6 +95,7 @@ $ echo $?
 ```
 
 ### llvm-link
+
 lli 仅能运行单个 `.ll` 或 `.bc` 格式的文件，当我们想要使用别的库的时候，就需要用到 llvm-link。
 
 在本实验中，我们引入了 `libsysy` 库（在这里可以看到）为我们的程序提供 IO 方面的操作。
@@ -116,6 +122,7 @@ Stack dump:
 1.      Program arguments: lli main.ll
 zsh: segmentation fault (core dumped)  lli main.ll
 ```
+
 这是因为 lli 只解释了 main.ll 这一个文件，但是找不到库函数 `putint` 在哪。此时就需要用 llvm-link 来进行链接。
 
 `llvm-link` 能够将多个 `.ll` 或 `.bc` 格式的文件链接为一个文件，例如：
@@ -134,6 +141,7 @@ $ lli out.ll
 ```
 
 ### 其他有用的工具
+
 - `llc`：可以将 `.ll` 形式的 `IR` 编译成指定体系结构的汇编
 
 - `opt`：LLVM 模块化的优化器和分析器。它以 LLVM 源文件为输入，对其运行指定的优化或分析，然后生成优化文件或输出分析结果。这个工具将会在挑战任务中介绍，在此不再展开。
@@ -222,4 +230,5 @@ Current Supported Grammar in ENBF:
 ```
 
 ### Ast
+
 The base class is `BaseAST`, namely all the nodes being derived class of it.

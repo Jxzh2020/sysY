@@ -18,8 +18,8 @@ llvm::Value *BlockItemAST::codegen() {
 }
 
 bool BlockItemAST::isBranch() const {
-    if(Stmt == nullptr)
+    if (Stmt == nullptr)
         return false;
     else
-        return dynamic_cast<StmtAST*>(Stmt.get())->isBranch();
+        return dynamic_cast<StmtAST *>(Stmt.get())->isBranch();
 }

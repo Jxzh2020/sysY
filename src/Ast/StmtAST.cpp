@@ -65,12 +65,12 @@ llvm::Value *StmtAST::codegen() {
             if (else_stmt == nullptr) {
                 IR::get()->EnterBlock(true_bb);
                 if_stmt->codegen();
-                if(IR::get()->hasBranchAtEnd()){
+                if (IR::get()->hasBranchAtEnd()) {
                     // true_bb 已经结束了， 取消末尾branch标识
                     IR::get()->ClearBranch();
                 }
-                // 只有在末尾不是 break 或者 continue 的时候，才设置 true_bb 的默认跳转
-                else{
+                    // 只有在末尾不是 break 或者 continue 的时候，才设置 true_bb 的默认跳转
+                else {
                     builder->CreateBr(false_bb);
                 }
                 IR::get()->EnterBlock(false_bb);
@@ -78,23 +78,23 @@ llvm::Value *StmtAST::codegen() {
                 auto next_bb = IR::get()->NewBasicBlock();
                 IR::get()->EnterBlock(true_bb);
                 if_stmt->codegen();
-                if(IR::get()->hasBranchAtEnd()){
+                if (IR::get()->hasBranchAtEnd()) {
                     isEndBranch = true;
                     // true_bb 已经结束了， 取消末尾branch标识
                     IR::get()->ClearBranch();
                 }
                     // 只有在末尾不是 break 或者 continue 的时候，才设置 true_bb 的默认跳转
-                else{
+                else {
                     builder->CreateBr(next_bb);
                 }
                 IR::get()->EnterBlock(false_bb);
                 else_stmt->codegen();
-                if(IR::get()->hasBranchAtEnd()){
+                if (IR::get()->hasBranchAtEnd()) {
                     // false_bb 已经结束了， 取消末尾branch标识
                     IR::get()->ClearBranch();
                 }
                     // 只有在末尾不是 break 或者 continue 的时候，才设置 false_bb 的默认跳转
-                else{
+                else {
                     isEndBranch = false;
                     builder->CreateBr(next_bb);
                 }
@@ -108,19 +108,19 @@ llvm::Value *StmtAST::codegen() {
             false_bb = IR::get()->NewBasicBlock();
 
             builder->CreateBr(t_bb);
-            IR::get()->push_while(std::make_pair(t_bb,false_bb));
+            IR::get()->push_while(std::make_pair(t_bb, false_bb));
             // enter while clause
             IR::get()->EnterBlock(t_bb);
             // enter while or skip
             builder->CreateCondBr(bool_convert(), true_bb, false_bb);
             IR::get()->EnterBlock(true_bb);
             if_stmt->codegen();
-            if(IR::get()->hasBranchAtEnd()){
+            if (IR::get()->hasBranchAtEnd()) {
                 // while 已经结束了， 取消末尾branch标识
                 IR::get()->ClearBranch();
             }
                 // 只有在末尾不是 break 或者 continue 的时候，才设置 while 的默认跳转
-            else{
+            else {
                 // jump back to while clause
                 builder->CreateBr(t_bb);
             }
@@ -131,24 +131,21 @@ llvm::Value *StmtAST::codegen() {
             break;
         case BREAK:
             res = nullptr;
-            if(!IR::get()->isInWhile()){
+            if (!IR::get()->isInWhile()) {
                 std::cout << "break Not in loop." << std::endl;
                 exit(1);
-            }
-            else{
+            } else {
                 builder->CreateBr(IR::get()->false_bb());
                 IR::get()->SetBranch();
             }
             isEndBranch = true;
             break;
-        case CONTINUE:
-            ;
+        case CONTINUE:;
             res = nullptr;
-            if(!IR::get()->isInWhile()){
+            if (!IR::get()->isInWhile()) {
                 std::cout << "continue Not in loop." << std::endl;
                 exit(1);
-            }
-            else{
+            } else {
                 builder->CreateBr(IR::get()->condition_bb());
                 IR::get()->SetBranch();
             }
@@ -175,8 +172,8 @@ bool StmtAST::isBranch() const {
     // codegen() evaluates if a stmt is an EndBranch
     return isEndBranch;
     bool has_branch_block = false;
-    if(type == BLOCK){
-        has_branch_block = dynamic_cast<BlockAST*>(Block.get())->isBranch();
+    if (type == BLOCK) {
+        has_branch_block = dynamic_cast<BlockAST *>(Block.get())->isBranch();
     }
     return type == RET || type == BREAK || type == CONTINUE || has_branch_block;
 }

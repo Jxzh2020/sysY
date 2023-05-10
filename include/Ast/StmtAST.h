@@ -29,6 +29,7 @@ public:
     std::unique_ptr<BaseAST> else_stmt;
 
     void Dump() const override;
+
     [[nodiscard]] bool isBranch() const;
 
     [[nodiscard]] llvm::Value *codegen() override;

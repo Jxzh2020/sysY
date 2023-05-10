@@ -64,8 +64,8 @@ void IR::NewLogicalBlockStart() {
 
 void IR::NewLogicalBlockEnd() {
     // if at the end of block is a branch, do nothing
-    if(hasBranch)
-        return ;
+    if (hasBranch)
+        return;
     // if is the definition block, no need to return to parent, and a RET inst is done manually.
     if (Func_Context->parent_block_of_logical[Func_Context->logical_block_of[Func_Context->curblock]] == nullptr)
         return;
@@ -138,8 +138,12 @@ void IR::declare_libfunc() {
     auto int_type = llvm::Type::getInt32Ty(*TheContext);
     auto void_type = llvm::Type::getVoidTy(*TheContext);
 
-    llvm::Function::Create(llvm::FunctionType::get(int_type,false),llvm::GlobalValue::ExternalLinkage,"getint",TheModule.get());
-    llvm::Function::Create(llvm::FunctionType::get(int_type,false),llvm::GlobalValue::ExternalLinkage,"getch",TheModule.get());
-    llvm::Function::Create(llvm::FunctionType::get(void_type,{ int_type },false),llvm::GlobalValue::ExternalLinkage,"putint",TheModule.get());
-    llvm::Function::Create(llvm::FunctionType::get(void_type,{ int_type },false),llvm::GlobalValue::ExternalLinkage,"putch",TheModule.get());
+    llvm::Function::Create(llvm::FunctionType::get(int_type, false), llvm::GlobalValue::ExternalLinkage, "getint",
+                           TheModule.get());
+    llvm::Function::Create(llvm::FunctionType::get(int_type, false), llvm::GlobalValue::ExternalLinkage, "getch",
+                           TheModule.get());
+    llvm::Function::Create(llvm::FunctionType::get(void_type, {int_type}, false), llvm::GlobalValue::ExternalLinkage,
+                           "putint", TheModule.get());
+    llvm::Function::Create(llvm::FunctionType::get(void_type, {int_type}, false), llvm::GlobalValue::ExternalLinkage,
+                           "putch", TheModule.get());
 }

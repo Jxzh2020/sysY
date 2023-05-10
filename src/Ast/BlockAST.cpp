@@ -21,9 +21,9 @@ llvm::Value *BlockAST::codegen() {
     if (BlockItems.empty())
         return nullptr;
     // TODO here, it must codegen first, because if-else return is detected only when they are evaluated!
-    for (auto &i: BlockItems){
+    for (auto &i: BlockItems) {
         i->codegen();
-        if(dynamic_cast<BlockItemAST*>(i.get())->isBranch()){
+        if (dynamic_cast<BlockItemAST *>(i.get())->isBranch()) {
             break;
         }
     }
@@ -32,9 +32,9 @@ llvm::Value *BlockAST::codegen() {
 
 bool BlockAST::isBranch() const {
     // TODO std::any_of
-    for(auto& i : BlockItems){
-        auto stmt = dynamic_cast<BlockItemAST*>(i.get());
-        if(stmt->isBranch() == true)
+    for (auto &i: BlockItems) {
+        auto stmt = dynamic_cast<BlockItemAST *>(i.get());
+        if (stmt->isBranch() == true)
             return true;
     }
     return false;

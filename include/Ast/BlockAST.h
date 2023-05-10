@@ -13,7 +13,9 @@ public:
     std::vector<std::unique_ptr<BaseAST>> BlockItems;
 
     void Dump() const override;
+
     [[nodiscard]] bool isBranch() const;
+
     [[nodiscard]] llvm::Value *codegen() override;
 };
 

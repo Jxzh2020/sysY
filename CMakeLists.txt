@@ -7,20 +7,20 @@ project(sysY)
 # settings
 # set to OFF to enable C mode
 set(CPP_MODE ON)
-if(CPP_MODE)
+if (CPP_MODE)
     set(FB_EXT ".cpp")
-else()
+else ()
     set(FB_EXT ".c")
-endif()
+endif ()
 message(STATUS "Flex/Bison generated source file extension: ${FB_EXT}")
 
 # enable all warnings
-if(MSVC)
+if (MSVC)
     add_compile_options(/W3)
-else()
+else ()
     # disable warnings caused by old version of Flex
     add_compile_options(-Wall -Wno-register)
-endif()
+endif ()
 
 # options about libraries and includes
 set(LIB_DIR "$ENV{CDE_LIBRARY_PATH}/native" CACHE STRING "directory of libraries")
@@ -41,7 +41,7 @@ if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
     if (BREW_BISON EQUAL 0 AND EXISTS "${BREW_BISON_PREFIX}")
         message(STATUS "Found Bison keg installed by Homebrew at ${BREW_BISON_PREFIX}")
         set(BISON_EXECUTABLE "${BREW_BISON_PREFIX}/bin/bison")
-    endif()
+    endif ()
 
     execute_process(
             COMMAND brew --prefix flex
@@ -52,8 +52,8 @@ if (CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
     if (BREW_FLEX EQUAL 0 AND EXISTS "${BREW_FLEX_PREFIX}")
         message(STATUS "Found Flex keg installed by Homebrew at ${BREW_FLEX_PREFIX}")
         set(FLEX_EXECUTABLE "${BREW_FLEX_PREFIX}/bin/flex")
-    endif()
-endif()
+    endif ()
+endif ()
 # *******************
 
 # find Flex/Bison
@@ -63,13 +63,13 @@ find_package(BISON REQUIRED)
 # generate lexer/parser
 file(GLOB_RECURSE L_SOURCES "src/*.l")
 file(GLOB_RECURSE Y_SOURCES "src/*.y")
-if(NOT (L_SOURCES STREQUAL "" AND Y_SOURCES STREQUAL ""))
+if (NOT (L_SOURCES STREQUAL "" AND Y_SOURCES STREQUAL ""))
     string(REGEX REPLACE ".*/(.*)\\.l" "${CMAKE_CURRENT_BINARY_DIR}/\\1.lex${FB_EXT}" L_OUTPUTS "${L_SOURCES}")
     string(REGEX REPLACE ".*/(.*)\\.y" "${CMAKE_CURRENT_BINARY_DIR}/\\1.tab${FB_EXT}" Y_OUTPUTS "${Y_SOURCES}")
     flex_target(Lexer ${L_SOURCES} ${L_OUTPUTS})
     bison_target(Parser ${Y_SOURCES} ${Y_OUTPUTS})
     add_flex_bison_dependency(Lexer Parser)
-endif()
+endif ()
 
 # project link directories
 link_directories(${LIB_DIR})

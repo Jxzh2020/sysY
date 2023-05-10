@@ -1,7 +1,9 @@
-
 ### how is the basic block in llvm ir created?
 
-According to the web search results, a basic block in LLVM IR is a container of instructions that execute sequentially. To create a basic block, you can use the `BasicBlock::Create` method and pass the context, the name of the block and the function containing the block. You can also use an IRBuilder object to create and append instructions to the end of a block. Here is a code example of creating a basic block:
+According to the web search results, a basic block in LLVM IR is a container of instructions that execute sequentially.
+To create a basic block, you can use the `BasicBlock::Create` method and pass the context, the name of the block and the
+function containing the block. You can also use an IRBuilder object to create and append instructions to the end of a
+block. Here is a code example of creating a basic block:
 
 ```cpp
 // Create a function
@@ -23,7 +25,8 @@ builder.CreateRet(Z);
 
 ### how is a `return` statement in llvm ir?
 
-To create a return statement using the LLVM C++ API, you can use the `ReturnInst::Create` method and pass the context, the value to return (or nullptr for void) and the basic block to insert at. For example:
+To create a return statement using the LLVM C++ API, you can use the `ReturnInst::Create` method and pass the context,
+the value to return (or nullptr for void) and the basic block to insert at. For example:
 
 ```cpp
 // Create a context
@@ -51,7 +54,9 @@ ReturnInst::Create(context, ConstantInt::get(Type::getInt32Ty(context), 0), BB);
 
 ### how to print the llvm ir in-memory form?
 
-According to the web search results, there are different ways to print the LLVM IR in-memory form depending on your needs. One way is to use the `Module::print` method and pass an output stream and an optional assembly annotation writer1. For example:
+According to the web search results, there are different ways to print the LLVM IR in-memory form depending on your
+needs. One way is to use the `Module::print` method and pass an output stream and an optional assembly annotation
+writer1. For example:
 
 ```cpp
 // Create a module
@@ -66,13 +71,15 @@ M->print(OS, nullptr); // print LLVM IR to output stream
 
 ### How can I create a `raw_ostream` object?
 
-- To create a `raw_ostream` object that outputs to the standard output stream, you can use the `llvm::outs` function, which returns a reference to a `raw_ostream` object. For example:
+- To create a `raw_ostream` object that outputs to the standard output stream, you can use the `llvm::outs` function,
+  which returns a reference to a `raw_ostream` object. For example:
 
     ```cpp
     // Create a raw_ostream object that outputs to stdout
     raw_ostream &OS = llvm::outs();
     ```
-- To create a raw_ostream object that outputs to a file, you can use the `llvm::raw_fd_ostream` class, which is a subclass of raw_ostream that takes a file descriptor as a parameter. For example:
+- To create a raw_ostream object that outputs to a file, you can use the `llvm::raw_fd_ostream` class, which is a
+  subclass of raw_ostream that takes a file descriptor as a parameter. For example:
 
     ```cpp
     // Create a raw_ostream object that outputs to a file
@@ -80,7 +87,8 @@ M->print(OS, nullptr); // print LLVM IR to output stream
     raw_fd_ostream OS("output.txt", EC); // open file "output.txt" for writing
     ```
 
-- To create a `raw_ostream` object that outputs to a string, you can use the `llvm::raw_string_ostream` class, which is a subclass of raw_ostream that takes a reference to a string as a parameter. For example:
+- To create a `raw_ostream` object that outputs to a string, you can use the `llvm::raw_string_ostream` class, which is
+  a subclass of raw_ostream that takes a reference to a string as a parameter. For example:
 
     ```cpp
     // Create a raw_ostream object that outputs to a string
@@ -93,6 +101,7 @@ M->print(OS, nullptr); // print LLVM IR to output stream
 //
 
 ### how to do constant expression in llvm ir?
+
 根据搜索结果，你可以使用`ConstantExpr`类来创建一个常量表达式，它是一个使用其他常量值的表达式来初始化的常量值。常量表达式使用标准的指令操作码来定义各种常量表达式。例如：
 
 %const = add i32 4, 2 %expr = getelementptr i32, i32* %const, i32 1
@@ -101,7 +110,8 @@ M->print(OS, nullptr); // print LLVM IR to output stream
 
 ### how to lookup an alloca value safely in llvm ir using c++ api?
 
-To lookup an alloca value safely in llvm ir using c++ api, you need to cast the llvm::Value* to llvm::AllocaInst* using the LLVM RTTI system1. For example:
+To lookup an alloca value safely in llvm ir using c++ api, you need to cast the llvm::Value* to llvm::AllocaInst* using
+the LLVM RTTI system1. For example:
 
 ```cpp
 llvm::Value* val = someFunction(...); // val is an alloca value
