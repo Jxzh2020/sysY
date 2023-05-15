@@ -5,10 +5,7 @@
 #include "Ast/BlockAST.h"
 
 void BlockAST::Dump() const {
-    std::cout << "BlockAST { ";
-    for (auto &i: BlockItems)
-        i->Dump();
-    std::cout << " }";
+    ;
 }
 
 llvm::Value *BlockAST::codegen() {
