@@ -16,7 +16,7 @@ public:
 
     [[nodiscard]] llvm::Value *codegen() override;
 
-    std::pair<const std::string &, llvm::Value *> get_defs() const;
+    [[nodiscard]] std::pair<const std::string &, llvm::Value *> get_defs() const;
 
 };
 

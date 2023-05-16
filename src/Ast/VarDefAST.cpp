@@ -17,6 +17,7 @@ llvm::Value *VarDefAST::codegen() {
         // -> IDENT = InitVal
     else { ;
     }
+    std::cout << "VarDefAST::codegen has been deprecated. Use VarDefAST::get_defs instead.\n";
     return nullptr;
 }
 
