@@ -28,7 +28,7 @@ public:
     std::unique_ptr<BaseAST> if_stmt;   // or while_stmt in WHILE case
     std::unique_ptr<BaseAST> else_stmt;
 
-    void Dump() const override;
+    std::string astJson() override;
     [[nodiscard]] bool isBranch() const;
 
     [[nodiscard]] llvm::Value *codegen() override;

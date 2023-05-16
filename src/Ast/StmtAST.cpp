@@ -4,9 +4,9 @@
 
 #include "Ast/StmtAST.h"
 
-void StmtAST::Dump() const {
+std::string StmtAST::astJson() {
     std::cout << "StmtAST { ";
-    Exp->Dump();
+    Exp->astJson();
     std::cout << " }";
 }
 

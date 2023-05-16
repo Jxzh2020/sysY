@@ -4,7 +4,7 @@
 
 #include "Ast/BlockItemAST.h"
 
-void BlockItemAST::Dump() const {
+std::string BlockItemAST::astJson() {
 
 }
 

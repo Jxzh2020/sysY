@@ -13,7 +13,7 @@ public:
     std::unique_ptr<BaseAST> LVal;
     std::unique_ptr<BaseAST> Number;
 
-    void Dump() const override;
+    std::string astJson() override;
 
     [[nodiscard]] llvm::Value *codegen() override;
 };

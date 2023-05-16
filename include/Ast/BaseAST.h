@@ -77,7 +77,7 @@ class BaseAST {
 public:
     virtual ~BaseAST() = default;
 
-    virtual void Dump() const = 0;
+    virtual std::string astJson() = 0;
 
     [[nodiscard]] virtual llvm::Value *codegen() = 0;
 };

@@ -12,7 +12,7 @@ public:
 
     std::unique_ptr<BaseAST> Exp;
 
-    void Dump() const override;
+    std::string astJson() override;
 
     [[nodiscard]] llvm::Value *codegen() override;
 };

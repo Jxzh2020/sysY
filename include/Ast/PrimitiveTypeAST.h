@@ -16,7 +16,7 @@ public:
 
     [[nodiscard]] llvm::FunctionType *get_type(const std::vector<std::unique_ptr<BaseAST>> &) const;
 
-    void Dump() const override {}
+    std::string astJson() override {}
 
     [[nodiscard]] llvm::Value *codegen() override { return nullptr; }
 

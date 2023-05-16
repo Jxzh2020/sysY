@@ -4,12 +4,12 @@
 
 #include "Ast/DeclAST.h"
 
-void DeclAST::Dump() const {
+std::string DeclAST::astJson() {
     std::cout << "DeclAST { ";
     if (VarDecl == nullptr)
-        ConstDecl->Dump();
+        ConstDecl->astJson();
     else
-        VarDecl->Dump();
+        VarDecl->astJson();
     std::cout << " }";
 }
 

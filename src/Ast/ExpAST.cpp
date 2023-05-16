@@ -4,9 +4,9 @@
 
 #include "Ast/ExpAST.h"
 
-void ExpAST::Dump() const {
+std::string ExpAST::astJson() {
     std::cout << "ExpAST { ";
-    LgExp->Dump();
+    LgExp->astJson();
     std::cout << " }";
 }
 

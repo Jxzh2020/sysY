@@ -4,10 +4,10 @@
 
 #include "Ast/BlockAST.h"
 
-void BlockAST::Dump() const {
+std::string BlockAST::astJson() {
     std::cout << "BlockAST { ";
     for (auto &i: BlockItems)
-        i->Dump();
+        i->astJson();
     std::cout << " }";
 }
 

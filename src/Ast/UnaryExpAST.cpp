@@ -4,13 +4,13 @@
 
 #include "Ast/UnaryExpAST.h"
 
-void UnaryExpAST::Dump() const {
+std::string UnaryExpAST::astJson() {
     std::cout << "UnaryExpAST { ";
     if (PrimaryExp == nullptr) {
         std::cout << (OpType == PLUS ? "PLUS " : OpType == MINUS ? "MINUS " : "COMPLEMENT ");
-        UnaryExp->Dump();
+        UnaryExp->astJson();
     } else
-        PrimaryExp->Dump();
+        PrimaryExp->astJson();
     std::cout << " }";
 }
 

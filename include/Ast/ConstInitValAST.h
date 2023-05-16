@@ -11,7 +11,7 @@ class ConstInitValAST : public BaseAST {
 public:
     std::unique_ptr<BaseAST> ConstExp;
 
-    void Dump() const override;
+    std::string astJson() override;
 
     [[nodiscard]] llvm::Value *codegen() override;
 };

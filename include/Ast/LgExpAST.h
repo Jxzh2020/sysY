@@ -14,7 +14,7 @@ public:
     std::unique_ptr<BaseAST> LHS;
     std::unique_ptr<BaseAST> RHS;
 
-    void Dump() const override;
+    std::string astJson() override;
 
     [[nodiscard]] llvm::Value *codegen() override;
 };

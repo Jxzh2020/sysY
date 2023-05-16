@@ -4,16 +4,16 @@
 
 #include "Ast/PrimaryExpAST.h"
 
-void PrimaryExpAST::Dump() const {
+std::string PrimaryExpAST::astJson() {
     std::cout << "PrimaryExpAST { ";
     if (Exp != nullptr) {
         std::cout << "( ";
-        Exp->Dump();
+        Exp->astJson();
         std::cout << " )";
     } else if (LVal == nullptr) {
-        Number->Dump();
+        Number->astJson();
     } else {
-        LVal->Dump();
+        LVal->astJson();
     }
     std::cout << " }";
 }

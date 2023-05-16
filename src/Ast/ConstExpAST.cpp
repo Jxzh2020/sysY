@@ -4,7 +4,7 @@
 
 #include "Ast/ConstExpAST.h"
 
-void ConstExpAST::Dump() const {
+std::string ConstExpAST::astJson() {
 
 }
 

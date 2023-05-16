@@ -4,7 +4,7 @@
 
 #include "Ast/InitValAST.h"
 
-void InitValAST::Dump() const {
+std::string InitValAST::astJson() {
 
 }
 

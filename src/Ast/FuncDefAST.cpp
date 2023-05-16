@@ -4,11 +4,11 @@
 
 #include "Ast/FuncDefAST.h"
 
-void FuncDefAST::Dump() const {
+std::string FuncDefAST::astJson() {
     std::cout << "FuncDefAST { ";
-    func_type->Dump();
+    func_type->astJson();
     std::cout << ", " << ident << ", ";
-    block->Dump();
+    block->astJson();
     std::cout << " }";
 }
 

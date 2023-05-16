@@ -4,7 +4,7 @@
 
 #include "Ast/CompExpAST.h"
 
-void CompExpAST::Dump() const {
+std::string CompExpAST::astJson() {
 
 }
 

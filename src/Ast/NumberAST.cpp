@@ -4,7 +4,7 @@
 
 #include "Ast/NumberAST.h"
 
-void NumberAST::Dump() const {
+std::string NumberAST::astJson() {
     std::cout << value;
 }
 

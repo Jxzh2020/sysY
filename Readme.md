@@ -149,7 +149,7 @@ New Bing YYDS|:)
 
 ```
 
-A glimpse of the IR structure is defined in `BaseAST::Dump()` function, where custom ir is printed.
+A glimpse of the IR structure is defined in `BaseAST::astJson()` function, where custom ir is printed.
 To generate a `llvm ir` in=memory form, use `BaseAST::codegen()`.
 
 Current Supported Grammar in ENBF:

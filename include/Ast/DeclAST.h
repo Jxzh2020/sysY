@@ -12,7 +12,7 @@ public:
     std::unique_ptr<BaseAST> ConstDecl;
     std::unique_ptr<BaseAST> VarDecl;
 
-    void Dump() const override;
+    std::string astJson() override;
 
     [[nodiscard]] llvm::Value *codegen() override;
 };

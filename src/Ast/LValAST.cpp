@@ -4,7 +4,7 @@
 
 #include "Ast/LValAST.h"
 
-void LValAST::Dump() const {
+std::string LValAST::astJson() {
 
 }
 

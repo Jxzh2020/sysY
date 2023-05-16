@@ -4,7 +4,7 @@
 
 #include "Ast/ConstDeclAST.h"
 
-void ConstDeclAST::Dump() const {
+std::string ConstDeclAST::astJson() {
 
 }
 

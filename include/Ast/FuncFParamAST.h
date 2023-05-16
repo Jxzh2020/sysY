@@ -17,7 +17,7 @@ public:
 
     llvm::Type *getType() const;
 
-    void Dump() const override {}
+    std::string astJson() override {}
 
     [[nodiscard]] llvm::Value *codegen() override { return nullptr; }
 };

@@ -4,14 +4,14 @@
 
 #include "Ast/MulExpAST.h"
 
-void MulExpAST::Dump() const {
+std::string MulExpAST::astJson() {
     std::cout << "MulExp { ";
     if (MulExp == nullptr) {
-        UnaryExp->Dump();
+        UnaryExp->astJson();
     } else {
-        MulExp->Dump();
+        MulExp->astJson();
         std::cout << (type == MUL ? "MUL " : type == DIV ? "DIV " : "MOD ");
-        UnaryExp->Dump();
+        UnaryExp->astJson();
     }
     std::cout << " }";
 }

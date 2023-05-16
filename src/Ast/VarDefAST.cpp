@@ -4,7 +4,7 @@
 
 #include "Ast/VarDefAST.h"
 
-void VarDefAST::Dump() const {
+std::string VarDefAST::astJson() {
 
 }
 

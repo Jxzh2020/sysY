@@ -11,7 +11,7 @@ class LValAST : public BaseAST {
 public:
     std::string ident;
 
-    void Dump() const override;
+    std::string astJson() override;
 
     [[nodiscard]] llvm::Value *codegen() override;
 };

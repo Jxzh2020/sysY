@@ -4,7 +4,7 @@
 
 #include "Ast/LgExpAST.h"
 
-void LgExpAST::Dump() const {
+std::string LgExpAST::astJson() {
 
 }
 

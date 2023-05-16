@@ -4,10 +4,10 @@
 
 #include "Ast/CompUnitAST.h"
 
-void CompUnitAST::Dump() const {
+std::string CompUnitAST::astJson() {
     std::cout << "CompUnitAST { ";
     for (auto &func_def: this->globe)
-        func_def->Dump();
+        func_def->astJson();
     std::cout << " }" << std::endl;
 }
 

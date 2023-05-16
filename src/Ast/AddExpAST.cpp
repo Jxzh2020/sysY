@@ -4,14 +4,14 @@
 
 #include "Ast/AddExpAST.h"
 
-void AddExpAST::Dump() const {
+std::string AddExpAST::astJson() {
     std::cout << "AddExp { ";
     if (AddExp == nullptr) {
-        MulExp->Dump();
+        MulExp->astJson();
     } else {
-        AddExp->Dump();
+        AddExp->astJson();
         std::cout << (type == PLUS ? "PLUS " : "MINUS ");
-        MulExp->Dump();
+        MulExp->astJson();
     }
     std::cout << " }";
 }
