@@ -1,0 +1,75 @@
+//
+// Created by Hao Zhong on 5/16/23.
+//
+
+#include "IRGen/IRGen.h"
+
+using namespace IRGen;
+
+std::vector<std::unique_ptr<Inst> > Inst::inst_list;
+
+
+Inst* BranchInst::Create(BasicBlock* Des){
+    auto tmp = new BranchInst(Des);
+    Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
+    return tmp;
+}
+
+Inst *BranchInst::Create(IRBase *con, BasicBlock *t_des, BasicBlock *f_des) {
+    auto tmp = new BranchInst(con, t_des, f_des);
+    Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
+    return tmp;
+}
+
+BranchInst::BranchInst(BasicBlock *Des): isConBr(false), t_des(Des), f_des(nullptr), con(nullptr)  {
+    // complete
+}
+
+BranchInst::BranchInst(IRBase* _con, BasicBlock *_t_des, BasicBlock *_f_des): isConBr(true), t_des(_t_des), f_des(_f_des), con(_con->dyn_cast<Inst*>()) {
+    // complete
+}
+
+Inst *ArithInst::Create(ARITH_TYPE op, IRBase *_lhs, IRBase *_rhs) {
+    auto tmp = new ArithInst(op, _lhs, _rhs);
+    Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
+    return tmp;
+}
+
+ArithInst::ArithInst(ARITH_TYPE _op, IRBase *_lhs, IRBase *_rhs): op(_op), lhs(_lhs), rhs(_rhs) {
+    // complete
+}
+
+
+Inst *AllocaInst::Create(Type *ty, const std::string &name) {
+    auto _ptr = Alloca::Create(ty, name);
+    auto tmp = new AllocaInst(ALLOCA_CREATE, _ptr);
+    Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
+}
+
+Inst *AllocaInst::Store(IRBase *val, Alloca *ptr) {
+    auto tmp = new AllocaInst(ALLOCA_STORE, ptr, val);
+    Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
+    return tmp;
+}
+
+Inst *AllocaInst::Load(Alloca *ptr, IRBase *val) {
+    auto tmp = new AllocaInst(ALLOCA_STORE, ptr, val);
+    Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
+    return tmp;
+}
+
+Alloca *AllocaInst::get_alloca() {
+    return ptr;
+}
+
+AllocaInst::AllocaInst(ALLOCA_TYPE _op, Alloca *_ptr, IRBase *_val): ptr(_ptr), op(_op), val(_val) {
+    // complete
+}
+
+AllocaInst::AllocaInst(ALLOCA_TYPE _op, Alloca *_ptr): ptr(_ptr), op(_op), val(nullptr) {
+    // complete
+}
+
+
+
+
