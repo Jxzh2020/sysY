@@ -16,7 +16,7 @@ public:
     std::unique_ptr<BaseAST> block;
     std::vector<std::unique_ptr<BaseAST>> params;
 
-    std::string astJson() override;
+    std::string astJson(int size) override;
 
     [[nodiscard]] llvm::Value *codegen() override;
 

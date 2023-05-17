@@ -12,7 +12,7 @@ public:
     std::string ident;
     std::unique_ptr<BaseAST> ConstInitVal;
 
-    std::string astJson() override;
+    std::string astJson(int size) override;
 
     [[nodiscard]] llvm::Value *codegen() override;
 

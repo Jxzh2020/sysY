@@ -11,7 +11,7 @@ class InitValAST : public BaseAST {
 public:
     std::unique_ptr<BaseAST> Exp;
 
-    std::string astJson() override;
+    std::string astJson(int size) override;
 
     [[nodiscard]] llvm::Value *codegen() override;
 };

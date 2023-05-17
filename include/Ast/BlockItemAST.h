@@ -13,7 +13,7 @@ public:
     std::unique_ptr<BaseAST> Decl;
     std::unique_ptr<BaseAST> Stmt;
 
-    std::string astJson() override;
+    std::string astJson(int size) override;
 
     [[nodiscard]] llvm::Value *codegen() override;
     bool isBranch() const;

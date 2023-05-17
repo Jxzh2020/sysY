@@ -4,6 +4,13 @@
 
 #include "Ast/PrimitiveTypeAST.h"
 
+std::string PrimitiveTypeAST::astJson(int size) 
+{
+    // std::string type;
+
+    return Json("Type", {Escape(type)}, size);
+}
+
 llvm::Type *PrimitiveTypeAST::get_type() const {
     if (type == "int")
         return llvm::Type::getInt32Ty(*IR::get()->getContext());

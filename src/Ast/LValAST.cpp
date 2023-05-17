@@ -3,9 +3,13 @@
 //
 
 #include "Ast/LValAST.h"
+#include "Ast/BaseAST.h"
+#include <string>
+#include <vector>
 
-std::string LValAST::astJson() {
-
+std::string LValAST::astJson(int size) {
+    // std::string ident;
+    return Json("Load Value", {Escape(ident)}, size);
 }
 
 llvm::Value *LValAST::codegen() {

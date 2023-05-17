@@ -3,17 +3,36 @@
 //
 
 #include "Ast/MulExpAST.h"
+#include "Ast/BaseAST.h"
+#include <string>
+#include <vector>
 
-std::string MulExpAST::astJson() {
-    std::cout << "MulExp { ";
+std::string MulExpAST::astJson(int size) {
+    // std::unique_ptr<BaseAST> UnaryExp;
+    // std::unique_ptr<BaseAST> MulExp;
+    // BinaryOp type;
+    std::vector<std::string> children;
+    std::string op = "";
     if (MulExp == nullptr) {
-        UnaryExp->astJson();
-    } else {
-        MulExp->astJson();
-        std::cout << (type == MUL ? "MUL " : type == DIV ? "DIV " : "MOD ");
-        UnaryExp->astJson();
+        children.push_back(Json("Unary Expression", {UnaryExp->astJson(sizeplus(size))}, sizeplus(size)));
     }
-    std::cout << " }";
+    else {
+        switch (type) {
+            case MUL:
+                op = "*";
+                break;
+            case DIV:
+                op = "/";
+                break;
+            case MOD:
+                op = "%";
+                break;
+        }
+        children.push_back(Json("Mul-Left-Side", {MulExp->astJson(sizeplus(size))}, sizeplus(size)));
+        children.push_back(Json("Mul-Right-Side", {UnaryExp->astJson(sizeplus(size))}, sizeplus(size)));
+        children.push_back(Json("Mul Type", {Escape(op)}, size));
+    }
+    return Json("Mul Expression", children, size);
 }
 
 llvm::Value *MulExpAST::codegen() {

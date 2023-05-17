@@ -11,7 +11,7 @@ class NumberAST : public BaseAST {
 public:
     int value;
 
-    std::string astJson() override;
+    std::string astJson(int size) override;
 
     [[nodiscard]] llvm::Value *codegen() override;
 };

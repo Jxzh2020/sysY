@@ -12,7 +12,7 @@ class BlockAST : public BaseAST {
 public:
     std::vector<std::unique_ptr<BaseAST>> BlockItems;
 
-    std::string astJson() override;
+    std::string astJson(int size) override;
     [[nodiscard]] bool isBranch() const;
     [[nodiscard]] llvm::Value *codegen() override;
 };

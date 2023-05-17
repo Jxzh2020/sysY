@@ -6,6 +6,7 @@
 #define SYSY_BASEAST_H
 
 #include <iostream>
+#include <sstream>
 #include <memory>
 #include <stack>
 #include <string>
@@ -77,7 +78,7 @@ class BaseAST {
 public:
     virtual ~BaseAST() = default;
 
-    virtual std::string astJson() = 0;
+    virtual std::string astJson(int size) = 0;
 
     [[nodiscard]] virtual llvm::Value *codegen() = 0;
 };
@@ -211,5 +212,14 @@ private:
 
 };
 
+std::string Escape(std::string input);
+
+// string Json_no_child(string name);
+
+// string Json_with_children(string name, std::vector<std::string> children);
+
+std::string Json(std::string name, std::vector<std::string> children, int size);
+std::string Json(std::string name, int size);
+int sizeplus(int size);
 
 #endif //SYSY_BASEAST_H

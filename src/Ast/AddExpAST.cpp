@@ -3,17 +3,37 @@
 //
 
 #include "Ast/AddExpAST.h"
+#include "Ast/BaseAST.h"
+#include <string>
+#include <vector>
 
-std::string AddExpAST::astJson() {
-    std::cout << "AddExp { ";
+std::string AddExpAST::astJson(int size) {
+    // std::unique_ptr<BaseAST> MulExp;
+    // std::unique_ptr<BaseAST> AddExp;
+    // UnaryOp type;
+    std::vector<std::string> children;
     if (AddExp == nullptr) {
-        MulExp->astJson();
-    } else {
-        AddExp->astJson();
-        std::cout << (type == PLUS ? "PLUS " : "MINUS ");
-        MulExp->astJson();
+        children.push_back(Json("Mul Expression", {MulExp->astJson(sizeplus(size))}, sizeplus(size)));
     }
-    std::cout << " }";
+    else
+    {
+        std::string op = "";
+        switch (type) {
+            case PLUS:
+                op = "+";
+                break;
+            case MINUS:
+                op = "-";
+                break;
+            case COMPLEMENT:
+                op = "~";
+                break;
+        }
+        children.push_back(Json("Add Expression operation", {Escape(op)}, sizeplus(size)));
+        children.push_back(Json("Add Expression Left Side", {AddExp->astJson(sizeplus(size))}, sizeplus(size)));
+        children.push_back(Json("Add Expression Right Side", {MulExp->astJson(sizeplus(size))}, sizeplus(size)));
+    }
+    return Json("Add Expression", children, size);
 }
 
 llvm::Value *AddExpAST::codegen() {

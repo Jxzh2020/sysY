@@ -3,9 +3,24 @@
 //
 
 #include "Ast/ConstDeclAST.h"
+#include "Ast/BaseAST.h"
+#include <string>
+#include <vector>
 
-std::string ConstDeclAST::astJson() {
+std::string ConstDeclAST::astJson(int size) {
+    // std::unique_ptr<BaseAST> PrimitiveType;
+    // std::vector<std::unique_ptr<BaseAST>> ConstDefs;
+    std::vector<std::string> children;
+    std::vector<std::string> defs;
 
+    children.push_back(Json("Constant Type", {PrimitiveType->astJson(sizeplus(size))}, sizeplus(size)));
+    
+    for (auto &d : ConstDefs)
+    {
+        defs.push_back(d->astJson(sizeplus(size)));
+    }
+    children.push_back(Json("Constant Definitions", defs, sizeplus(size)));
+    return Json("Constant Declaration", children, size);
 }
 
 // TODO: better create alloca here, since  types are unknown if more than one type is supported

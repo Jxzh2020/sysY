@@ -3,9 +3,17 @@
 //
 
 #include "Ast/ConstDefAST.h"
+#include "Ast/BaseAST.h"
+#include <string>
+#include <vector>
 
-std::string ConstDefAST::astJson() {
-
+std::string ConstDefAST::astJson(int size) {
+    // std::string ident;
+    // std::unique_ptr<BaseAST> ConstInitVal;
+    std::vector<std::string> children;
+    children.push_back(Json("Constant", {Escape(ident)}, sizeplus(size)));
+    children.push_back(Json("Constant Init", {ConstInitVal->astJson(sizeplus(size))}, sizeplus(size)));
+    return Json("Constant Definition", children, size);
 }
 
 llvm::Value *ConstDefAST::codegen() {

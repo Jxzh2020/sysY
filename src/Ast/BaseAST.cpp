@@ -3,6 +3,7 @@
 //
 
 #include "Ast/BaseAST.h"
+#include <string>
 
 std::unique_ptr<IR> IR::instance(new IR);
 
@@ -143,3 +144,85 @@ void IR::declare_libfunc() {
     llvm::Function::Create(llvm::FunctionType::get(void_type,{ int_type },false),llvm::GlobalValue::ExternalLinkage,"putint",TheModule.get());
     llvm::Function::Create(llvm::FunctionType::get(void_type,{ int_type },false),llvm::GlobalValue::ExternalLinkage,"putch",TheModule.get());
 }
+
+//去除转义字符
+std::string Escape(std::string input)
+{
+	// s is our escaped output string
+	std::string ret = "\"";
+    std::stringstream stream;
+	// loop through all characters
+	for (char c : input)
+    {
+		// check if a given character is printable
+		// the cast is necessary to avoid undefined behaviour
+		if (c == '\"' || c == '\'' || c == '\\')
+			ret =  ret + "\\" + c;
+		else if (c == '\n')
+			ret += "\\n";
+		else if (c == '\t')
+			ret += "\\t";
+		else if (c == '\r')
+			ret += "\\r";
+		else if (isprint((unsigned char)c))
+			ret += c;
+		else {
+			// std::stringstream stream;
+			// if the character is not printable
+			// we'll convert it to a hex string using a stringstream
+			// note that since char is signed we have to cast it to unsigned first
+			stream << std::hex << (unsigned int)(unsigned char)(c);
+			std::string code = stream.str();
+			ret += std::string("\\x") + (code.size() < 2 ? "0" : "") + code;
+			// alternatively for URL encodings:
+			//s += std::string("%")+(code.size()<2?"0":"")+code;
+		}
+	}
+	return ret + "\"";
+}
+
+// string Json_no_child(string name)
+// {
+// 	//Escape twice.
+// 	//new line => "\\n" => "\\\\n"
+// 	//When printed out, it will be \\n
+// 	//double quote => "\\\"" => "\\\\\\\""
+// 	//When printed out, it will be \\\"
+// 	return "{ \"name\" : \"" + Escape(name) + "\" }";
+// }
+
+// string Json_with_children(string name, std::vector<std::string> children)
+// {
+// 	string ret = "{ \"name\" : \"" + name + "\", \"children\" : [ ";
+// 	int i;
+//     for(i = 0; i < children.size() - 1; i++)
+//     {
+//         ret += children[i] + ", ";
+//     }
+//     ret += children[i] + "]}"
+// 	return ret;
+// }
+
+std::string Json(std::string name, std::vector<std::string> children, int size = 10)
+{
+    std::string ret = "{ \"name\" : " + Escape(name);
+    if(children.empty() || children.size() == 0)
+    {
+        ret = ret + ", \"size\":" + std::to_string(size) + " }";
+    }
+    else
+    {
+        ret += ", \"children\" : [ ";
+        int i;
+        for(i = 0; i < children.size() - 1; i++)
+        {
+            ret += children[i] + ", ";
+        }
+        ret =  ret + children[i] + "], \"size\":" + std::to_string(size) + "}";
+    }
+	return ret;
+}
+
+std::string Json(std::string name, int size) { return Json(name,{}, size); }
+
+int sizeplus(int size){return size - 100;}

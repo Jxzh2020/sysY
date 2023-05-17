@@ -4,11 +4,13 @@
 
 #include "Ast/BlockAST.h"
 
-std::string BlockAST::astJson() {
-    std::cout << "BlockAST { ";
-    for (auto &i: BlockItems)
-        i->astJson();
-    std::cout << " }";
+std::string BlockAST::astJson(int size)
+{
+    // std::vector<std::unique_ptr<BaseAST>> BlockItems;
+    std::vector<std::string> children;
+    for (auto &b: BlockItems)
+        children.push_back(b->astJson(sizeplus(size)));
+    return Json("Block", children, size);
 }
 
 llvm::Value *BlockAST::codegen() {

@@ -134,6 +134,7 @@ Stmt          ::= LVal "=" Exp ";"
 #include <iostream>
 #include <memory>
 #include <string>
+#include <fstream>
 #include <map>
 #include "Ast/BaseAST.h"
 #include <llvm/Support/raw_ostream.h>
@@ -177,6 +178,17 @@ int main(int argc, const char *argv[]) {
     IR::get()->getModule()->print(ofs, nullptr);
 
     cout << endl;
-
+    //visualization test
+    extern const char* Html;
+	std::string OutputString = Html;
+	std::string Json = ast->astJson(1000);
+    // std::cout << Json;
+	std::string Target = "${ASTJson}";
+	auto Pos = OutputString.find(Target);
+	OutputString.replace(Pos, Target.length(), Json.c_str());
+    std::ofstream HTMLFile("visualization.html");
+	HTMLFile << OutputString;
+    HTMLFile.close();
+    // std::cout << Json;
     return 0;
 }

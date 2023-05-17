@@ -3,11 +3,14 @@
 //
 
 #include "Ast/ExpAST.h"
+#include <string>
+#include <vector>
 
-std::string ExpAST::astJson() {
-    std::cout << "ExpAST { ";
-    LgExp->astJson();
-    std::cout << " }";
+std::string ExpAST::astJson(int size) {
+    // std::unique_ptr<BaseAST> LgExp;
+    std::vector<std::string> children;
+    children.push_back(Json("Logical Expression", {LgExp->astJson(sizeplus(size))}, sizeplus(size)));
+    return Json("Expression", children, size);
 }
 
 llvm::Value *ExpAST::codegen() {

@@ -11,7 +11,7 @@ class ExpAST : public BaseAST {
 public:
     std::unique_ptr<BaseAST> LgExp;
 
-    std::string astJson() override;
+    std::string astJson(int size) override;
 
     [[nodiscard]] llvm::Value *codegen() override;
 };

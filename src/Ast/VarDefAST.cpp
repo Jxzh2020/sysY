@@ -3,9 +3,20 @@
 //
 
 #include "Ast/VarDefAST.h"
+#include "Ast/BaseAST.h"
+#include <string>
+#include <vector>
 
-std::string VarDefAST::astJson() {
-
+std::string VarDefAST::astJson(int size) {
+    // std::string ident;
+    // std::unique_ptr<BaseAST> InitVal;
+    std::vector<std::string> children;
+    children.push_back(Json("Variable", {Escape(ident)}, sizeplus(size)));
+    if (InitVal != nullptr)
+    {
+        children.push_back(Json("Init Value", {InitVal->astJson(sizeplus(size))}, sizeplus(size)));
+    }
+    return Json("Variable Define", children, size);
 }
 
 llvm::Value *VarDefAST::codegen() {

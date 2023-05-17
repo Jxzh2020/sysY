@@ -3,19 +3,22 @@
 //
 
 #include "Ast/PrimaryExpAST.h"
+#include <string>
+#include <vector>
 
-std::string PrimaryExpAST::astJson() {
-    std::cout << "PrimaryExpAST { ";
-    if (Exp != nullptr) {
-        std::cout << "( ";
-        Exp->astJson();
-        std::cout << " )";
-    } else if (LVal == nullptr) {
-        Number->astJson();
-    } else {
-        LVal->astJson();
+std::string PrimaryExpAST::astJson(int size) {
+    // std::unique_ptr<BaseAST> Exp;
+    // std::unique_ptr<BaseAST> LVal;
+    // std::unique_ptr<BaseAST> Number;
+    if (Number != nullptr) {
+        return Json("Number", {Number->astJson(sizeplus(size))}, size);
     }
-    std::cout << " }";
+        // ( Exp ) form
+    else if (LVal == nullptr) {
+        return Json("Expression", {Exp->astJson(sizeplus(size))}, size);
+    } else {
+        return Json("Load Value", {LVal->astJson(sizeplus(size))}, size);
+    }
 }
 
 llvm::Value *PrimaryExpAST::codegen() {

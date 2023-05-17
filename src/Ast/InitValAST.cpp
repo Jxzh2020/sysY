@@ -4,8 +4,11 @@
 
 #include "Ast/InitValAST.h"
 
-std::string InitValAST::astJson() {
-
+std::string InitValAST::astJson(int size) {
+    // std::unique_ptr<BaseAST> Exp;
+    std::vector<std::string> children;
+    children.push_back(Json("Expression", {Exp->astJson(sizeplus(size))}, sizeplus(size)));
+    return Json("Init Value Expression", children, size);
 }
 
 llvm::Value *InitValAST::codegen() {

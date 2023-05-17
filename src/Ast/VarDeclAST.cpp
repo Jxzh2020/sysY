@@ -4,8 +4,20 @@
 
 #include "Ast/VarDeclAST.h"
 
-std::string VarDeclAST::astJson() {
+std::string VarDeclAST::astJson(int size) {
+    // std::unique_ptr<BaseAST> PrimitiveType;
+    // std::vector<std::unique_ptr<BaseAST>> VarDefs;
+    std::vector<std::string> children;
+    std::vector<std::string> defs;
 
+    children.push_back(Json("Variable Type", {PrimitiveType->astJson(sizeplus(size))}, sizeplus(size)));
+    
+    for (auto &v : VarDefs)
+    {
+        defs.push_back(v->astJson(sizeplus(size)));
+    }
+    children.push_back(Json("Variable Definitions", defs, sizeplus(size)));
+    return Json("Variable Declaration", children, size);
 }
 
 llvm::Value *VarDeclAST::codegen() {
