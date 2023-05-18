@@ -77,6 +77,20 @@ namespace IRGen {
         ALLOCA_LOAD
     };
 
+    enum CMP_TYPE {
+        CMP_LT,
+        CMP_LE,
+        CMP_GT,
+        CMP_GE,
+        CMP_NE,
+        CMP_EQ
+    };
+
+    enum LG_TYPE {
+        LG_AND,
+        LG_OR
+    };
+
     /**
      *  The internal type cast function.
      */
@@ -87,6 +101,7 @@ namespace IRGen {
     public:
         [[nodiscard]] IRBase* getGlobalVariable(const std::string& name) const;
         void add_func(const std::string&, Function*);
+        std::stringstream print();
     private:
         std::unordered_map<std::string,std::unique_ptr<Function> > func_list;
         std::unordered_map<std::string, std::unique_ptr<GlobalVariable> > global_var_list;
@@ -136,7 +151,7 @@ namespace IRGen {
         IRBase* CreateRet( IRBase* val);
 
         IRBase* CreateCall( Function* fun);
-        IRBase* CreateCall( Function* fun , std::vector<IRBase*> );
+        IRBase* CreateCall( Function* fun , std::vector<IRBase*> args);
 
         BasicBlock* SetInsertPoint( BasicBlock* basicblock);
 
@@ -388,6 +403,39 @@ namespace IRGen {
         Alloca* ptr;
         ALLOCA_TYPE op;
         IRBase* val;
+    };
+
+    class CmpInst: public Inst {
+    public:
+        void print() override;
+        static Inst* Create(CMP_TYPE _op, IRBase* lhs, IRBase* rhs);
+    private:
+        CmpInst(CMP_TYPE _op, IRBase* LHS, IRBase* RHS);
+        CMP_TYPE op;
+        IRBase* lhs;
+        IRBase* rhs;
+
+    };
+
+    class LogicInst: public Inst {
+    public:
+        void print() override;
+        static Inst* Create(LG_TYPE _op, IRBase* lhs, IRBase* rhs);
+    private:
+        LogicInst(LG_TYPE _op, IRBase* lhs, IRBase* rhs);
+        LG_TYPE op;
+        IRBase* lhs;
+        IRBase* rhs;
+
+    };
+
+    class RetInst: public Inst {
+    public:
+        void print() override;
+        static Inst* Create(IRBase* val = nullptr);
+    private:
+        RetInst(IRBase* val);
+        IRBase* ret_val;
     };
 
 };

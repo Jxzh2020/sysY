@@ -53,7 +53,7 @@ Inst *AllocaInst::Store(IRBase *val, Alloca *ptr) {
 }
 
 Inst *AllocaInst::Load(Alloca *ptr, IRBase *val) {
-    auto tmp = new AllocaInst(ALLOCA_STORE, ptr, val);
+    auto tmp = new AllocaInst(ALLOCA_LOAD, ptr, val);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
     return tmp;
 }
@@ -71,5 +71,33 @@ AllocaInst::AllocaInst(ALLOCA_TYPE _op, Alloca *_ptr): ptr(_ptr), op(_op), val(n
 }
 
 
+CmpInst::CmpInst(CMP_TYPE _op, IRBase *LHS, IRBase *RHS): op(_op), lhs(LHS), rhs(RHS) {
+    // complete
+}
 
+Inst *CmpInst::Create(CMP_TYPE _op, IRBase *lhs, IRBase *rhs) {
+    auto res = new CmpInst(_op, lhs, rhs);
+    Inst::inst_list.push_back(std::unique_ptr<Inst>(res));
+    return res;
+}
+
+LogicInst::LogicInst(LG_TYPE _op, IRBase *_lhs, IRBase *_rhs): op(_op),lhs(_lhs), rhs(_rhs) {
+    // complete
+}
+
+Inst *LogicInst::Create(LG_TYPE _op, IRBase *lhs, IRBase *rhs) {
+    auto res = new LogicInst(_op, lhs, rhs);
+    Inst::inst_list.push_back(std::unique_ptr<Inst>(res));
+    return res;
+}
+
+Inst *RetInst::Create(IRBase *val) {
+    auto res = new RetInst(val);
+    Inst::inst_list.push_back(std::unique_ptr<Inst>(res));
+    return res;
+}
+
+RetInst::RetInst(IRBase *val): ret_val(val) {
+    // complete
+}
 

@@ -84,3 +84,66 @@ IRBase *Builder::CreateLoad(IRBase *ptr, IRBase *reg) {
     current_at_bb->insert(res);
     return ptr;
 }
+
+IRBase *Builder::CreateICmpSLT(IRBase *LHS, IRBase *RHS) {
+    auto res = CmpInst::Create(CMP_LT, LHS, RHS);
+    current_at_bb->insert(res);
+    return IRBase::CreateIRBase(IR_INST,res);
+}
+
+IRBase *Builder::CreateICmpSGT(IRBase *LHS, IRBase *RHS) {
+    auto res = CmpInst::Create(CMP_GT, LHS, RHS);
+    current_at_bb->insert(res);
+    return IRBase::CreateIRBase(IR_INST,res);
+}
+
+IRBase *Builder::CreateICmpSLE(IRBase *LHS, IRBase *RHS) {
+    auto res = CmpInst::Create(CMP_LE, LHS, RHS);
+    current_at_bb->insert(res);
+    return IRBase::CreateIRBase(IR_INST,res);
+}
+
+IRBase *Builder::CreateICmpSGE(IRBase *LHS, IRBase *RHS) {
+    auto res = CmpInst::Create(CMP_GE, LHS, RHS);
+    current_at_bb->insert(res);
+    return IRBase::CreateIRBase(IR_INST,res);
+}
+
+IRBase *Builder::CreateICmpEQ(IRBase *LHS, IRBase *RHS) {
+    auto res = CmpInst::Create(CMP_EQ, LHS, RHS);
+    current_at_bb->insert(res);
+    return IRBase::CreateIRBase(IR_INST,res);
+}
+
+IRBase *Builder::CreateICmpNE(IRBase *LHS, IRBase *RHS) {
+    auto res = CmpInst::Create(CMP_NE, LHS, RHS);
+    current_at_bb->insert(res);
+    return IRBase::CreateIRBase(IR_INST,res);
+}
+
+IRBase *Builder::CreateLogicalOr(IRBase *LHS, IRBase *RHS) {
+    auto res = LogicInst::Create(LG_OR, LHS, RHS);
+    current_at_bb->insert(res);
+    return IRBase::CreateIRBase(IR_INST,res);
+}
+
+IRBase *Builder::CreateLogicalAnd(IRBase *LHS, IRBase *RHS) {
+    auto res = LogicInst::Create(LG_AND, LHS, RHS);
+    current_at_bb->insert(res);
+    return IRBase::CreateIRBase(IR_INST,res);
+}
+
+IRBase *Builder::CreateRetVoid() {
+    auto res = RetInst::Create();
+    current_at_bb->insert(res);
+    return IRBase::CreateIRBase(IR_INST, res);
+}
+
+IRBase *Builder::CreateRet(IRBase *val) {
+    if(val == nullptr){
+        std::cout << "Warning: IRGen::Builder::CreateRet gets a null ptr explicitly" << std::endl;
+    }
+    auto res = RetInst::Create(val);
+    current_at_bb->insert(res);
+    return IRBase::CreateIRBase(IR_INST, res);
+}
