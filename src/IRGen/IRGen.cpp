@@ -22,6 +22,7 @@ void Module::add_func(const std::string& name, Function *F) {
     this->func_list.insert(std::pair<std::string, std::unique_ptr<Function>>( name,std::unique_ptr<Function>(F)));
 }
 
+
 std::vector<std::unique_ptr<Type> > Type::allocated;
 
 Type *IRGen::Type::getInt32() {
@@ -65,6 +66,8 @@ void Type::gen_all_instances() {
 P_TYPE Type::get_type() {
     return type;
 }
+
+
 
 std::vector<std::unique_ptr<Constant> > Constant::const_list;
 Constant::Constant(Type *ty) {
@@ -229,6 +232,10 @@ std::vector<Type *> &FunctionType::get_params() {
     return this->params;
 }
 
+Type *FunctionType::get_ret_type() {
+    return this->ret;
+}
+
 
 Function *Function::Create(FunctionType *ty, const std::string &name, Module *module) {
     auto func = new Function(ty, name);
@@ -263,11 +270,12 @@ void Function::add_block(BasicBlock * b) {
 }
 
 Function::Function(FunctionType *ty, const std::string &_name):
-    type(ty), name(_name){
+    v_reg_assigned(0), type(ty), name(_name){
     for( auto &i: ty->get_params()){
         arg_list.push_back(std::make_unique<Arg>(i));
     }
 }
+
 
 const std::string &Function::Arg::get_name() {
     return this->name;
@@ -280,6 +288,7 @@ void Function::Arg::set_name(const std::string& n) {
 Function::Arg::Arg(Type *ty) {
     this->type = ty;
 }
+
 
 
 BasicBlock::BasicBlock(const std::string &_name): name(_name) {
@@ -298,6 +307,8 @@ const std::string &BasicBlock::get_name() const {
 void BasicBlock::insert(Inst *inst) {
     inst_list.insert(insert_point, inst);
 }
+
+
 
 Alloca::Alloca(Type *ty, const std::string &_name): type(ty), name(_name), v_reg(0) {}
 
@@ -328,5 +339,6 @@ Type *Alloca::get_type() const {
 const std::string &Alloca::get_name() const {
     return name;
 }
+
 
 

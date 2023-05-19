@@ -6,6 +6,7 @@
 #define SYSY_IRGEN_H
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -176,6 +177,15 @@ namespace IRGen {
 //        static Type getInt32();
         // need modification when add self-defined type
         P_TYPE get_type();
+        std::string print() const;
+        /**
+         *
+         * @param from_inst the value to cast from
+         * @param to_type the type cast to
+         * @return cast instruction
+         */
+        static Inst* Cast(Constant* from, Type* to_type);
+        static Inst* Cast(Inst* from_inst, Type* to_type);
     private:
         explicit Type(P_TYPE);
         static void gen_all_instances();
@@ -254,6 +264,7 @@ namespace IRGen {
     public:
         static FunctionType* get(Type* ret_ty, std::vector<Type*>& params, bool isVarArg);
         std::vector<Type*>& get_params();
+        Type* get_ret_type();
     private:
         FunctionType(Type* ret_ty, std::vector<Type*>& params, bool isVarArg);
         static std::vector<std::unique_ptr<FunctionType>> list;
@@ -269,11 +280,14 @@ namespace IRGen {
      * Not sure if same name block in different function work fine,
      * So now it's ok to arrange two same-name basic block into different function
      *
+     *
+     * basicblock doesnot repeat, there's no need to keep evaluated.
+     *
      */
     class BasicBlock {
     public:
         static BasicBlock* Create( const std::string& name, Function* function);
-
+        std::string print(unsigned int& st);
         [[nodiscard]] const std::string& get_name() const;
         void insert(Inst* );
     private:
@@ -292,12 +306,26 @@ namespace IRGen {
         public:
             explicit Arg(Type*);
             const std::string& get_name();
+            std::string print_type() const;
+            std::string print_name() const;
             void set_name(const std::string&);
         private:
             std::string name;
             Type* type;
         };
+        std::string print_define() const;
+        std::string print_declare() const;
     public:
+        std::string print();
+        /**
+         * @return (i32 %a, ...) or ()
+         */
+        std::string arg_print_all() const;
+        /**
+         *
+         * @return (i32, ...) or ()
+         */
+        std::string arg_print_type() const;
         static Function* Create(FunctionType* ty, const std::string& name, Module* module);
 
         [[nodiscard]] const std::string& get_name() const;
@@ -313,6 +341,7 @@ namespace IRGen {
         static Linkage InternalLinkage;
         void add_block(BasicBlock*);
     private:
+        unsigned int v_reg_assigned;
         std::vector<std::unique_ptr<Arg> > arg_list;
         std::unordered_map<std::string, std::unique_ptr<BasicBlock> > b_list;
 
@@ -352,19 +381,28 @@ namespace IRGen {
 
     /**
      *  Wait to be filled :)
+     *  class Inst is the instruction unit, so each has a v_reg and evaluated flag
+     *
      */
 
     class Inst {
     public:
-        virtual void print() = 0;
+        Inst();
+        virtual std::string print(unsigned int &st) = 0;
+        virtual Type* get_type() const = 0;
+        bool isEvaluated() const;
+        unsigned int getVReg() const;
     protected:
         static std::vector<std::unique_ptr<Inst> > inst_list;
+        unsigned int v_reg;
+        bool evaluated;
     };
 
 
     class BranchInst: public Inst {
     public:
-        void print() override;
+        std::string print(unsigned int &st) override;
+        Type* get_type() const override;
         static Inst* Create(BasicBlock* Des);
         static Inst* Create(IRBase* con, BasicBlock* t_des, BasicBlock* f_des);
     private:
@@ -381,7 +419,8 @@ namespace IRGen {
      */
     class ArithInst: public Inst {
     public:
-        void print() override;
+        std::string print(unsigned int &st) override;
+        Type* get_type() const override;
         static Inst* Create(ARITH_TYPE, IRBase*, IRBase* );
     private:
         ArithInst(ARITH_TYPE, IRBase*, IRBase* );
@@ -392,7 +431,8 @@ namespace IRGen {
 
     class AllocaInst: public Inst {
     public:
-        void print() override;
+        std::string print(unsigned int &st) override;
+        Type* get_type() const override;
         static Inst* Create(Type* ty, const std::string& name);
         static Inst* Store(IRBase* val, Alloca* ptr);
         static Inst* Load(Alloca* ptr, IRBase* val);
@@ -407,7 +447,8 @@ namespace IRGen {
 
     class CmpInst: public Inst {
     public:
-        void print() override;
+        std::string print(unsigned int &st) override;
+        Type* get_type() const override;
         static Inst* Create(CMP_TYPE _op, IRBase* lhs, IRBase* rhs);
     private:
         CmpInst(CMP_TYPE _op, IRBase* LHS, IRBase* RHS);
@@ -419,7 +460,8 @@ namespace IRGen {
 
     class LogicInst: public Inst {
     public:
-        void print() override;
+        std::string print(unsigned int &st) override;
+        Type* get_type() const override;
         static Inst* Create(LG_TYPE _op, IRBase* lhs, IRBase* rhs);
     private:
         LogicInst(LG_TYPE _op, IRBase* lhs, IRBase* rhs);
@@ -431,7 +473,8 @@ namespace IRGen {
 
     class RetInst: public Inst {
     public:
-        void print() override;
+        std::string print(unsigned int &st) override;
+        Type* get_type() const override;
         static Inst* Create(IRBase* val = nullptr);
     private:
         RetInst(IRBase* val);

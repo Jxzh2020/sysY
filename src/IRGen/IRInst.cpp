@@ -8,6 +8,18 @@ using namespace IRGen;
 
 std::vector<std::unique_ptr<Inst> > Inst::inst_list;
 
+bool Inst::isEvaluated() const {
+    return this->evaluated;
+}
+
+unsigned int Inst::getVReg() const {
+    return this->v_reg;
+}
+
+Inst::Inst(): v_reg(0), evaluated(false) {
+    // completed
+}
+
 
 Inst* BranchInst::Create(BasicBlock* Des){
     auto tmp = new BranchInst(Des);
@@ -29,6 +41,7 @@ BranchInst::BranchInst(IRBase* _con, BasicBlock *_t_des, BasicBlock *_f_des): is
     // complete
 }
 
+
 Inst *ArithInst::Create(ARITH_TYPE op, IRBase *_lhs, IRBase *_rhs) {
     auto tmp = new ArithInst(op, _lhs, _rhs);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
@@ -38,6 +51,7 @@ Inst *ArithInst::Create(ARITH_TYPE op, IRBase *_lhs, IRBase *_rhs) {
 ArithInst::ArithInst(ARITH_TYPE _op, IRBase *_lhs, IRBase *_rhs): op(_op), lhs(_lhs), rhs(_rhs) {
     // complete
 }
+
 
 
 Inst *AllocaInst::Create(Type *ty, const std::string &name) {
