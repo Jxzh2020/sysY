@@ -33,8 +33,8 @@ IRBase *Builder::CreateSub(IRBase *LHS, IRBase *RHS) {
     return IRBase::CreateIRBase(IR_INST,res);
 }
 
-IRBase *Builder::CreateNeg(IRBase *LHS, IRBase *RHS) {
-    auto res = ArithInst::Create(IR_NEG, LHS, RHS);
+IRBase *Builder::CreateNeg(IRBase *LHS) {
+    auto res = ArithInst::Create(IR_NEG, LHS, nullptr);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }

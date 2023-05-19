@@ -123,3 +123,30 @@ std::string BranchInst::print(unsigned int &st) {
 std::string ArithInst::print(unsigned int &st) {
     return std::string();
 }
+
+std::string AllocaInst::print(unsigned int &st) {
+    return std::string();
+}
+
+std::string CmpInst::print(unsigned int &st) {
+    return std::string();
+}
+
+std::string LogicInst::print(unsigned int &st) {
+    return std::string();
+}
+
+std::string RetInst::print(unsigned int &st) {
+    std::string code("ret ");
+    Inst* ins;
+    if(!ret_val){
+        code+="void";
+        return code;
+    }
+    else{
+        ins = this->ret_val->dyn_cast<Inst*>();
+        if(ins)
+            code+=(ins->get_type()->print()+" %"); //+std::to_string(ins->getVReg()));
+        return code;
+    }
+}

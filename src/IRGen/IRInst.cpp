@@ -16,8 +16,16 @@ unsigned int Inst::getVReg() const {
     return this->v_reg;
 }
 
-Inst::Inst(): v_reg(0), evaluated(false) {
+Inst::Inst(): v_reg(0), evaluated(false), isConst(false), con_ptr(nullptr) {
     // completed
+}
+
+bool Inst::isConstant() const {
+    return this->isConst;
+}
+
+Constant *Inst::get_con_ptr() const {
+    return this->con_ptr;
 }
 
 
@@ -49,7 +57,33 @@ Inst *ArithInst::Create(ARITH_TYPE op, IRBase *_lhs, IRBase *_rhs) {
 }
 
 ArithInst::ArithInst(ARITH_TYPE _op, IRBase *_lhs, IRBase *_rhs): op(_op), lhs(_lhs), rhs(_rhs) {
-    // complete
+    // complete, check constant;
+    auto li = lhs->dyn_cast<Inst*>();
+    auto ri = rhs->dyn_cast<Inst*>();
+    auto lc = lhs->dyn_cast<Constant*>();
+    auto rc = rhs->dyn_cast<Constant*>();
+    if( ((li != nullptr && li->isConstant()) || lc != nullptr)
+        &&
+        ((ri != nullptr && ri->isConstant()) || rc != nullptr)  ){
+        // is constant
+        if( lc != nullptr){
+            if( rc != nullptr){
+                this->con_ptr = Constant::Create(_op, lc, rc);
+            }
+            else{
+                this->con_ptr = Constant::Create(_op, lc, ri->get_con_ptr());
+            }
+        }
+        else{
+            if( rc != nullptr){
+                this->con_ptr = Constant::Create(_op, li->get_con_ptr(), rc);
+            }
+            else{
+                this->con_ptr = Constant::Create(_op, li->get_con_ptr(), ri->get_con_ptr());
+            }
+        }
+        this->isConst = true;
+    }
 }
 
 
@@ -86,7 +120,33 @@ AllocaInst::AllocaInst(ALLOCA_TYPE _op, Alloca *_ptr): ptr(_ptr), op(_op), val(n
 
 
 CmpInst::CmpInst(CMP_TYPE _op, IRBase *LHS, IRBase *RHS): op(_op), lhs(LHS), rhs(RHS) {
-    // complete
+    // complete, check constant;
+    auto li = lhs->dyn_cast<Inst*>();
+    auto ri = rhs->dyn_cast<Inst*>();
+    auto lc = lhs->dyn_cast<Constant*>();
+    auto rc = rhs->dyn_cast<Constant*>();
+    if( ((li != nullptr && li->isConstant()) || lc != nullptr)
+        &&
+        ((ri != nullptr && ri->isConstant()) || rc != nullptr)  ){
+        // is constant
+        if( lc != nullptr){
+            if( rc != nullptr){
+                this->con_ptr = Constant::Create(_op, lc, rc);
+            }
+            else{
+                this->con_ptr = Constant::Create(_op, lc, ri->get_con_ptr());
+            }
+        }
+        else{
+            if( rc != nullptr){
+                this->con_ptr = Constant::Create(_op, li->get_con_ptr(), rc);
+            }
+            else{
+                this->con_ptr = Constant::Create(_op, li->get_con_ptr(), ri->get_con_ptr());
+            }
+        }
+        this->isConst = true;
+    }
 }
 
 Inst *CmpInst::Create(CMP_TYPE _op, IRBase *lhs, IRBase *rhs) {
@@ -95,8 +155,35 @@ Inst *CmpInst::Create(CMP_TYPE _op, IRBase *lhs, IRBase *rhs) {
     return res;
 }
 
+
 LogicInst::LogicInst(LG_TYPE _op, IRBase *_lhs, IRBase *_rhs): op(_op),lhs(_lhs), rhs(_rhs) {
-    // complete
+    // complete, check constant;
+    auto li = lhs->dyn_cast<Inst*>();
+    auto ri = rhs->dyn_cast<Inst*>();
+    auto lc = lhs->dyn_cast<Constant*>();
+    auto rc = rhs->dyn_cast<Constant*>();
+    if( ((li != nullptr && li->isConstant()) || lc != nullptr)
+        &&
+        ((ri != nullptr && ri->isConstant()) || rc != nullptr)  ){
+        // is constant
+        if( lc != nullptr){
+            if( rc != nullptr){
+                this->con_ptr = Constant::Create(_op, lc, rc);
+            }
+            else{
+                this->con_ptr = Constant::Create(_op, lc, ri->get_con_ptr());
+            }
+        }
+        else{
+            if( rc != nullptr){
+                this->con_ptr = Constant::Create(_op, li->get_con_ptr(), rc);
+            }
+            else{
+                this->con_ptr = Constant::Create(_op, li->get_con_ptr(), ri->get_con_ptr());
+            }
+        }
+        this->isConst = true;
+    }
 }
 
 Inst *LogicInst::Create(LG_TYPE _op, IRBase *lhs, IRBase *rhs) {
@@ -104,6 +191,7 @@ Inst *LogicInst::Create(LG_TYPE _op, IRBase *lhs, IRBase *rhs) {
     Inst::inst_list.push_back(std::unique_ptr<Inst>(res));
     return res;
 }
+
 
 Inst *RetInst::Create(IRBase *val) {
     auto res = new RetInst(val);
@@ -114,4 +202,5 @@ Inst *RetInst::Create(IRBase *val) {
 RetInst::RetInst(IRBase *val): ret_val(val) {
     // complete
 }
+
 

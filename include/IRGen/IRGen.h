@@ -122,7 +122,7 @@ namespace IRGen {
 
         IRBase* CreateAdd( IRBase* LHS, IRBase* RHS);
         IRBase* CreateSub( IRBase* LHS, IRBase* RHS);
-        IRBase* CreateNeg( IRBase* LHS, IRBase* RHS);
+        IRBase* CreateNeg( IRBase* LHS);
 
         IRBase* CreateMul( IRBase* LHS, IRBase* RHS);
         IRBase* CreateSDiv( IRBase* LHS, IRBase* RHS);
@@ -175,6 +175,9 @@ namespace IRGen {
 //        static Type getInt32();
         static Type* getVoid();
 //        static Type getInt32();
+        static bool isInt32(Type* ty);
+        static bool isInt1(Type* ty);
+        static bool isVoid(Type* ty);
         // need modification when add self-defined type
         P_TYPE get_type();
         std::string print() const;
@@ -242,6 +245,11 @@ namespace IRGen {
     public:
         template<class T>
         static IRBase* get(Type* ty, T val);
+
+        static Constant* Create(ARITH_TYPE op, Constant* lhs, Constant* rhs);
+        static Constant* Create(CMP_TYPE op, Constant* lhs, Constant* rhs);
+        static Constant* Create(LG_TYPE op, Constant* lhs, Constant* rhs);
+
         Type* get_type() const;
         const std::string& get_name() const;
     private:
@@ -392,10 +400,14 @@ namespace IRGen {
         virtual Type* get_type() const = 0;
         bool isEvaluated() const;
         unsigned int getVReg() const;
+        bool isConstant() const;
+        Constant* get_con_ptr() const;
     protected:
         static std::vector<std::unique_ptr<Inst> > inst_list;
         unsigned int v_reg;
         bool evaluated;
+        bool isConst;
+        Constant* con_ptr;
     };
 
 
@@ -477,7 +489,7 @@ namespace IRGen {
         Type* get_type() const override;
         static Inst* Create(IRBase* val = nullptr);
     private:
-        RetInst(IRBase* val);
+        explicit RetInst(IRBase* val);
         IRBase* ret_val;
     };
 

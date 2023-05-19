@@ -195,19 +195,19 @@ U IRBase::dyn_cast() {
             if(typeid(U) != typeid(Constant*))
                 return nullptr;
             else
-                return constant;
+                return (U)constant;
             break;
         case IR_ALLOCA:
             if(typeid(U) != typeid(Alloca*))
                 return nullptr;
             else
-                return alloca;
+                return (U)(alloca);
             break;
         case IR_INST:
             if(typeid(U) != typeid(Inst*))
                 return nullptr;
             else
-                return inst;
+                return (U)inst;
             break;
     }
     std::cout << "IRBase::dyn_cast encounters unexpected error!" << std::endl;
@@ -340,5 +340,31 @@ const std::string &Alloca::get_name() const {
     return name;
 }
 
-
-
+// TODO: only consider type of int and bool
+Constant *Constant::Create(ARITH_TYPE op, Constant *lhs, Constant *rhs) {
+    int res = Type::isInt32(lhs->get_type()) ? lhs->value.int_val : lhs->value.bool_val;
+    int operand = rhs != nullptr ? Type::isInt32(rhs->get_type()) ? rhs->value.int_val : rhs->value.bool_val : 0;
+    bool resb;
+    switch(op){
+        case IR_ADD:
+            res = res + operand;
+            break;
+        case IR_SUB:
+            res = res - operand;
+            break;
+        case IR_MUL:
+            res = res * operand;
+            break;
+        case IR_S_DIV:
+            res = res / operand;
+            break;
+        case IR_S_REM:
+            res = res % operand;
+            break;
+        case IR_NEG:
+            resb = (res == 0);
+            return Constant::get(Type::getInt1(), resb)->dyn_cast<Constant*>();
+            break;
+    }
+    return Constant::get(Type::getInt32(), res)->dyn_cast<Constant*>();
+}
