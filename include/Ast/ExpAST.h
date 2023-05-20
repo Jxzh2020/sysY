@@ -10,6 +10,7 @@
 class ExpAST : public BaseAST {
 public:
     std::unique_ptr<BaseAST> LgExp;
+    std::vector<std::unique_ptr<BaseAST>> vals;
 
     std::string astJson(int size) override;
 

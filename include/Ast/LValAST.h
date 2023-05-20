@@ -10,6 +10,7 @@
 class LValAST : public BaseAST {
 public:
     std::string ident;
+    std::unique_ptr<BaseAST> Exp;
 
     std::string astJson(int size) override;
 

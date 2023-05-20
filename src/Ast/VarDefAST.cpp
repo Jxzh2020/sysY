@@ -9,12 +9,21 @@
 
 std::string VarDefAST::astJson(int size) {
     // std::string ident;
+    // std::unique_ptr<BaseAST> ConstExp;
     // std::unique_ptr<BaseAST> InitVal;
     std::vector<std::string> children;
     children.push_back(Json("Variable", {Escape(ident)}, sizeplus(size)));
     if (InitVal != nullptr)
     {
+        if(ConstExp!=nullptr)
+        {
+            children.push_back(Json("Array Index", {ConstExp->astJson(sizeplus(size))}, sizeplus(size)));
+        }
         children.push_back(Json("Init Value", {InitVal->astJson(sizeplus(size))}, sizeplus(size)));
+    }
+    else if(ConstExp!=nullptr)
+    {
+        children.push_back(Json("Array Index", {ConstExp->astJson(sizeplus(size))}, sizeplus(size)));
     }
     return Json("Variable Define", children, size);
 }
@@ -40,4 +49,5 @@ std::pair<const std::string &, llvm::Value *> VarDefAST::get_defs() const {
     else {
         return std::pair<const std::string &, llvm::Value *>{ident, InitVal->codegen()};
     }
+    
 }

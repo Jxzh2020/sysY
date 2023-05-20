@@ -100,7 +100,7 @@ using namespace std;
 
 %type <ast_val> FuncFParam
 
-%type <vec_val> BlockItems ConstDefs VarDefs
+%type <vec_val> BlockItems ConstDefs VarDefs ConstExps
 %type <vec_val> FuncFParams DFuncFParams FuncRParams DExps CompUnits
 %type <ast_val> Matched Unmatched
 %%
@@ -481,6 +481,13 @@ ConstDef
     def->ConstInitVal = unique_ptr<BaseAST>($3);
     $$ = def;
   }
+  | IDENT '[' ConstExp ']' '=' ConstInitVal {
+    auto def = new ConstDefAST();
+    def->ident = *unique_ptr<string>($1);
+    def->ConstExp = unique_ptr<BaseAST>($3);
+    def->ConstInitVal = unique_ptr<BaseAST>($6);
+    $$ = def;
+  }
   ;
 ConstInitVal
   : ConstExp {
@@ -488,6 +495,25 @@ ConstInitVal
     val->ConstExp = unique_ptr<BaseAST>($1);
     $$ = val;
   }
+  | '{' ConstExps '}' {
+    auto val = new ConstInitValAST();
+    for(auto i: *$2){
+        val->vals.push_back(unique_ptr<BaseAST>(i));
+    }
+    delete $2;
+    $$ = val;
+  }
+  ;
+ConstExps
+ : ConstExps ',' ConstExp {
+    $1->push_back($3);
+    $$ = $1;
+ }
+ | ConstExp {
+    auto vec = new vector<BaseAST*>;
+    vec->push_back($1);
+    $$ = vec;
+ }
   ;
 ConstExp
   : Exp {
@@ -500,6 +526,12 @@ LVal
   : IDENT {
     auto l_val = new LValAST();
     l_val->ident = *unique_ptr<string>($1);
+    $$ = l_val;
+  }
+  | IDENT '[' Exp ']' {
+    auto l_val = new LValAST();
+    l_val->ident = *unique_ptr<string>($1);
+    l_val->Exp = unique_ptr<BaseAST>($3);
     $$ = l_val;
   }
   ;
@@ -567,6 +599,15 @@ InitVal
     val->Exp = unique_ptr<BaseAST>($1);
     $$ = val;
   }
+  //
+  | '{' DExps '}' {
+    auto val = new ExpAST();
+    for(auto i: *$2){
+        val->vals.push_back(unique_ptr<BaseAST>(i));
+    }
+    delete $2;
+    $$ = val;
+  }
   ;
 VarDecl
   : PrimitiveType VarDef VarDefs ';' {
@@ -605,9 +646,22 @@ VarDef
     var->InitVal = unique_ptr<BaseAST>($3);
     $$ = var;
   }
+  | IDENT '[' ConstExp ']' '=' InitVal {
+    auto def = new VarDefAST();
+    def->ident = *unique_ptr<string>($1);
+    def->ConstExp = unique_ptr<BaseAST>($3);
+    def->InitVal = unique_ptr<BaseAST>($6);
+    $$ = def;
+  }
   | IDENT {
     auto var = new VarDefAST();
     var->ident = *unique_ptr<string>($1);
+    $$ = var;
+  }
+  | IDENT '[' ConstExp ']'{
+    auto var = new VarDefAST();
+    var->ident = *unique_ptr<string>($1);
+    var->ConstExp = unique_ptr<BaseAST>($3);
     $$ = var;
   }
   ;
