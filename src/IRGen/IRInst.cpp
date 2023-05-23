@@ -49,6 +49,16 @@ BranchInst::BranchInst(IRBase* _con, BasicBlock *_t_des, BasicBlock *_f_des): is
     // complete
 }
 
+Type *BranchInst::get_type() const {
+    assert(false);
+    return nullptr;
+}
+
+std::string BranchInst::get_value() const {
+    assert(false);
+    return "";
+}
+
 
 Inst *ArithInst::Create(ARITH_TYPE op, IRBase *_lhs, IRBase *_rhs) {
     auto tmp = new ArithInst(op, _lhs, _rhs);

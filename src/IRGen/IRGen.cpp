@@ -122,6 +122,8 @@ IRBase *Constant::get(Type *ty, T val) {
     return res;
 }
 
+std::vector<std::unique_ptr<IRBase> > IRBase::base_list;
+
 IRBase::IRBase(IR_TYPE type, Inst *val) {
     ir_type = type;
     inst = val;
@@ -214,33 +216,6 @@ std::string IRBase::get_value() const {
         case IR_ALLOCA:
             return this->alloca->get_value();
     }
-}
-
-
-template<class U>
-U IRBase::dyn_cast() {
-    switch(this->ir_type){
-        case IR_VALUE:
-            if(typeid(U) != typeid(Constant*))
-                return nullptr;
-            else
-                return (U)constant;
-            break;
-        case IR_ALLOCA:
-            if(typeid(U) != typeid(Alloca*))
-                return nullptr;
-            else
-                return (U)(alloca);
-            break;
-        case IR_INST:
-            if(typeid(U) != typeid(Inst*))
-                return nullptr;
-            else
-                return (U)inst;
-            break;
-    }
-    std::cout << "IRBase::dyn_cast encounters unexpected error!" << std::endl;
-    exit(1);
 }
 
 
@@ -338,6 +313,7 @@ void BasicBlock::insert(Inst *inst) {
 }
 
 
+std::list<std::unique_ptr<Alloca>> Alloca::alloca_list;
 
 Alloca::Alloca(Type *ty, const std::string &_name):  isConst(false), con_ptr(nullptr), type(ty), name(_name), v_reg(0) {}
 

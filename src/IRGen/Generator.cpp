@@ -253,3 +253,13 @@ std::string RetInst::print(unsigned int &st) {
         return code;
     }
 }
+
+Type *RetInst::get_type() const {
+    assert(false);
+    return nullptr;
+}
+
+std::string RetInst::get_value() const {
+    assert(false);
+    return "";
+}
