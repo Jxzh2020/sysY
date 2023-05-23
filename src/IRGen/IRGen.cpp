@@ -127,7 +127,7 @@ IRBase::IRBase(IR_TYPE type, Inst *val) {
     inst = val;
     constant = nullptr;
     alloca = nullptr;
-    this->type = nullptr;
+    this->type = val->get_type();
 }
 
 IRBase::IRBase(IR_TYPE type, Constant *val) {
@@ -205,6 +205,16 @@ IRBase *IRBase::CreateIRBase(IR_TYPE type, Alloca *val) {
     return nullptr;
 }
 
+std::string IRBase::get_value() const {
+    switch(this->ir_type){
+        case IR_VALUE:
+            return this->constant->get_value();
+        case IR_INST:
+            return this->inst->get_value();
+        case IR_ALLOCA:
+            return this->alloca->get_value();
+    }
+}
 
 
 template<class U>
@@ -329,7 +339,7 @@ void BasicBlock::insert(Inst *inst) {
 
 
 
-Alloca::Alloca(Type *ty, const std::string &_name): type(ty), name(_name), v_reg(0) {}
+Alloca::Alloca(Type *ty, const std::string &_name):  isConst(false), con_ptr(nullptr), type(ty), name(_name), v_reg(0) {}
 
 Alloca *Alloca::Create(Type *ty, const std::string &name) {
     auto res = new Alloca(ty, name);
@@ -357,6 +367,24 @@ Type *Alloca::get_type() const {
 
 const std::string &Alloca::get_name() const {
     return name;
+}
+
+void Alloca::set_value(IRBase *val) {
+    auto cons = val->dyn_cast<Constant*>();
+    auto inst = val->dyn_cast<Inst*>();
+    if(cons){
+        this->isConst = true;
+        this->con_ptr = cons;
+        this->value = this->con_ptr->get_value();
+    }
+    else{
+        this->isConst = false;
+        this->value = val->get_value();
+    }
+}
+
+std::string Alloca::get_value() {
+    return this->value;
 }
 
 // TODO: only consider type of int and bool
@@ -428,4 +456,14 @@ Constant *Constant::Create(LG_TYPE op, Constant *lhs, Constant *rhs) {
             break;
     }
     return Constant::get(Type::getInt1(), res)->dyn_cast<Constant*>();
+}
+
+std::string Constant::get_value() {
+    switch(this->type->get_type()){
+        case INT32:
+            return std::to_string(this->value.int_val);
+        default:
+            std::cout << "Constant of non-int32 type!" << std::endl;
+            exit(1);
+    }
 }

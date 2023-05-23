@@ -391,6 +391,8 @@ namespace IRGen {
          */
         std::string get_value();
     private:
+        bool isConst;
+        Constant* con_ptr;
         Alloca(Type* ty, const std::string& name);
         Type* type;
         std::string name;
@@ -419,7 +421,7 @@ namespace IRGen {
          * get the internal representation output, v_reg or constant
          * @return a constant or virtual register in string
          */
-        virtual std::string get_value() const;
+        virtual std::string get_value() const = 0;
         /**
          * this is for %3 = add i32 %2, 1
          *             %3 = add i32 1, 2    (may not exists)
@@ -439,6 +441,7 @@ namespace IRGen {
     public:
         std::string print(unsigned int &st) override;
         Type* get_type() const override;
+        std::string get_value() const override;
         static Inst* Create(BasicBlock* Des);
         static Inst* Create(IRBase* con, BasicBlock* t_des, BasicBlock* f_des);
     private:
@@ -515,6 +518,7 @@ namespace IRGen {
     public:
         std::string print(unsigned int &st) override;
         Type* get_type() const override;
+        std::string get_value() const override;
         static Inst* Create(IRBase* val = nullptr);
     private:
         explicit RetInst(IRBase* val);

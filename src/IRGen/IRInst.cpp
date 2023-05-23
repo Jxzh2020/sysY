@@ -86,6 +86,23 @@ ArithInst::ArithInst(ARITH_TYPE _op, IRBase *_lhs, IRBase *_rhs): op(_op), lhs(_
     }
 }
 
+std::string ArithInst::get_value() const {
+    if(!this->isConst && !this->evaluated){
+        std::cout << "AllocaInst not evaluated before use" << std::endl;
+        exit(1);
+    }
+    if(this->isConst)
+        return this->con_ptr->get_value();
+    else
+        return this->val;
+}
+
+Type *ArithInst::get_type() const {
+    if(this->isConst)
+        return this->con_ptr->get_type();
+    else
+        return this->lhs->get_type();
+}
 
 
 Inst *AllocaInst::Create(Type *ty, const std::string &name) {
@@ -117,6 +134,18 @@ AllocaInst::AllocaInst(ALLOCA_TYPE _op, Alloca *_ptr, IRBase *_val): ptr(_ptr), 
 
 AllocaInst::AllocaInst(ALLOCA_TYPE _op, Alloca *_ptr): ptr(_ptr), op(_op), val(nullptr) {
     // complete
+}
+
+std::string AllocaInst::get_value() const {
+    if(!this->evaluated){
+        std::cout << "AllocaInst not evaluated before use" << std::endl;
+        exit(1);
+    }
+    return this->ptr->get_value();
+}
+
+Type *AllocaInst::get_type() const {
+    return this->ptr->get_type();
 }
 
 
@@ -156,6 +185,24 @@ Inst *CmpInst::Create(CMP_TYPE _op, IRBase *lhs, IRBase *rhs) {
     return res;
 }
 
+std::string CmpInst::get_value() const {
+    if(!this->isConst && !this->evaluated){
+        std::cout << "CmpInst not evaluated before use" << std::endl;
+        exit(1);
+    }
+    if(this->isConst)
+        return this->con_ptr->get_value();
+    else
+        return this->val;
+}
+
+Type *CmpInst::get_type() const {
+    if(this->isConst)
+        return this->con_ptr->get_type();
+    else
+        return Type::getInt1();
+}
+
 
 LogicInst::LogicInst(LG_TYPE _op, IRBase *_lhs, IRBase *_rhs): op(_op),lhs(_lhs), rhs(_rhs) {
     // complete, check constant;
@@ -191,6 +238,24 @@ Inst *LogicInst::Create(LG_TYPE _op, IRBase *lhs, IRBase *rhs) {
     auto res = new LogicInst(_op, lhs, rhs);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(res));
     return res;
+}
+
+std::string LogicInst::get_value() const {
+    if(!this->isConst && !this->evaluated){
+        std::cout << "LogicInst not evaluated before use" << std::endl;
+        exit(1);
+    }
+    if(this->isConst)
+        return this->con_ptr->get_value();
+    else
+        return this->val;
+}
+
+Type *LogicInst::get_type() const {
+    if(this->isConst)
+        return this->con_ptr->get_type();
+    else
+        return Type::getInt1();
 }
 
 
