@@ -97,5 +97,26 @@ IRGen:
         get_name : return variable name
         get_AllocatedType()
     
-llvm::APInt  ? // what this is ?
+IRGen::APInt  ? // what this is ?
+```
+
+
+***NOTE: there may be some error in AllocaInst, which should all return Alloca->IRBase***
+
+
+**Funny thing!**
+```cpp
+class Inst {
+    public:
+        Inst();
+        /**
+         *  Really funny thing!
+         */
+        virtual ~Inst() {}
+        virtual std::string print(unsigned int &st) = 0;
+        virtual Type* get_type() const = 0;
+        bool isEvaluated() const;
+        unsigned int getVReg() const;
+        bool isConstant() const;
+        Constant* get_con_ptr() const;
 ```

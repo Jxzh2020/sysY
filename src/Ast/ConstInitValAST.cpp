@@ -8,6 +8,6 @@ void ConstInitValAST::Dump() const {
 
 }
 
-llvm::Value *ConstInitValAST::codegen() {
+IRGen::IRBase *ConstInitValAST::codegen() {
     return ConstExp->codegen();
 }

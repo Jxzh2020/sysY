@@ -68,11 +68,17 @@ IRBase * Builder::CreateAlloca(Type *ty, const std::string &name) {
 
 // type checking
 IRBase *Builder::CreateStore(IRBase *val, IRBase *ptr) {
+    Inst* res;
     if( ptr->dyn_cast<Alloca*>() == nullptr){
-        std::cout << "IRGen::IRBase::dyn_cast<Alloca*> failed, IRGen::Builder::CreateStore argument error!" << std::endl;
-        exit(1);
+        if( ptr->dyn_cast<AllocaInst*>() == nullptr){
+            std::cout << "IRGen::IRBase::dyn_cast<Alloca*> failed, IRGen::Builder::CreateStore argument error!" << std::endl;
+            exit(1);
+        }
+        res = AllocaInst::Store(val,ptr->dyn_cast<AllocaInst*>()->get_alloca());
     }
-    auto res = AllocaInst::Store(val,ptr->dyn_cast<Alloca*>());
+    else{
+        res = AllocaInst::Store(val,ptr->dyn_cast<Alloca*>());
+    }
     current_at_bb->insert(res);
     return ptr;
 }
@@ -148,4 +154,19 @@ IRBase *Builder::CreateRet(IRBase *val) {
     auto res = RetInst::Create(val);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST, res);
+}
+
+IRBase *Builder::CreateCall(Function *fun) {
+    assert(false);
+    return nullptr;
+}
+
+IRBase *Builder::CreateCall(Function *fun, std::vector<IRBase *> args) {
+    assert(false);
+    return nullptr;
+}
+
+BasicBlock *Builder::SetInsertPoint(BasicBlock *basicblock) {
+    this->current_at_bb = basicblock;
+    return nullptr;
 }

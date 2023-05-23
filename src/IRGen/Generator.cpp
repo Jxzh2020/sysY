@@ -25,11 +25,11 @@ std::string Type::print() const {
 }
 
 
-std::string Function::Arg::print_type() const {
+std::string Arg::print_type() const {
     return this->type->print();
 }
 
-std::string Function::Arg::print_name() const {
+std::string Arg::print_name() const {
     return this->name;
 }
 
@@ -113,7 +113,8 @@ std::string BranchInst::print(unsigned int &st) {
     else{
         // TODO: this could raise error, a pointer comparison here
         cast = Type::Cast(this->con, Type::getInt1());
-        inst+=(cast->print(st)+"\n  ");
+        if(cast)
+            inst+=(cast->print(st)+"\n  ");
         inst+=(std::string("br i1 %") + std::to_string(st++) + ", label %" + this->t_des->get_name() + ", label %" + this->f_des->get_name());
         return inst;
     }

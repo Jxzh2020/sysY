@@ -8,10 +8,10 @@ void BlockAST::Dump() const {
     ;
 }
 
-llvm::Value *BlockAST::codegen() {
+IRGen::IRBase *BlockAST::codegen() {
     // create a basic block attached to parent function
     // moved to upper level
-//    llvm::BasicBlock *BB = llvm::BasicBlock::Create(*IR::get()->getContext(),"entry",IR::get()->getFunc());
+//    IRGen::BasicBlock *BB = IRGen::BasicBlock::Create(*IR::get()->getContext(),"entry",IR::get()->getFunc());
 //    IR::get()->getBuilder()->SetInsertPoint(BB);
 
     // empty block

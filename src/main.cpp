@@ -131,12 +131,13 @@ Stmt          ::= LVal "=" Exp ";"
 
 #include <cassert>
 #include <cstdio>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <map>
 #include "Ast/BaseAST.h"
-#include <llvm/Support/raw_ostream.h>
+
 
 using namespace std;
 
@@ -172,12 +173,10 @@ int main(int argc, const char *argv[]) {
 
     ast->codegen();
 
-    std::error_code EC;
-    //llvm::raw_fd_ostream ofs(output, EC);
-    llvm::raw_fd_ostream ofs("test.ll", EC);
-    IR::get()->getModule()->print(ofs, nullptr);
+    std::ofstream file("demo.ll");
+    file << IR::get()->getModule()->print().str();
 
-    cout << endl;
+    file.close();
 
     return 0;
 }

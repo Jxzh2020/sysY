@@ -81,11 +81,8 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${INC_DIR})
 
 # *****************
-# Use customized LLVM
-find_package(LLVM REQUIRED CONFIG)
+# Clean Use of customized LLVM
 
-include_directories(${LLVM_INCLUDE_DIRS} ${CLANG_INCLUDE_DIRS} SYSTEM)
-link_directories(${LLVM_LIBRARY_DIRS})
 # *****************
 
 # all of C/C++ source files
@@ -102,17 +99,7 @@ set(SOURCES ${C_SOURCES} ${CXX_SOURCES} ${CC_SOURCES}
 set(CMAKE_BUILD_TYPE "Debug")
 add_executable(sysY ${SOURCES} ${INCLUDE_FILES})
 set_target_properties(sysY PROPERTIES C_STANDARD 11 CXX_STANDARD 17)
-target_link_libraries(sysY
-        LLVMX86AsmParser
-        LLVMX86CodeGen
-        LLVMAsmParser
-        LLVMBitWriter
-        LLVMRuntimeDyld
-        LLVMExecutionEngine
-        LLVMMCJIT
-        z
-        ncurses
-        )
+
 
 #target_include_directories(sysY
 #    PRIVATE

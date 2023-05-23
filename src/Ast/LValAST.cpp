@@ -8,7 +8,7 @@ void LValAST::Dump() const {
 
 }
 
-llvm::Value *LValAST::codegen() {
+IRGen::IRBase *LValAST::codegen() {
     // TODO: unsolved constant assignment
 
     // 1. local variable, it seems that LLVM automatically shadows variables in nested logical blocks
@@ -19,8 +19,8 @@ llvm::Value *LValAST::codegen() {
         auto argIter = IR::get()->getFunc()->arg_begin();
         auto argEnd = IR::get()->getFunc()->arg_end();
         for (; argIter != argEnd; argIter++)
-            if (argIter->getName().str() == ident) {
-                ref = argIter;  //IR::get()->getBuilder()->CreateLoad(argIter->getType(),argIter);
+            if (argIter->get()->get_name() == ident) {
+                ref = IRGen::IRBase::CreateIRBase(IRGen::IR_ARG, argIter->get());  //IR::get()->getBuilder()->CreateLoad(argIter->getType(),argIter);
                 break;
             }
     }
@@ -33,9 +33,9 @@ llvm::Value *LValAST::codegen() {
         std::cout << "Error! LVal not found!" << std::endl;
         exit(1);
     }
-    //auto val = IR::get()->getBuilder()->CreateLoad(static_cast<llvm::AllocaInst*>(ref)->getAllocatedType(),ref);
-    //llvm::AllocaInst* I = llvm::dyn_cast<llvm::AllocaInst>(val)
-    //if(auto val = llvm::dyn_cast<llvm::AllocaInst>(ref))
+    //auto val = IR::get()->getBuilder()->CreateLoad(static_cast<IRGen::AllocaInst*>(ref)->getAllocatedType(),ref);
+    //IRGen::AllocaInst* I = IRGen::dyn_cast<IRGen::AllocaInst>(val)
+    //if(auto val = IRGen::dyn_cast<IRGen::AllocaInst>(ref))
     //    return IR::get()->getBuilder()->CreateLoad(val->getAllocatedType(),val);
 
     return ref;

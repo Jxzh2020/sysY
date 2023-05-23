@@ -3,6 +3,7 @@
 //
 
 #include "Ast/BaseAST.h"
+#include "IRGen/IRGen.h"
 
 std::unique_ptr<IR> IR::instance(new IR);
 
@@ -12,11 +13,10 @@ std::unique_ptr<IR> &IR::get() {
 
 IR::IR() {
     // Open a new context and module.
-    TheContext = std::make_unique<llvm::LLVMContext>();
-    TheModule = std::make_unique<llvm::Module>("jxzh_sysY", *TheContext);
+    TheModule = std::make_unique<IRGen::Module>("jxzh_sysY");
 
     // Create a new builder for the module.
-    Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
+    Builder = std::make_unique<IRGen::Builder>();
     curFunc = nullptr;
     Func_Context = nullptr;
     isglobe = true;
@@ -33,7 +33,7 @@ IR::IR() {
 //
 //    // branch to the end of the parent logical block
 //    // Create the BB of the parent logical block
-//    auto block = llvm::BasicBlock::Create(TheContext,this->CreateName(),curFunc);
+//    auto block = IRGen::BasicBlock::Create(TheContext,this->CreateName(),curFunc);
 //    basic_blocks_of[parent_block_of_logical[logical_block_of[curblock]]].push_back(block);
 //    logical_block_of[block] = parent_block_of_logical[logical_block_of[curblock]];
 //
@@ -45,7 +45,7 @@ IR::IR() {
 //}
 
 void IR::NewLogicalBlockStart() {
-    auto l_b = llvm::BasicBlock::Create(*TheContext, this->CreateName(), curFunc);
+    auto l_b = IRGen::BasicBlock::Create(this->CreateName(), curFunc);
     // TODO wired usage
     Func_Context->basic_blocks_of[l_b].push_back(l_b);
     Func_Context->logical_block_of[l_b] = l_b;
@@ -70,10 +70,10 @@ void IR::NewLogicalBlockEnd() {
     if (Func_Context->parent_block_of_logical[Func_Context->logical_block_of[Func_Context->curblock]] == nullptr)
         return;
     for (auto i: Func_Context->alloca[Func_Context->logical_block_of[Func_Context->curblock]]) {
-        Builder->CreateLifetimeEnd(i);
+        //Builder->CreateLifetimeEnd(i);
     }
 
-    auto block = llvm::BasicBlock::Create(*TheContext, this->CreateName(), curFunc);
+    auto block = IRGen::BasicBlock::Create(this->CreateName(), curFunc);
     Func_Context->basic_blocks_of[Func_Context->parent_block_of_logical[Func_Context->logical_block_of[Func_Context->curblock]]].push_back(
             block);
     Func_Context->logical_block_of[block] = Func_Context->parent_block_of_logical[Func_Context->logical_block_of[Func_Context->curblock]];
@@ -85,21 +85,22 @@ void IR::NewLogicalBlockEnd() {
     Func_Context->curblock = block;
 }
 
-llvm::BasicBlock *IR::NewBasicBlock() {
-    auto bb = llvm::BasicBlock::Create(*TheContext, CreateName(), curFunc);
+IRGen::BasicBlock *IR::NewBasicBlock() {
+    auto bb = IRGen::BasicBlock::Create(CreateName(), curFunc);
     Func_Context->basic_blocks_of[Func_Context->logical_block_of[Func_Context->curblock]].push_back(bb);
     Func_Context->logical_block_of[bb] = Func_Context->logical_block_of[Func_Context->curblock];
     return bb;
 }
 
-void IR::AddAlloca(llvm::AllocaInst *al, const std::string &o_name) {
+void IR::AddAlloca(IRGen::IRBase *_al, const std::string &o_name) {
+    auto al = dynamic_cast<IRGen::AllocaInst*>(_al->dyn_cast<IRGen::Inst*>())->get_alloca();
     /****    Add to Alloca list   ****/
     Func_Context->alloca[Func_Context->logical_block_of[Func_Context->curblock]].push_back(al);
 
     /****    Construct Name mapping to support shadowing    ****/
     if (Func_Context->name_map.find(Func_Context->logical_block_of[Func_Context->curblock]) ==
         Func_Context->name_map.end()) {
-        Func_Context->name_map[Func_Context->logical_block_of[Func_Context->curblock]] = std::make_unique<std::unordered_map<std::string, llvm::AllocaInst *>>();
+        Func_Context->name_map[Func_Context->logical_block_of[Func_Context->curblock]] = std::make_unique<std::unordered_map<std::string, IRGen::Alloca*>>();
     }
     auto &map = Func_Context->name_map[Func_Context->logical_block_of[Func_Context->curblock]];
     if (map->find(o_name) != map->end()) {
@@ -113,14 +114,14 @@ void IR::AddAlloca(llvm::AllocaInst *al, const std::string &o_name) {
     // top block
     if (Func_Context->parent_block_of_logical[Func_Context->logical_block_of[Func_Context->curblock]] == nullptr)
         return;
-    Builder->CreateLifetimeStart(al);
+    //Builder->CreateLifetimeStart(al);
 }
 
-llvm::Value *IR::GetAlloca(const std::string &name) {
+IRGen::IRBase *IR::GetAlloca(const std::string &name) {
     return GetAlloca(name, Func_Context->curblock);
 }
 
-llvm::Value *IR::GetAlloca(const std::string &name, llvm::BasicBlock *cur) {
+IRGen::IRBase *IR::GetAlloca(const std::string &name, IRGen::BasicBlock *cur) {
     if (cur == nullptr) {
         return nullptr;
     }
@@ -131,19 +132,17 @@ llvm::Value *IR::GetAlloca(const std::string &name, llvm::BasicBlock *cur) {
     if (map.get()->find(name) == map->end()) {
         return GetAlloca(name, Func_Context->parent_block_of_logical[Func_Context->logical_block_of[cur]]);
     } else
-        return (*map)[name];
+        return IRGen::IRBase::CreateIRBase(IRGen::IR_INST,(*map)[name]);
 }
 
 void IR::declare_libfunc() {
-    auto int_type = llvm::Type::getInt32Ty(*TheContext);
-    auto void_type = llvm::Type::getVoidTy(*TheContext);
+    auto int_type = IRGen::Type::getInt32();
+    auto void_type = IRGen::Type::getVoid();
 
-    llvm::Function::Create(llvm::FunctionType::get(int_type, false), llvm::GlobalValue::ExternalLinkage, "getint",
-                           TheModule.get());
-    llvm::Function::Create(llvm::FunctionType::get(int_type, false), llvm::GlobalValue::ExternalLinkage, "getch",
-                           TheModule.get());
-    llvm::Function::Create(llvm::FunctionType::get(void_type, {int_type}, false), llvm::GlobalValue::ExternalLinkage,
+    IRGen::Function::Create(IRGen::FunctionType::get(int_type), IRGen::Function::ExternalLinkage, "getint",TheModule.get());
+    IRGen::Function::Create(IRGen::FunctionType::get(int_type), IRGen::Function::ExternalLinkage, "getch",TheModule.get());
+    IRGen::Function::Create(IRGen::FunctionType::get(void_type, {int_type}), IRGen::Function::ExternalLinkage,
                            "putint", TheModule.get());
-    llvm::Function::Create(llvm::FunctionType::get(void_type, {int_type}, false), llvm::GlobalValue::ExternalLinkage,
+    IRGen::Function::Create(IRGen::FunctionType::get(void_type, {int_type}), IRGen::Function::ExternalLinkage,
                            "putch", TheModule.get());
 }

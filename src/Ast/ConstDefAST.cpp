@@ -8,17 +8,17 @@ void ConstDefAST::Dump() const {
 
 }
 
-llvm::Value *ConstDefAST::codegen() {
+IRGen::IRBase *ConstDefAST::codegen() {
     // deleted
     auto &builder = IR::get()->getBuilder();
     auto down = ConstInitVal->codegen();
     // TODO: unknown_usage
-    auto res = builder->CreateAlloca(down->getType(), nullptr, ident);
+    auto res = builder->CreateAlloca(down->get_type(), ident);
     builder->CreateStore(down, res);
     return res;
 }
 
-std::pair<const std::string &, llvm::Value *> ConstDefAST::get_defs() const {
+std::pair<const std::string &, IRGen::IRBase *> ConstDefAST::get_defs() const {
     auto down = ConstInitVal->codegen();
-    return std::pair<const std::string &, llvm::Value *>{ident, down};
+    return std::pair<const std::string &, IRGen::IRBase *>{ident, down};
 }

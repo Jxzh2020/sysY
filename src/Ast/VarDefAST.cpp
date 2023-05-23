@@ -8,9 +8,9 @@ void VarDefAST::Dump() const {
 
 }
 
-llvm::Value *VarDefAST::codegen() {
+IRGen::IRBase *VarDefAST::codegen() {
     // -> IDENT
-    llvm::Value *res;
+    IRGen::IRBase *res;
     auto &builder = IR::get()->getBuilder();
     if (InitVal == nullptr) { ;
     }
@@ -21,13 +21,13 @@ llvm::Value *VarDefAST::codegen() {
     return nullptr;
 }
 
-std::pair<const std::string &, llvm::Value *> VarDefAST::get_defs() const {
+std::pair<const std::string &, IRGen::IRBase *> VarDefAST::get_defs() const {
     // -> IDENT
     if (InitVal == nullptr) {
-        return std::pair<const std::string &, llvm::Value *>{ident, nullptr};
+        return std::pair<const std::string &, IRGen::IRBase *>{ident, nullptr};
     }
         // -> IDENT = InitVal
     else {
-        return std::pair<const std::string &, llvm::Value *>{ident, InitVal->codegen()};
+        return std::pair<const std::string &, IRGen::IRBase *>{ident, InitVal->codegen()};
     }
 }

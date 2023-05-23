@@ -13,7 +13,7 @@ void DeclAST::Dump() const {
     std::cout << " }";
 }
 
-llvm::Value *DeclAST::codegen() {
+IRGen::IRBase *DeclAST::codegen() {
     if (ConstDecl == nullptr)
         return VarDecl->codegen();
     else

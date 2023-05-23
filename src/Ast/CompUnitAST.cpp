@@ -11,16 +11,16 @@ void CompUnitAST::Dump() const {
     std::cout << " }" << std::endl;
 }
 
-llvm::Value *CompUnitAST::codegen() {
+IRGen::IRBase *CompUnitAST::codegen() {
     for (auto &item: this->globe) {
         //
         // TODO
         item->codegen();
     }
-//    llvm::raw_ostream &OS = llvm::outs();
+//    IRGen::raw_ostream &OS = IRGen::outs();
 //    IR::get()->getModule()->print(OS,nullptr);
 //
-//    bool Err = llvm::verifyModule(*IR::get()->getModule(), &llvm::errs());
+//    bool Err = IRGen::verifyModule(*IR::get()->getModule(), &IRGen::errs());
     ;
     return nullptr;
 }

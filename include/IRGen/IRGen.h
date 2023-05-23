@@ -32,6 +32,7 @@ namespace IRGen {
     class AllocaInst;
     class FunctionType;
     class Function;
+    class Arg;
     class GlobalVariable;
     class Alloca;
 
@@ -52,7 +53,9 @@ namespace IRGen {
     enum IR_TYPE {
         IR_INST,
         IR_VALUE,
-        IR_ALLOCA
+        IR_ALLOCA,
+        IR_ARG,
+        IR_GLOBAL_VAR
     };
     enum P_TYPE {
         INT32,
@@ -100,10 +103,14 @@ namespace IRGen {
 
     class Module {
     public:
+        Module(const std::string& name);
         [[nodiscard]] IRBase* getGlobalVariable(const std::string& name) const;
         void add_func(const std::string&, Function*);
+        void add_variable(GlobalVariable* var);
+        Function* get_function(const std::string& name);
         std::stringstream print();
     private:
+        std::string module_name;
         std::unordered_map<std::string,std::unique_ptr<Function> > func_list;
         std::unordered_map<std::string, std::unique_ptr<GlobalVariable> > global_var_list;
     };
@@ -189,11 +196,43 @@ namespace IRGen {
          */
         static Inst* Cast(Constant* from, Type* to_type);
         static Inst* Cast(Inst* from_inst, Type* to_type);
+        static Inst* Cast(IRBase* from, Type* to);
     private:
         explicit Type(P_TYPE);
         static void gen_all_instances();
         static std::vector<std::unique_ptr<Type> > allocated;
         P_TYPE type;
+    };
+    class Inst {
+    public:
+        Inst();
+        /**
+         *  Really funny thing!
+         */
+        virtual ~Inst() {}
+        virtual std::string print(unsigned int &st) = 0;
+        virtual Type* get_type() const = 0;
+        bool isEvaluated() const;
+        unsigned int getVReg() const;
+        bool isConstant() const;
+        Constant* get_con_ptr() const;
+        /**
+         * get the internal representation output, v_reg or constant
+         * @return a constant or virtual register in string
+         */
+        virtual std::string get_value() const = 0;
+        /**
+         * this is for %3 = add i32 %2, 1
+         *             %3 = add i32 1, 2    (may not exists)
+         * @return the value regardless of the virtual register or Constant value.
+         */
+    protected:
+        static std::vector<std::unique_ptr<Inst> > inst_list;
+        unsigned int v_reg;
+        std::string val;
+        bool evaluated;
+        bool isConst;
+        Constant* con_ptr;
     };
 
     /** IRBase should be a basic interface for all values inst and create inst
@@ -213,7 +252,15 @@ namespace IRGen {
         static IRBase* CreateIRBase(IR_TYPE type, Inst* val);
         static IRBase* CreateIRBase(IR_TYPE type, Constant* val);
         static IRBase* CreateIRBase(IR_TYPE type, Alloca* val);
+        static IRBase* CreateIRBase(IR_TYPE type, Arg* val);
+        static IRBase* CreateIRBase(IR_TYPE type, GlobalVariable* val);
 
+        /**
+         *  An interesting dyn_cast based on composition
+         *  A special case is that, Const Exp is of Constant type
+         * @tparam U the des-type
+         * @return
+         */
         template <class U>
         U dyn_cast() {
             switch(this->ir_type){
@@ -227,19 +274,36 @@ namespace IRGen {
                     if(typeid(U) != typeid(Alloca*))
                         return nullptr;
                     else
-                        return (U)(alloca);
+                        return (U)(allo);
                     break;
                 case IR_INST:
-                    if(typeid(U) != typeid(Inst*))
-                        return nullptr;
+                    if(typeid(U) != typeid(Inst*)){
+                        if(typeid(U) == typeid(Constant*)){
+                            return (U)this->inst->get_con_ptr();
+                        }
+                        else
+                            return nullptr;
+                    }
                     else
                         return (U)inst;
+                    break;
+                case IR_ARG:
+                    if(typeid(U) != typeid(Arg*))
+                        return nullptr;
+                    else
+                        return (U)(arg);
+                    break;
+                case IR_GLOBAL_VAR:
+                    if(typeid(U) != typeid(GlobalVariable*))
+                        return nullptr;
+                    else
+                        return (U)(global);
                     break;
             }
             std::cout << "IRBase::dyn_cast encounters unexpected error!" << std::endl;
             exit(1);
         }
-
+        IR_TYPE get_ir_type() const;
     private:
         [[nodiscard]] Inst* get_inst() const;
         [[nodiscard]] Alloca* get_alloca() const;
@@ -251,11 +315,17 @@ namespace IRGen {
 
         explicit  IRBase(IR_TYPE type, Alloca* val);
 
+        explicit  IRBase(IR_TYPE type, Arg* val);
+
+        explicit  IRBase(IR_TYPE type, GlobalVariable* val);
+
         static std::vector<std::unique_ptr<IRBase> > base_list;
 
         Inst* inst;
         Constant* constant;
-        Alloca* alloca;
+        Alloca* allo;
+        Arg* arg;
+        GlobalVariable* global;
 
         Type* type;
         IR_TYPE ir_type;
@@ -299,13 +369,14 @@ namespace IRGen {
 
     class FunctionType {
     public:
-        static FunctionType* get(Type* ret_ty, std::vector<Type*>& params, bool isVarArg);
+        static FunctionType* get(Type* ret_ty, std::vector<Type*> params);
+        static FunctionType* get(Type* ret_ty);
         std::vector<Type*>& get_params();
         Type* get_ret_type();
     private:
-        FunctionType(Type* ret_ty, std::vector<Type*>& params, bool isVarArg);
+        FunctionType(Type* ret_ty, std::vector<Type*>& params);
+        FunctionType(Type* ret_ty);
         static std::vector<std::unique_ptr<FunctionType>> list;
-        bool isVarArg;
         std::vector<Type*> params;
         Type* ret;
     };
@@ -335,21 +406,25 @@ namespace IRGen {
         std::string name;
     };
 
+    class Arg {
+    public:
+        explicit Arg(Type*);
+        const std::string& get_name();
+        std::string print_type() const;
+        std::string print_name() const;
+        void set_name(const std::string&);
+        Type* get_type() const;
+    private:
+        std::string name;
+        Type* type;
+    };
 
     class Function {
+    public:
+
     private:
-        explicit Function(FunctionType* ty, const std::string& name);
-        class Arg {
-        public:
-            explicit Arg(Type*);
-            const std::string& get_name();
-            std::string print_type() const;
-            std::string print_name() const;
-            void set_name(const std::string&);
-        private:
-            std::string name;
-            Type* type;
-        };
+        explicit Function(FunctionType* ty, const std::string& name, Linkage link);
+
         std::string print_define() const;
         std::string print_declare() const;
     public:
@@ -363,7 +438,7 @@ namespace IRGen {
          * @return (i32, ...) or ()
          */
         std::string arg_print_type() const;
-        static Function* Create(FunctionType* ty, const std::string& name, Module* module);
+        static Function* Create(FunctionType* ty, Linkage link, const std::string& name, Module* module);
 
         [[nodiscard]] const std::string& get_name() const;
 
@@ -378,6 +453,7 @@ namespace IRGen {
         static Linkage InternalLinkage;
         void add_block(BasicBlock*);
     private:
+        Linkage link;
         unsigned int v_reg_assigned;
         std::vector<std::unique_ptr<Arg> > arg_list;
         std::unordered_map<std::string, std::unique_ptr<BasicBlock> > b_list;
@@ -389,13 +465,20 @@ namespace IRGen {
         std::string name;
 
     };
-    class GlobalVariable: public IRBase {
+    class GlobalVariable {
     public:
+        static IRBase* Create(Module* module, Type* ty, bool constant, IRBase* val, const std::string& name);
         Type* get_type();
         const std::string& get_name() const;
         bool isConstant() const;
     private:
+        explicit GlobalVariable(Type* ty, bool constant, IRBase* val, const std::string& ident);
+
+        Type* type;
         bool isConst;
+        IRBase* val;
+        std::string name;
+
     };
 
     /**
@@ -431,33 +514,7 @@ namespace IRGen {
      *
      */
 
-    class Inst {
-    public:
-        Inst();
-        virtual std::string print(unsigned int &st) = 0;
-        virtual Type* get_type() const = 0;
-        bool isEvaluated() const;
-        unsigned int getVReg() const;
-        bool isConstant() const;
-        Constant* get_con_ptr() const;
-        /**
-         * get the internal representation output, v_reg or constant
-         * @return a constant or virtual register in string
-         */
-        virtual std::string get_value() const = 0;
-        /**
-         * this is for %3 = add i32 %2, 1
-         *             %3 = add i32 1, 2    (may not exists)
-         * @return the value regardless of the virtual register or Constant value.
-         */
-    protected:
-        static std::vector<std::unique_ptr<Inst> > inst_list;
-        unsigned int v_reg;
-        std::string val;
-        bool evaluated;
-        bool isConst;
-        Constant* con_ptr;
-    };
+
 
 
     class BranchInst: public Inst {
@@ -473,7 +530,7 @@ namespace IRGen {
         bool isConBr;
         BasicBlock* t_des;
         BasicBlock* f_des;
-        Inst* con;
+        IRBase* con;
     };
 
     /**
@@ -554,6 +611,7 @@ namespace IRGen {
         std::string print(unsigned int &st) override;
         Type* get_type() const override;
     };
+
 
 };
 

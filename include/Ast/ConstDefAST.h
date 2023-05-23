@@ -14,9 +14,9 @@ public:
 
     void Dump() const override;
 
-    [[nodiscard]] llvm::Value *codegen() override;
+    [[nodiscard]] IRGen::IRBase *codegen() override;
 
-    [[nodiscard]] std::pair<const std::string &, llvm::Value *> get_defs() const;
+    [[nodiscard]] std::pair<const std::string &, IRGen::IRBase *> get_defs() const;
 };
 
 

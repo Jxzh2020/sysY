@@ -12,13 +12,13 @@ class PrimitiveTypeAST : public BaseAST {
 public:
     std::string type;
 
-    [[nodiscard]] llvm::Type *get_type() const;
+    [[nodiscard]] IRGen::Type *get_type() const;
 
-    [[nodiscard]] llvm::FunctionType *get_type(const std::vector<std::unique_ptr<BaseAST>> &) const;
+    [[nodiscard]] IRGen::FunctionType *get_type(const std::vector<std::unique_ptr<BaseAST>> &) const;
 
     void Dump() const override {}
 
-    [[nodiscard]] llvm::Value *codegen() override { return nullptr; }
+    [[nodiscard]] IRGen::IRBase *codegen() override { return nullptr; }
 
 };
 

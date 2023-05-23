@@ -16,7 +16,7 @@ public:
 
     [[nodiscard]] bool isBranch() const;
 
-    [[nodiscard]] llvm::Value *codegen() override;
+    [[nodiscard]] IRGen::IRBase *codegen() override;
 };
 
 

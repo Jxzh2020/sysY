@@ -15,11 +15,11 @@ public:
 
     const std::string &getName() const;
 
-    llvm::Type *getType() const;
+    IRGen::Type *getType() const;
 
     void Dump() const override {}
 
-    [[nodiscard]] llvm::Value *codegen() override { return nullptr; }
+    [[nodiscard]] IRGen::IRBase *codegen() override { return nullptr; }
 };
 
 

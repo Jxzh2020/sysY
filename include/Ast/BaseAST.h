@@ -11,19 +11,8 @@
 #include <string>
 #include <map>
 #include <unordered_map>
-#include <llvm/ADT/APFloat.h>
-#include <llvm/ADT/STLExtras.h>
-#include <llvm/IR/BasicBlock.h>
-#include <llvm/IR/Constants.h>
-#include <llvm/IR/DerivedTypes.h>
-#include <llvm/IR/Function.h>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-#include <llvm/IR/Type.h>
-#include <llvm/IR/Verifier.h>
-#include <llvm/IR/ValueSymbolTable.h>
-#include <llvm/IR/Instructions.h>
+
+#include "IRGen/IRGen.h"
 
 
 enum UnaryOp {
@@ -57,17 +46,17 @@ struct FuncContext {
     FuncContext() : curblock(nullptr), uid(0) {}
 
     // current BB
-    llvm::BasicBlock *curblock;
+    IRGen::BasicBlock *curblock;
     // to fully support variable shadowing, a local variable list is maintained
-    std::unordered_map<llvm::BasicBlock *, std::unique_ptr<std::unordered_map<std::string, llvm::AllocaInst *>>> name_map;
+    std::unordered_map<IRGen::BasicBlock *, std::unique_ptr<std::unordered_map<std::string, IRGen::Alloca*>>> name_map;
     // logical first BB ---> logical block (or scope) alloca inst
-    std::unordered_map<llvm::BasicBlock *, std::vector<llvm::AllocaInst *>> alloca;
+    std::unordered_map<IRGen::BasicBlock *, std::vector<IRGen::Alloca *>> alloca;
     // logical block first BB ----> real LLVM BasicBlocks
-    std::unordered_map<llvm::BasicBlock *, std::vector<llvm::BasicBlock *>> basic_blocks_of;
+    std::unordered_map<IRGen::BasicBlock *, std::vector<IRGen::BasicBlock *>> basic_blocks_of;
     // logical block ---> parent logical block first BB
-    std::unordered_map<llvm::BasicBlock *, llvm::BasicBlock *> parent_block_of_logical;
+    std::unordered_map<IRGen::BasicBlock *, IRGen::BasicBlock *> parent_block_of_logical;
     // real block ---> logical block first BB
-    std::unordered_map<llvm::BasicBlock *, llvm::BasicBlock *> logical_block_of;
+    std::unordered_map<IRGen::BasicBlock *, IRGen::BasicBlock *> logical_block_of;
     //
     unsigned long long uid;
 
@@ -79,7 +68,7 @@ public:
 
     virtual void Dump() const = 0;
 
-    [[nodiscard]] virtual llvm::Value *codegen() = 0;
+    [[nodiscard]] virtual IRGen::IRBase *codegen() = 0;
 };
 
 /*
@@ -93,20 +82,18 @@ public:
 
     static std::unique_ptr<IR> &get();
 
-    std::unique_ptr<llvm::LLVMContext> &getContext() { return TheContext; }
+    std::unique_ptr<IRGen::Builder> &getBuilder() { return Builder; }
 
-    std::unique_ptr<llvm::IRBuilder<>> &getBuilder() { return Builder; }
+    std::unique_ptr<IRGen::Module> &getModule() { return TheModule; }
 
-    std::unique_ptr<llvm::Module> &getModule() { return TheModule; }
-
-    std::map<std::string, llvm::Value *> &getNameMap() { return NamedValues; }
+    std::map<std::string, IRGen::IRBase *> &getNameMap() { return NamedValues; }
 
     /**
      * Flush current function pointer and its logical context,
      * Do this manually when a new FuncDef is derived.
      *
      */
-    void EnterFunc(llvm::Function *cursor) {
+    void EnterFunc(IRGen::Function *cursor) {
         isglobe = false;
         if (func_list.find(cursor) == func_list.end()) { func_list[cursor] = std::make_unique<FuncContext>(); }
         curFunc = cursor;
@@ -118,21 +105,20 @@ public:
 
     bool isGlobeBlock() { return isglobe; }
 
-    llvm::Function *getFunc() { return curFunc; }
+    IRGen::Function *getFunc() { return curFunc; }
 
-    void AddGlobe(llvm::GlobalVariable *p) { global_variable.push_back(std::unique_ptr<llvm::GlobalVariable>(p)); }
+    void AddGlobe(IRGen::GlobalVariable *p) { global_variable.push_back(std::unique_ptr<IRGen::GlobalVariable>(p)); }
 
 private:
-    std::unique_ptr<llvm::LLVMContext> TheContext;
-    std::unique_ptr<llvm::IRBuilder<>> Builder;
-    std::unique_ptr<llvm::Module> TheModule;
-    std::map<std::string, llvm::Value *> NamedValues;
-    llvm::Function *curFunc;
+    std::unique_ptr<IRGen::Builder> Builder;
+    std::unique_ptr<IRGen::Module> TheModule;
+    std::map<std::string, IRGen::IRBase *> NamedValues;
+    IRGen::Function *curFunc;
     static std::unique_ptr<IR> instance;
     bool isglobe;
-    std::vector<std::unique_ptr<llvm::GlobalVariable>> global_variable;
+    std::vector<std::unique_ptr<IRGen::GlobalVariable>> global_variable;
     // [condition bb, false bb]
-    std::stack<std::pair<llvm::BasicBlock *, llvm::BasicBlock *>> while_bb;
+    std::stack<std::pair<IRGen::BasicBlock *, IRGen::BasicBlock *>> while_bb;
     bool hasBranch;
 
 /** To support break and continue clause, some inf should remain during Stmts parsing.
@@ -150,31 +136,31 @@ public:
 public:
     bool isInWhile() { return !while_bb.empty(); }
 
-    llvm::BasicBlock *false_bb() { return while_bb.top().second; }
+    IRGen::BasicBlock *false_bb() { return while_bb.top().second; }
 
-    llvm::BasicBlock *condition_bb() { return while_bb.top().first; }
+    IRGen::BasicBlock *condition_bb() { return while_bb.top().first; }
 
     // [condition bb, false bb]
-    void push_while(std::pair<llvm::BasicBlock *, llvm::BasicBlock *> in) { while_bb.push(in); }
+    void push_while(std::pair<IRGen::BasicBlock *, IRGen::BasicBlock *> in) { while_bb.push(in); }
 
     void pop_while() { while_bb.pop(); }
 
-    void EnterBlock(llvm::BasicBlock *cursor) {
+    void EnterBlock(IRGen::BasicBlock *cursor) {
         Func_Context->curblock = cursor;
         Builder->SetInsertPoint(cursor);
     }
 
-    llvm::BasicBlock *currentBlock() { return Func_Context->curblock; }
+    IRGen::BasicBlock *currentBlock() { return Func_Context->curblock; }
 
-    void setBlock(llvm::BasicBlock *p) { Func_Context->curblock = p; }
+    void setBlock(IRGen::BasicBlock *p) { Func_Context->curblock = p; }
 
-//    inline llvm::BasicBlock* getLBlock() { return logical_block_of[curblock]; }
-//    inline llvm::BasicBlock* getFBlock() { return parent_block_of_logical[logical_block_of[curblock]]; }
-//    std::vector<llvm::AllocaInst*>& getAlloca() { return alloca[logical_block_of[curblock]]; }
+//    inline IRGen::BasicBlock* getLBlock() { return logical_block_of[curblock]; }
+//    inline IRGen::BasicBlock* getFBlock() { return parent_block_of_logical[logical_block_of[curblock]]; }
+//    std::vector<IRGen::AllocaInst*>& getAlloca() { return alloca[logical_block_of[curblock]]; }
     //void RetParent();
 
 private:
-    std::unordered_map<llvm::Function *, std::unique_ptr<FuncContext>> func_list;
+    std::unordered_map<IRGen::Function *, std::unique_ptr<FuncContext>> func_list;
     FuncContext *Func_Context;
 
 
@@ -190,17 +176,17 @@ public:
      *
      *
      */
-    std::string CreateName() { return curFunc->getName().str() + std::to_string(Func_Context->uid++); }
+    std::string CreateName() { return curFunc->get_name() + std::to_string(Func_Context->uid++); }
 
     void NewLogicalBlockStart();
 
     void NewLogicalBlockEnd();
 
-    llvm::BasicBlock *NewBasicBlock();
+    IRGen::BasicBlock *NewBasicBlock();
 
-    void AddAlloca(llvm::AllocaInst *, const std::string &);
+    void AddAlloca(IRGen::IRBase *, const std::string &);
 
-    llvm::Value *GetAlloca(const std::string &);
+    IRGen::IRBase *GetAlloca(const std::string &);
 
 private:
     /** declare lib functions
@@ -215,7 +201,7 @@ private:
      */
     void declare_libfunc();
 
-    llvm::Value *GetAlloca(const std::string &, llvm::BasicBlock *);
+    IRGen::IRBase *GetAlloca(const std::string &, IRGen::BasicBlock *);
 
 };
 

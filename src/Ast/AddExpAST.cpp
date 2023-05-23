@@ -16,12 +16,12 @@ void AddExpAST::Dump() const {
     std::cout << " }";
 }
 
-llvm::Value *AddExpAST::codegen() {
+IRGen::IRBase *AddExpAST::codegen() {
     if (AddExp == nullptr) {
         return MulExp->codegen();
     }
 
-    llvm::Value *res;
+    IRGen::IRBase *res;
     auto LHS = AddExp->codegen();
     auto RHS = MulExp->codegen();
 

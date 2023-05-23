@@ -32,9 +32,9 @@ public:
 
     [[nodiscard]] bool isBranch() const;
 
-    [[nodiscard]] llvm::Value *codegen() override;
+    [[nodiscard]] IRGen::IRBase *codegen() override;
 
-    [[nodiscard]] llvm::Value *bool_convert() const;
+    [[nodiscard]] IRGen::IRBase *bool_convert() const;
 };
 
 

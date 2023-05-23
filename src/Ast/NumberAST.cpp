@@ -8,6 +8,6 @@ void NumberAST::Dump() const {
     std::cout << value;
 }
 
-llvm::Value *NumberAST::codegen() {
-    return llvm::ConstantInt::get(llvm::Type::getInt32Ty(*IR::get()->getContext()), value);
+IRGen::IRBase *NumberAST::codegen() {
+    return IRGen::Constant::get(IRGen::Type::getInt32(), value);
 }

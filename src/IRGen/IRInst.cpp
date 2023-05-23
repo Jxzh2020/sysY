@@ -45,7 +45,7 @@ BranchInst::BranchInst(BasicBlock *Des): isConBr(false), t_des(Des), f_des(nullp
     // complete
 }
 
-BranchInst::BranchInst(IRBase* _con, BasicBlock *_t_des, BasicBlock *_f_des): isConBr(true), t_des(_t_des), f_des(_f_des), con(_con->dyn_cast<Inst*>()) {
+BranchInst::BranchInst(IRBase* _con, BasicBlock *_t_des, BasicBlock *_f_des): isConBr(true), t_des(_t_des), f_des(_f_des), con(_con) {
     // complete
 }
 

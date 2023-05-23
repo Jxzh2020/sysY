@@ -10,21 +10,21 @@ void StmtAST::Dump() const {
     std::cout << " }";
 }
 
-llvm::Value *StmtAST::codegen() {
+IRGen::IRBase *StmtAST::codegen() {
     isEndBranch = false;
 
     // so far, only return inst is supported.
     auto &builder = IR::get()->getBuilder();
 
 
-    //auto ret = llvm::ReturnInst::Create(*IR::get()->getContext(),llvm::ConstantInt::get(llvm::Type::getInt32Ty(*IR::get()->getContext()),0));
-    //auto ret = llvm::ReturnInst::Create(*IR::get()->getContext(),val);
+    //auto ret = IRGen::ReturnInst::Create(*IR::get()->getContext(),IRGen::ConstantInt::get(IRGen::Type::getInt32Ty(*IR::get()->getContext()),0));
+    //auto ret = IRGen::ReturnInst::Create(*IR::get()->getContext(),val);
     // add to the end of the current block
     //IR::get()->getBuilder()->Insert(ret);
 
 
-    llvm::Value *res;
-    llvm::BasicBlock *true_bb, *false_bb, *t_bb;
+    IRGen::IRBase *res;
+    IRGen::BasicBlock *true_bb, *false_bb, *t_bb;
 
     switch (type) {
         case ASSIGN:
@@ -48,7 +48,7 @@ llvm::Value *StmtAST::codegen() {
             if (Exp == nullptr) {
                 res = IR::get()->getBuilder()->CreateRetVoid();
             } else {
-//                    if(auto I = llvm::dyn_cast<llvm::AllocaInst>(val))
+//                    if(auto I = IRGen::dyn_cast<IRGen::AllocaInst>(val))
 //                        res = IR::get()->getBuilder()->CreateLoad(I->getAllocatedType(),val);
 //                    else
                 res = Exp->codegen();
@@ -60,7 +60,7 @@ llvm::Value *StmtAST::codegen() {
         case IF:
             true_bb = IR::get()->NewBasicBlock();
             false_bb = IR::get()->NewBasicBlock();
-            builder->CreateCondBr(bool_convert(), true_bb, false_bb);
+            builder->CreateConBr(bool_convert(), true_bb, false_bb);
             // has only if stmt, false_bb is the next bb.
             if (else_stmt == nullptr) {
                 IR::get()->EnterBlock(true_bb);
@@ -112,7 +112,7 @@ llvm::Value *StmtAST::codegen() {
             // enter while clause
             IR::get()->EnterBlock(t_bb);
             // enter while or skip
-            builder->CreateCondBr(bool_convert(), true_bb, false_bb);
+            builder->CreateConBr(bool_convert(), true_bb, false_bb);
             IR::get()->EnterBlock(true_bb);
             if_stmt->codegen();
             if (IR::get()->hasBranchAtEnd()) {
@@ -155,16 +155,15 @@ llvm::Value *StmtAST::codegen() {
     return res;
 }
 
-llvm::Value *StmtAST::bool_convert() const {
+IRGen::IRBase *StmtAST::bool_convert() const {
 
     auto res = Exp->codegen();
-    if (res->getType() == llvm::Type::getInt1Ty(*IR::get()->getContext())) {
+    if (IRGen::Type::isInt1(res->get_type())) {
         return res;
     }
         // not a boolean type
     else {
-        return IR::get()->getBuilder()->CreateICmpNE(res, llvm::ConstantInt::get(*IR::get()->getContext(),
-                                                                                 llvm::APInt(32, 0)));
+        return IR::get()->getBuilder()->CreateICmpNE(res, IRGen::Constant::get(IRGen::Type::getInt32(),0));
     }
 }
 

@@ -18,8 +18,8 @@ void PrimaryExpAST::Dump() const {
     std::cout << " }";
 }
 
-llvm::Value *PrimaryExpAST::codegen() {
-    llvm::Value *res;
+IRGen::IRBase *PrimaryExpAST::codegen() {
+    IRGen::IRBase *res;
     // Number form
     if (Number != nullptr) {
         res = Number->codegen();
@@ -28,23 +28,8 @@ llvm::Value *PrimaryExpAST::codegen() {
     else if (LVal == nullptr) {
         res = Exp->codegen();
     } else {
-        auto ret = LVal->codegen();
-        auto local = llvm::dyn_cast<llvm::AllocaInst>(ret);
-        // LVal is of local variable
-        if (local != nullptr)
-            res = IR::get()->getBuilder()->CreateLoad(local->getAllocatedType(), local);
-        else {
-            auto arg = llvm::dyn_cast<llvm::Argument>(ret);
-            if (arg != nullptr)
-                res = arg;
-            else {
-                auto global = llvm::dyn_cast<llvm::GlobalVariable>(ret);
-                if (global != nullptr)
-                    res = IR::get()->getBuilder()->CreateLoad(global->getType(), global);
-                else    // should exit already in LValAST
-                    res = nullptr;
-            }
-        }
+        res = LVal->codegen();
+
     }
     return res;
 }

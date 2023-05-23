@@ -71,14 +71,14 @@ M->print(OS, nullptr); // print LLVM IR to output stream
 
 ### How can I create a `raw_ostream` object?
 
-- To create a `raw_ostream` object that outputs to the standard output stream, you can use the `llvm::outs` function,
+- To create a `raw_ostream` object that outputs to the standard output stream, you can use the `IRGen::outs` function,
   which returns a reference to a `raw_ostream` object. For example:
 
     ```cpp
     // Create a raw_ostream object that outputs to stdout
-    raw_ostream &OS = llvm::outs();
+    raw_ostream &OS = IRGen::outs();
     ```
-- To create a raw_ostream object that outputs to a file, you can use the `llvm::raw_fd_ostream` class, which is a
+- To create a raw_ostream object that outputs to a file, you can use the `IRGen::raw_fd_ostream` class, which is a
   subclass of raw_ostream that takes a file descriptor as a parameter. For example:
 
     ```cpp
@@ -87,7 +87,7 @@ M->print(OS, nullptr); // print LLVM IR to output stream
     raw_fd_ostream OS("output.txt", EC); // open file "output.txt" for writing
     ```
 
-- To create a `raw_ostream` object that outputs to a string, you can use the `llvm::raw_string_ostream` class, which is
+- To create a `raw_ostream` object that outputs to a string, you can use the `IRGen::raw_string_ostream` class, which is
   a subclass of raw_ostream that takes a reference to a string as a parameter. For example:
 
     ```cpp
@@ -110,12 +110,12 @@ M->print(OS, nullptr); // print LLVM IR to output stream
 
 ### how to lookup an alloca value safely in llvm ir using c++ api?
 
-To lookup an alloca value safely in llvm ir using c++ api, you need to cast the llvm::Value* to llvm::AllocaInst* using
+To lookup an alloca value safely in llvm ir using c++ api, you need to cast the IRGen::Value* to IRGen::AllocaInst* using
 the LLVM RTTI system1. For example:
 
 ```cpp
-llvm::Value* val = someFunction(...); // val is an alloca value
-    if (llvm::AllocaInst* I = llvm::dyn_cast<llvm::AllocaInst>(val)) {
+IRGen::Value* val = someFunction(...); // val is an alloca value
+    if (IRGen::AllocaInst* I = IRGen::dyn_cast<IRGen::AllocaInst>(val)) {
     // do something with the alloca instruction I
     }
     else {

@@ -10,7 +10,7 @@ void ExpAST::Dump() const {
     std::cout << " }";
 }
 
-llvm::Value *ExpAST::codegen() {
+IRGen::IRBase *ExpAST::codegen() {
     // only one candidate, skip this node
     return LgExp->codegen();
 }

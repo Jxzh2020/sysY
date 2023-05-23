@@ -11,7 +11,7 @@ IRBase *Module::getGlobalVariable(const std::string &name) const {
     if( res == this->global_var_list.end())
         return nullptr;
     else
-        return res->second.get();
+        return IRBase::CreateIRBase(IR_GLOBAL_VAR, res->second.get());
 }
 
 void Module::add_func(const std::string& name, Function *F) {
@@ -20,6 +20,24 @@ void Module::add_func(const std::string& name, Function *F) {
         exit(1);
     }
     this->func_list.insert(std::pair<std::string, std::unique_ptr<Function>>( name,std::unique_ptr<Function>(F)));
+}
+
+Module::Module(const std::string& name): module_name(name) {
+    // complete
+}
+
+Function *Module::get_function(const std::string &name) {
+    if(this->func_list.find(name) == this->func_list.end())
+        return nullptr;
+    return this->func_list[name].get();
+}
+
+void Module::add_variable(GlobalVariable *var) {
+    if(this->global_var_list.find(var->get_name()) != this->global_var_list.end()){
+        std::cout << "GlobalVariable name repetition!" << std::endl;
+        exit(1);
+    }
+    this->global_var_list[var->get_name()] = std::unique_ptr<GlobalVariable>(var);
 }
 
 
@@ -87,6 +105,11 @@ Inst *Type::Cast(Inst *from_inst, Type *to_type) {
     return nullptr;
 }
 
+Inst *Type::Cast(IRBase *from, Type *to) {
+    assert(0);
+    return nullptr;
+}
+
 
 std::vector<std::unique_ptr<Constant> > Constant::const_list;
 Constant::Constant(Type *ty) {
@@ -124,27 +147,38 @@ IRBase *Constant::get(Type *ty, T val) {
 
 std::vector<std::unique_ptr<IRBase> > IRBase::base_list;
 
-IRBase::IRBase(IR_TYPE type, Inst *val) {
+IRBase::IRBase(IR_TYPE type, Inst *val): inst(nullptr), constant(nullptr), allo(nullptr), arg(nullptr), global(nullptr), type(nullptr) {
     ir_type = type;
     inst = val;
-    constant = nullptr;
-    alloca = nullptr;
+
     this->type = val->get_type();
 }
 
-IRBase::IRBase(IR_TYPE type, Constant *val) {
+IRBase::IRBase(IR_TYPE type, Constant *val): inst(nullptr), constant(nullptr), allo(nullptr), arg(nullptr), global(nullptr), type(nullptr) {
     ir_type = IR_VALUE;
     constant = val;
-    inst = nullptr;
-    alloca = nullptr;
+
     this->type = val->get_type();
 }
 
-IRBase::IRBase(IR_TYPE type, Alloca *val) {
+IRBase::IRBase(IR_TYPE type, Alloca *val): inst(nullptr), constant(nullptr), allo(nullptr), arg(nullptr), global(nullptr), type(nullptr) {
     ir_type = IR_ALLOCA;
-    alloca = val;
-    constant = nullptr;
-    inst = nullptr;
+    allo = val;
+
+    this->type = val->get_type();
+}
+
+IRBase::IRBase(IR_TYPE type, Arg *val): inst(nullptr), constant(nullptr), allo(nullptr), arg(nullptr), global(nullptr), type(nullptr) {
+    ir_type = IR_ARG;
+    arg = val;
+
+    this->type = val->get_type();
+}
+
+IRBase::IRBase(IR_TYPE type, GlobalVariable *val): inst(nullptr), constant(nullptr), allo(nullptr), arg(nullptr), global(nullptr), type(nullptr) {
+    ir_type = IR_GLOBAL_VAR;
+
+    global = val;
     this->type = val->get_type();
 }
 
@@ -173,7 +207,7 @@ Alloca *IRBase::get_alloca() const {
         std::cout << "non-Alloca IR Node interpreted as Alloca IR Node!" <<std::endl;
         exit(1);
     }
-    return alloca;
+    return allo;
 }
 
 Constant *IRBase::get_constant() const {
@@ -190,7 +224,7 @@ const std::string &IRBase::get_name() const {
             return constant->get_name();
             break;
         case IR_ALLOCA:
-            return alloca->get_name();
+            return allo->get_name();
             break;
         case IR_INST:
             std::cout << "Error function call Inst::get_name() at IRBase::get_name()" << std::endl;
@@ -204,7 +238,9 @@ Type *IRBase::get_type() {
 }
 
 IRBase *IRBase::CreateIRBase(IR_TYPE type, Alloca *val) {
-    return nullptr;
+    auto tmp = new IRBase(type, val);
+    IRBase::base_list.push_back(std::unique_ptr<IRBase>(tmp));
+    return tmp;
 }
 
 std::string IRBase::get_value() const {
@@ -214,23 +250,30 @@ std::string IRBase::get_value() const {
         case IR_INST:
             return this->inst->get_value();
         case IR_ALLOCA:
-            return this->alloca->get_value();
+            return this->allo->get_value();
     }
 }
 
-
-std::vector<std::unique_ptr<FunctionType>> FunctionType::list;
-
-FunctionType::FunctionType(Type *ret_ty, std::vector<Type *>& _params, bool _isVarArg):
-    isVarArg(_isVarArg), params(_params), ret(ret_ty){
-    // complete
-}
-
-FunctionType *FunctionType::get(Type *ret_ty, std::vector<Type *>& params, bool isVarArg) {
-    auto tmp = new FunctionType(ret_ty, params, isVarArg);
-    FunctionType::list.push_back(std::unique_ptr<FunctionType>(tmp));
+IRBase *IRBase::CreateIRBase(IR_TYPE type, Arg *val) {
+    auto tmp = new IRBase(type, val);
+    IRBase::base_list.push_back(std::unique_ptr<IRBase>(tmp));
     return tmp;
 }
+
+IR_TYPE IRBase::get_ir_type() const {
+    return this->ir_type;
+}
+
+IRBase *IRBase::CreateIRBase(IR_TYPE type, GlobalVariable *val) {
+    auto tmp = new IRBase(type, val);
+    IRBase::base_list.push_back(std::unique_ptr<IRBase>(tmp));
+    return tmp;
+}
+
+
+
+
+std::vector<std::unique_ptr<FunctionType>> FunctionType::list;
 
 std::vector<Type *> &FunctionType::get_params() {
     return this->params;
@@ -240,9 +283,29 @@ Type *FunctionType::get_ret_type() {
     return this->ret;
 }
 
+FunctionType *FunctionType::get(Type *ret_ty, std::vector<Type *> params) {
+    auto tmp = new FunctionType(ret_ty, params);
+    FunctionType::list.push_back(std::unique_ptr<FunctionType>(tmp));
+    return tmp;
+}
 
-Function *Function::Create(FunctionType *ty, const std::string &name, Module *module) {
-    auto func = new Function(ty, name);
+FunctionType *FunctionType::get(Type *ret_ty) {
+    auto tmp = new FunctionType(ret_ty);
+    FunctionType::list.push_back(std::unique_ptr<FunctionType>(tmp));
+    return tmp;
+}
+
+FunctionType::FunctionType(Type *ret_ty, std::vector<Type *> &params) : params(params), ret(ret_ty) {
+    // complete
+}
+
+FunctionType::FunctionType(Type *ret_ty): ret(ret_ty) {
+    // complete
+}
+
+
+Function *Function::Create(FunctionType *ty, Linkage link, const std::string &name, Module *module) {
+    auto func = new Function(ty, name, link);
     module->add_func(name, func);
     return func;
 }
@@ -256,13 +319,14 @@ bool Function::arg_empty() const {
     return this->arg_list.empty();
 }
 
-std::vector<std::unique_ptr<Function::Arg> >::iterator Function::arg_begin() {
+std::vector<std::unique_ptr<Arg> >::iterator Function::arg_begin() {
     return this->arg_list.begin();
 }
 
-std::vector<std::unique_ptr<Function::Arg> >::iterator Function::arg_end() {
+std::vector<std::unique_ptr<Arg> >::iterator Function::arg_end() {
     return this->arg_list.end();
 }
+
 
 void Function::add_block(BasicBlock * b) {
     if( this->b_list.find(b->get_name()) != this->b_list.end()){
@@ -273,29 +337,36 @@ void Function::add_block(BasicBlock * b) {
 
 }
 
-Function::Function(FunctionType *ty, const std::string &_name):
-    v_reg_assigned(0), type(ty), name(_name){
+Linkage Function::ExternalLinkage = ExternalLinkage;
+Linkage Function::InternalLinkage = InternalLinkage;
+
+Function::Function(FunctionType *ty, const std::string &_name, Linkage _link):
+    link(_link), v_reg_assigned(0), type(ty), name(_name) {
     for( auto &i: ty->get_params()){
         arg_list.push_back(std::make_unique<Arg>(i));
     }
 }
 
 
-const std::string &Function::Arg::get_name() {
+const std::string &Arg::get_name() {
     return this->name;
 }
 
-void Function::Arg::set_name(const std::string& n) {
+void Arg::set_name(const std::string& n) {
     this->name = n;
 }
 
-Function::Arg::Arg(Type *ty) {
+Arg::Arg(Type *ty) {
     this->type = ty;
 }
 
+Type *Arg::get_type() const {
+    return this->type;
+}
 
 
 BasicBlock::BasicBlock(const std::string &_name): name(_name) {
+    insert_point = inst_list.end();
     // complete
 }
 BasicBlock *BasicBlock::Create(const std::string &name, Function *function) {
@@ -442,4 +513,26 @@ std::string Constant::get_value() {
             std::cout << "Constant of non-int32 type!" << std::endl;
             exit(1);
     }
+}
+
+IRBase *GlobalVariable::Create(Module *module, Type *ty, bool constant, IRBase *val, const std::string &name) {
+    auto globe = new GlobalVariable(ty, constant, val, name);
+    module->add_variable(globe);
+    return IRBase::CreateIRBase(IR_GLOBAL_VAR, globe);
+}
+
+Type *GlobalVariable::get_type() {
+    return this->type;
+}
+
+const std::string &GlobalVariable::get_name() const {
+    return this->name;
+}
+
+bool GlobalVariable::isConstant() const {
+    return this->isConst;
+}
+
+GlobalVariable::GlobalVariable(Type *ty, bool constant, IRBase *_val, const std::string &ident): type(ty), isConst(constant), val(_val), name(ident) {
+    // complete
 }

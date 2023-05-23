@@ -18,7 +18,7 @@ public:
 
     void Dump() const override;
 
-    [[nodiscard]] llvm::Value *codegen() override;
+    [[nodiscard]] IRGen::IRBase *codegen() override;
 };
 
 

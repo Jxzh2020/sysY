@@ -16,14 +16,14 @@ void MulExpAST::Dump() const {
     std::cout << " }";
 }
 
-llvm::Value *MulExpAST::codegen() {
+IRGen::IRBase *MulExpAST::codegen() {
     if (MulExp == nullptr) {
         return UnaryExp->codegen();
     }
 
     auto LHS = MulExp->codegen();
     auto RHS = UnaryExp->codegen();
-    llvm::Value *res;
+    IRGen::IRBase *res;
 
     switch (type) {
         case MUL:

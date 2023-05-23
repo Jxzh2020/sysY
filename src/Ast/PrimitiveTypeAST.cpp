@@ -4,26 +4,26 @@
 
 #include "Ast/PrimitiveTypeAST.h"
 
-llvm::Type *PrimitiveTypeAST::get_type() const {
+IRGen::Type *PrimitiveTypeAST::get_type() const {
     if (type == "int")
-        return llvm::Type::getInt32Ty(*IR::get()->getContext());
+        return IRGen::Type::getInt32();
     else if (type == "void")
-        return llvm::Type::getVoidTy(*IR::get()->getContext());
+        return IRGen::Type::getVoid();
     else
         return nullptr;
 }
 
-llvm::FunctionType *PrimitiveTypeAST::get_type(const std::vector<std::unique_ptr<BaseAST>> &params) const {
+IRGen::FunctionType *PrimitiveTypeAST::get_type(const std::vector<std::unique_ptr<BaseAST>> &params) const {
     // TODO FuncFParam AST push_back inside loop, fixed
-    std::vector<llvm::Type *> types;
+    std::vector<IRGen::Type *> types;
     types.reserve(params.size());
     for (auto &i: params) {
         types.emplace_back(dynamic_cast<FuncFParamAST *>(i.get())->getType());
     }
     if (type == "int")
-        return llvm::FunctionType::get(llvm::Type::getInt32Ty(*IR::get()->getContext()), types, false);
+        return IRGen::FunctionType::get(IRGen::Type::getInt32(), types);
     else if (type == "void")
-        return llvm::FunctionType::get(llvm::Type::getVoidTy(*IR::get()->getContext()), types, false);
+        return IRGen::FunctionType::get(IRGen::Type::getVoid(), types);
     else
         return nullptr;
 }
