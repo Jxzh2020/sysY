@@ -62,6 +62,8 @@ IRBase *Builder::CreateSRem(IRBase *LHS, IRBase *RHS) {
  */
 IRBase * Builder::CreateAlloca(Type *ty, const std::string &name) {
     auto res = AllocaInst::Create(ty, name);
+    current_at_bb->insert(res);
+    return IRBase::CreateIRBase(IR_INST,res);
 }
 
 // type checking

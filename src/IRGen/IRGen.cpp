@@ -67,6 +67,25 @@ P_TYPE Type::get_type() {
     return type;
 }
 
+bool Type::isInt32(Type *ty) {
+    return ty == allocated[INT32].get();
+}
+
+bool Type::isInt1(Type *ty) {
+    return ty == allocated[INT1].get();
+}
+
+bool Type::isVoid(Type *ty) {
+    return ty == allocated[VOID].get();
+}
+
+Inst *Type::Cast(Constant *from, Type *to_type) {
+    return nullptr;
+}
+
+Inst *Type::Cast(Inst *from_inst, Type *to_type) {
+    return nullptr;
+}
 
 
 std::vector<std::unique_ptr<Constant> > Constant::const_list;
@@ -367,4 +386,46 @@ Constant *Constant::Create(ARITH_TYPE op, Constant *lhs, Constant *rhs) {
             break;
     }
     return Constant::get(Type::getInt32(), res)->dyn_cast<Constant*>();
+}
+
+Constant *Constant::Create(CMP_TYPE op, Constant *lhs, Constant *rhs) {
+    int l = Type::isInt32(lhs->get_type()) ? lhs->value.int_val : lhs->value.bool_val;
+    int operand = rhs != nullptr ? Type::isInt32(rhs->get_type()) ? rhs->value.int_val : rhs->value.bool_val : 0;
+    bool res;
+    switch(op){
+        case CMP_EQ:
+            res = l == operand;
+            break;
+        case CMP_NE:
+            res = l != operand;
+            break;
+        case CMP_LT:
+            res = l < operand;
+            break;
+        case CMP_LE:
+            res = l <= operand;
+            break;
+        case CMP_GT:
+            res = l > operand;
+            break;
+        case CMP_GE:
+            res = l >= operand;
+            break;
+    }
+    return Constant::get(Type::getInt1(), res)->dyn_cast<Constant*>();
+}
+
+Constant *Constant::Create(LG_TYPE op, Constant *lhs, Constant *rhs) {
+    auto l = Type::isInt32(lhs->get_type()) ? lhs->value.int_val : lhs->value.bool_val;
+    auto operand = rhs != nullptr ? Type::isInt32(rhs->get_type()) ? rhs->value.int_val : rhs->value.bool_val : 0;
+    bool res;
+    switch(op){
+        case LG_AND:
+            res = l && operand;
+            break;
+        case LG_OR:
+            res = l || operand;
+            break;
+    }
+    return Constant::get(Type::getInt1(), res)->dyn_cast<Constant*>();
 }

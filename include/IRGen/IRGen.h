@@ -182,7 +182,7 @@ namespace IRGen {
         P_TYPE get_type();
         std::string print() const;
         /**
-         *
+         * if the type is the same, do not print anything, but record the v_reg
          * @param from_inst the value to cast from
          * @param to_type the type cast to
          * @return cast instruction
@@ -207,6 +207,7 @@ namespace IRGen {
     public:
         [[nodiscard]] const std::string& get_name() const;
         [[nodiscard]] Type* get_type();
+        std::string get_value() const;
 
 
         static IRBase* CreateIRBase(IR_TYPE type, Inst* val);
@@ -252,6 +253,11 @@ namespace IRGen {
 
         Type* get_type() const;
         const std::string& get_name() const;
+        /**
+         *
+         * @return the literal value of Constant
+         */
+        std::string get_value();
     private:
         explicit Constant(Type* ty);
         static std::vector<std::unique_ptr<Constant> > const_list;
@@ -378,11 +384,18 @@ namespace IRGen {
         static void Kill(Alloca* ptr);
         Type* get_type() const;
         const std::string& get_name() const;
+        void set_value(IRBase* val);
+        /**
+         *
+         * @return the virtual register in string form.
+         */
+        std::string get_value();
     private:
         Alloca(Type* ty, const std::string& name);
         Type* type;
         std::string name;
         unsigned int v_reg;
+        std::string value;
         static std::list<std::unique_ptr<Alloca>> alloca_list;
     };
 
@@ -402,9 +415,20 @@ namespace IRGen {
         unsigned int getVReg() const;
         bool isConstant() const;
         Constant* get_con_ptr() const;
+        /**
+         * get the internal representation output, v_reg or constant
+         * @return a constant or virtual register in string
+         */
+        virtual std::string get_value() const;
+        /**
+         * this is for %3 = add i32 %2, 1
+         *             %3 = add i32 1, 2    (may not exists)
+         * @return the value regardless of the virtual register or Constant value.
+         */
     protected:
         static std::vector<std::unique_ptr<Inst> > inst_list;
         unsigned int v_reg;
+        std::string val;
         bool evaluated;
         bool isConst;
         Constant* con_ptr;
@@ -431,6 +455,7 @@ namespace IRGen {
      */
     class ArithInst: public Inst {
     public:
+        std::string get_value() const override;
         std::string print(unsigned int &st) override;
         Type* get_type() const override;
         static Inst* Create(ARITH_TYPE, IRBase*, IRBase* );
@@ -443,6 +468,7 @@ namespace IRGen {
 
     class AllocaInst: public Inst {
     public:
+        std::string get_value() const override;
         std::string print(unsigned int &st) override;
         Type* get_type() const override;
         static Inst* Create(Type* ty, const std::string& name);
@@ -459,6 +485,7 @@ namespace IRGen {
 
     class CmpInst: public Inst {
     public:
+        std::string get_value() const override;
         std::string print(unsigned int &st) override;
         Type* get_type() const override;
         static Inst* Create(CMP_TYPE _op, IRBase* lhs, IRBase* rhs);
@@ -472,6 +499,7 @@ namespace IRGen {
 
     class LogicInst: public Inst {
     public:
+        std::string get_value() const override;
         std::string print(unsigned int &st) override;
         Type* get_type() const override;
         static Inst* Create(LG_TYPE _op, IRBase* lhs, IRBase* rhs);
@@ -491,6 +519,13 @@ namespace IRGen {
     private:
         explicit RetInst(IRBase* val);
         IRBase* ret_val;
+    };
+
+    class CastInst: public Inst {
+    public:
+        std::string get_value() const override;
+        std::string print(unsigned int &st) override;
+        Type* get_type() const override;
     };
 
 };

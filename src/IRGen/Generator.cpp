@@ -121,32 +121,135 @@ std::string BranchInst::print(unsigned int &st) {
 
 
 std::string ArithInst::print(unsigned int &st) {
-    return std::string();
+
+    static const std::string list[] = {"add", "sub", "???", "sdiv", "mul", "srem"};
+    std::string opcode = list[this->op];
+    std::string out;
+
+    if(this->isConst){
+        return out;
+        //
+        // return this->con_ptr->get_value();
+    }
+    else{
+        if(this->evaluated){
+            std::cout << "ArithInst::evaluated == true!!" << std::endl;
+            exit(1);
+            return out; // impossible, this must be the first time.
+              // or it is purely Constant.
+        }
+        else{
+            // imcomplete!
+            assert(this->lhs != nullptr && this->rhs != nullptr);
+            this->v_reg = st++;
+            out = (std::string("%")+std::to_string(this->v_reg)+" = "+opcode+" ");
+            out+=(this->lhs->get_type()->print()+" ");
+            out+=(this->lhs->get_value()+", "+this->rhs->get_value());
+            this->evaluated = true;
+            return out;
+        }
+    }
 }
 
+
 std::string AllocaInst::print(unsigned int &st) {
-    return std::string();
+    std::string out;
+    switch(this->op){
+        case ALLOCA_CREATE:
+            out = "; ALLOCA_CREATE";
+            break;
+        case ALLOCA_STORE:
+            // val is evaluated
+            assert(this->val);
+            this->ptr->set_value(this->val);
+            out = "; ALLOCA_STORE";
+            break;
+        case ALLOCA_LOAD:
+            out = "; ALLOCA_LOAD";
+            break;
+    }
+    return out;
 }
 
 std::string CmpInst::print(unsigned int &st) {
-    return std::string();
+    static const std::string list[] = {"slt", "sle", "sgt", "sge", "ne", "eq"};
+    std::string out;
+    if( this->isConst)
+        return out;
+    this->evaluated = true;
+    this->v_reg = st++;
+    out = "%" + std::to_string(this->v_reg) + " = icmp ";
+    out+=list[this->op];
+    out+=(" " + lhs->get_type()->print() + " " + lhs->get_value()+ ", " + rhs->get_value());
+    this->val = "%"+std::to_string(this->v_reg);
+
+    return out;
 }
 
 std::string LogicInst::print(unsigned int &st) {
-    return std::string();
+    static const std::string list[] = {""};
+    std::string out;
+    Inst* cast_l = nullptr, *cast_r = nullptr;
+
+    if(true){//!Type::isInt1(this->lhs->get_type())){
+        cast_l = this->lhs->dyn_cast<Inst*>() ? Type::Cast(this->lhs->dyn_cast<Inst*>(),Type::getInt1()) : Type::Cast(this->lhs->dyn_cast<Constant*>(), Type::getInt1());
+        out+=(cast_l->print(st)+"\n  ");
+    }
+    if(true){//!Type::isInt1(this->rhs->get_type())){
+        cast_r = this->rhs->dyn_cast<Inst*>() ? Type::Cast(this->rhs->dyn_cast<Inst*>(),Type::getInt1()) : Type::Cast(this->rhs->dyn_cast<Constant*>(), Type::getInt1());
+        out+=(cast_r->print(st)+"\n  ");
+    }
+    this->evaluated = true;
+    this->v_reg = st++;
+    this->val = "%"+std::to_string(this->v_reg);
+    out+=(this->val + " = select i1 ");
+    if(this->op == LG_OR){
+        out+=(cast_l->get_value()+", i1 true, i1 "+cast_r->get_value());
+    }
+    else{
+        out+=(cast_l->get_value()+", i1 "+cast_r->get_value()+", i1 false");
+    }
+    return out;
 }
 
+/**
+ * Note that a Inst node may be a Constant
+ */
+
+/**
+ *  Note: All insts are committed by builder,
+ *  when printing, if inst is constant, there's no need
+ *  to print the inst, just use it directly.
+ *
+ *  For latter insts, whenever a inst that is not Constant is referred,
+ *  it's considered to be having been committed already.(manage by user)
+ */
 std::string RetInst::print(unsigned int &st) {
     std::string code("ret ");
     Inst* ins;
+    Alloca* alloca;
+    Constant* cons;
     if(!ret_val){
         code+="void";
         return code;
     }
     else{
         ins = this->ret_val->dyn_cast<Inst*>();
+        cons = this->ret_val->dyn_cast<Constant*>();
+        alloca = this->ret_val->dyn_cast<Alloca*>();
+
         if(ins)
-            code+=(ins->get_type()->print()+" %"); //+std::to_string(ins->getVReg()));
+            code+=(ins->get_type()->print()+" "+ins->get_value());
+        else if(cons){
+            code+=(cons->get_type()->print()+cons->get_value());
+        }
+        else if(alloca){
+            code+=(alloca->get_type()->print()+alloca->get_value());
+        }
+        else{
+            std::cout << "RetInst::ret_val of unknown type!" << std::endl;
+            exit(1);
+        }
         return code;
     }
 }

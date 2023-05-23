@@ -92,6 +92,7 @@ Inst *AllocaInst::Create(Type *ty, const std::string &name) {
     auto _ptr = Alloca::Create(ty, name);
     auto tmp = new AllocaInst(ALLOCA_CREATE, _ptr);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
+    return tmp;
 }
 
 Inst *AllocaInst::Store(IRBase *val, Alloca *ptr) {
