@@ -431,6 +431,7 @@ void Alloca::set_value(IRBase *val) {
 }
 
 std::string Alloca::get_value() {
+
     return this->value;
 }
 

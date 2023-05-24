@@ -120,3 +120,12 @@ class Inst {
         bool isConstant() const;
         Constant* get_con_ptr() const;
 ```
+
+## Refactor
+
+1. Virtual register allocation now seems conflict with the building phase of IR.
+Now planning to refactor Builder::CreateXXXX to let virtual register distributed at building IR phase.
+
+2. Separating static Node and dynamic Node clearly.
+There are some overlaps between AllocaInst and Alloca, since building tree phase need only the snapshot 
+of Alloca, which is provided by both AllocaInst and Alloca itself.**So now planing to remove Alloca class** :)

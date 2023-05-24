@@ -97,10 +97,10 @@ ArithInst::ArithInst(ARITH_TYPE _op, IRBase *_lhs, IRBase *_rhs): op(_op), lhs(_
 }
 
 std::string ArithInst::get_value() const {
-    if(!this->isConst && !this->evaluated){
-        std::cout << "AllocaInst not evaluated before use" << std::endl;
-        exit(1);
-    }
+//    if(!this->isConst && !this->evaluated){
+//        std::cout << "ArithInst not evaluated before use" << std::endl;
+//        exit(1);
+//    }
     if(this->isConst)
         return this->con_ptr->get_value();
     else
@@ -125,6 +125,9 @@ Inst *AllocaInst::Create(Type *ty, const std::string &name) {
 Inst *AllocaInst::Store(IRBase *val, Alloca *ptr) {
     auto tmp = new AllocaInst(ALLOCA_STORE, ptr, val);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
+
+    ptr->set_value(val);
+
     return tmp;
 }
 

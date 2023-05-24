@@ -216,6 +216,12 @@ namespace IRGen {
         unsigned int getVReg() const;
         bool isConstant() const;
         Constant* get_con_ptr() const;
+        void Flush(unsigned int &dt){
+            this->output = this->print(dt);
+        }
+        std::string get_print(){
+            return this->output;
+        }
         /**
          * get the internal representation output, v_reg or constant
          * @return a constant or virtual register in string
@@ -233,6 +239,7 @@ namespace IRGen {
         bool evaluated;
         bool isConst;
         Constant* con_ptr;
+        std::string output;
     };
 
     /** IRBase should be a basic interface for all values inst and create inst

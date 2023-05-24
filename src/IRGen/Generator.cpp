@@ -162,11 +162,12 @@ std::string AllocaInst::print(unsigned int &st) {
         case ALLOCA_STORE:
             // val is evaluated
             assert(this->val);
-            this->ptr->set_value(this->val);
+            //this->ptr->set_value(this->val);
             out = "; ALLOCA_STORE";
             break;
         case ALLOCA_LOAD:
-            out = "; ALLOCA_LOAD";
+//            out = "; ALLOCA_LOAD\n  ";
+            out += this->val->get_value();
             break;
     }
     return out;
@@ -254,9 +255,9 @@ std::string RetInst::print(unsigned int &st) {
         return code;
     }
 }
-
+// TODO: unhandled RetInst::get_type()
 Type *RetInst::get_type() const {
-    assert(false);
+    //assert(false);
     return nullptr;
 }
 

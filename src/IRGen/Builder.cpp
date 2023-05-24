@@ -70,11 +70,13 @@ IRBase * Builder::CreateAlloca(Type *ty, const std::string &name) {
 IRBase *Builder::CreateStore(IRBase *val, IRBase *ptr) {
     Inst* res;
     if( ptr->dyn_cast<Alloca*>() == nullptr){
-        if( ptr->dyn_cast<AllocaInst*>() == nullptr){
+        if( dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>()) == nullptr){
             std::cout << "IRGen::IRBase::dyn_cast<Alloca*> failed, IRGen::Builder::CreateStore argument error!" << std::endl;
             exit(1);
         }
-        res = AllocaInst::Store(val,ptr->dyn_cast<AllocaInst*>()->get_alloca());
+        res = AllocaInst::Store(val,dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
+        current_at_bb->insert(res);
+        return IRBase::CreateIRBase(IR_ALLOCA, dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
     }
     else{
         res = AllocaInst::Store(val,ptr->dyn_cast<Alloca*>());
@@ -84,11 +86,17 @@ IRBase *Builder::CreateStore(IRBase *val, IRBase *ptr) {
 }
 
 IRBase *Builder::CreateLoad(IRBase *ptr, IRBase *reg) {
+    Inst* res;
     if( ptr->dyn_cast<Alloca*>() == nullptr){
-        std::cout << "IRGen::IRBase::dyn_cast<Alloca*> failed, IRGen::Builder::CreateStore argument error!" << std::endl;
-        exit(1);
+        if( dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>()) == nullptr){
+            std::cout << "IRGen::IRBase::dyn_cast<Alloca*> failed, IRGen::Builder::CreateStore argument error!" << std::endl;
+            exit(1);
+        }
+        res = AllocaInst::Store(reg,dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
+        current_at_bb->insert(res);
+        return IRBase::CreateIRBase(IR_ALLOCA, dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
     }
-    auto res = AllocaInst::Load(ptr->dyn_cast<Alloca*>(),reg);
+    res = AllocaInst::Load(ptr->dyn_cast<Alloca*>(),reg);
     current_at_bb->insert(res);
     return ptr;
 }
