@@ -210,18 +210,12 @@ namespace IRGen {
          *  Really funny thing!
          */
         virtual ~Inst() {}
-        virtual std::string print(unsigned int &st) = 0;
+        virtual std::string print() = 0;
         virtual Type* get_type() const = 0;
-        bool isEvaluated() const;
         unsigned int getVReg() const;
         bool isConstant() const;
         Constant* get_con_ptr() const;
-        void Flush(unsigned int &dt){
-            this->output = this->print(dt);
-        }
-        std::string get_print(){
-            return this->output;
-        }
+
         /**
          * get the internal representation output, v_reg or constant
          * @return a constant or virtual register in string
@@ -235,8 +229,6 @@ namespace IRGen {
     protected:
         static std::vector<std::unique_ptr<Inst> > inst_list;
         unsigned int v_reg;
-        std::string val;
-        bool evaluated;
         bool isConst;
         Constant* con_ptr;
         std::string output;
@@ -402,15 +394,17 @@ namespace IRGen {
     class BasicBlock {
     public:
         static BasicBlock* Create( const std::string& name, Function* function);
-        std::string print(unsigned int& st);
+        std::string print();
         [[nodiscard]] const std::string& get_name() const;
         void insert(Inst* );
+        unsigned int & get_func_reg();
     private:
-        explicit BasicBlock(const std::string& name);
+        explicit BasicBlock(const std::string &name, Function *func);
         // TODO: not sure if Inst memory should be managed by BasicBlock
         std::list<Inst* > inst_list;
         std::list<Inst* >::iterator insert_point;
         std::string name;
+        Function* function;
     };
 
     class Arg {
@@ -452,6 +446,7 @@ namespace IRGen {
         [[nodiscard]] bool arg_empty() const;
         std::vector<std::unique_ptr<Arg> >::iterator arg_begin();
         std::vector<std::unique_ptr<Arg> >::iterator arg_end();
+        unsigned int& get_reg();
         /**
          * TODO: Remember to define these two static member
          */
@@ -526,7 +521,7 @@ namespace IRGen {
 
     class BranchInst: public Inst {
     public:
-        std::string print(unsigned int &st) override;
+        std::string print() override;
         Type* get_type() const override;
         std::string get_value() const override;
         static Inst* Create(BasicBlock* Des);
@@ -546,11 +541,11 @@ namespace IRGen {
     class ArithInst: public Inst {
     public:
         std::string get_value() const override;
-        std::string print(unsigned int &st) override;
+        std::string print() override;
         Type* get_type() const override;
-        static Inst* Create(ARITH_TYPE, IRBase*, IRBase* );
+        static Inst *Create(unsigned int &st, ARITH_TYPE, IRBase *, IRBase *);
     private:
-        ArithInst(ARITH_TYPE, IRBase*, IRBase* );
+        ArithInst(unsigned int &st, ARITH_TYPE, IRBase*, IRBase* );
         ARITH_TYPE op;
         IRBase* lhs;
         IRBase* rhs;
@@ -559,7 +554,7 @@ namespace IRGen {
     class AllocaInst: public Inst {
     public:
         std::string get_value() const override;
-        std::string print(unsigned int &st) override;
+        std::string print() override;
         Type* get_type() const override;
         static Inst* Create(Type* ty, const std::string& name);
         static Inst* Store(IRBase* val, Alloca* ptr);
@@ -576,11 +571,11 @@ namespace IRGen {
     class CmpInst: public Inst {
     public:
         std::string get_value() const override;
-        std::string print(unsigned int &st) override;
+        std::string print() override;
         Type* get_type() const override;
-        static Inst* Create(CMP_TYPE _op, IRBase* lhs, IRBase* rhs);
+        static Inst* Create(unsigned int& st, CMP_TYPE _op, IRBase* lhs, IRBase* rhs);
     private:
-        CmpInst(CMP_TYPE _op, IRBase* LHS, IRBase* RHS);
+        CmpInst(unsigned int& st, CMP_TYPE _op, IRBase* LHS, IRBase* RHS);
         CMP_TYPE op;
         IRBase* lhs;
         IRBase* rhs;
@@ -590,11 +585,11 @@ namespace IRGen {
     class LogicInst: public Inst {
     public:
         std::string get_value() const override;
-        std::string print(unsigned int &st) override;
+        std::string print() override;
         Type* get_type() const override;
-        static Inst* Create(LG_TYPE _op, IRBase* lhs, IRBase* rhs);
+        static Inst* Create(unsigned int& st, LG_TYPE _op, IRBase* lhs, IRBase* rhs);
     private:
-        LogicInst(LG_TYPE _op, IRBase* lhs, IRBase* rhs);
+        LogicInst(unsigned int& st, LG_TYPE _op, IRBase* lhs, IRBase* rhs);
         LG_TYPE op;
         IRBase* lhs;
         IRBase* rhs;
@@ -603,7 +598,7 @@ namespace IRGen {
 
     class RetInst: public Inst {
     public:
-        std::string print(unsigned int &st) override;
+        std::string print() override;
         Type* get_type() const override;
         std::string get_value() const override;
         static Inst* Create(IRBase* val = nullptr);
@@ -615,7 +610,7 @@ namespace IRGen {
     class CastInst: public Inst {
     public:
         std::string get_value() const override;
-        std::string print(unsigned int &st) override;
+        std::string print() override;
         Type* get_type() const override;
     };
 

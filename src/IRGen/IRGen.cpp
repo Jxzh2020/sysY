@@ -250,6 +250,7 @@ std::string IRBase::get_value() const {
         case IR_INST:
             return this->inst->get_value();
         case IR_ALLOCA:
+            assert(0);
             return this->allo->get_value();
     }
 }
@@ -347,6 +348,10 @@ Function::Function(FunctionType *ty, const std::string &_name, Linkage _link):
     }
 }
 
+unsigned int &Function::get_reg() {
+    return this->v_reg_assigned;
+}
+
 
 const std::string &Arg::get_name() {
     return this->name;
@@ -365,12 +370,12 @@ Type *Arg::get_type() const {
 }
 
 
-BasicBlock::BasicBlock(const std::string &_name): name(_name) {
+BasicBlock::BasicBlock(const std::string &_name, Function *func) : name(_name), function(func) {
     insert_point = inst_list.end();
     // complete
 }
 BasicBlock *BasicBlock::Create(const std::string &name, Function *function) {
-    auto tmp = new BasicBlock(name);
+    auto tmp = new BasicBlock(name, function);
     function->add_block(tmp);
     return tmp;
 }
@@ -381,6 +386,11 @@ const std::string &BasicBlock::get_name() const {
 
 void BasicBlock::insert(Inst *inst) {
     inst_list.insert(insert_point, inst);
+}
+
+unsigned int &BasicBlock::get_func_reg() {
+    assert(this->function);
+    return this->function->get_reg();
 }
 
 

@@ -8,15 +8,11 @@ using namespace IRGen;
 
 std::vector<std::unique_ptr<Inst> > Inst::inst_list;
 
-bool Inst::isEvaluated() const {
-    return this->evaluated;
-}
-
 unsigned int Inst::getVReg() const {
     return this->v_reg;
 }
 
-Inst::Inst(): v_reg(0), evaluated(false), isConst(false), con_ptr(nullptr) {
+Inst::Inst(): v_reg(0), isConst(false), con_ptr(nullptr) {
     // completed
 }
 
@@ -50,7 +46,7 @@ BranchInst::BranchInst(IRBase* _con, BasicBlock *_t_des, BasicBlock *_f_des): is
 }
 
 Type *BranchInst::get_type() const {
-    assert(false);
+
     return nullptr;
 }
 
@@ -60,13 +56,14 @@ std::string BranchInst::get_value() const {
 }
 
 
-Inst *ArithInst::Create(ARITH_TYPE op, IRBase *_lhs, IRBase *_rhs) {
-    auto tmp = new ArithInst(op, _lhs, _rhs);
+Inst *ArithInst::Create(unsigned int &st, ARITH_TYPE op, IRBase *_lhs, IRBase *_rhs) {
+    auto tmp = new ArithInst(st, op, _lhs, _rhs);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
     return tmp;
 }
 
-ArithInst::ArithInst(ARITH_TYPE _op, IRBase *_lhs, IRBase *_rhs): op(_op), lhs(_lhs), rhs(_rhs) {
+ArithInst::ArithInst(unsigned int& st, ARITH_TYPE _op, IRBase *_lhs, IRBase *_rhs): op(_op), lhs(_lhs), rhs(_rhs) {
+
     // complete, check constant;
     auto li = lhs->dyn_cast<Inst*>();
     auto ri = rhs->dyn_cast<Inst*>();
@@ -94,6 +91,9 @@ ArithInst::ArithInst(ARITH_TYPE _op, IRBase *_lhs, IRBase *_rhs): op(_op), lhs(_
         }
         this->isConst = true;
     }
+    else{
+        this->v_reg = st++;
+    }
 }
 
 std::string ArithInst::get_value() const {
@@ -104,7 +104,7 @@ std::string ArithInst::get_value() const {
     if(this->isConst)
         return this->con_ptr->get_value();
     else
-        return this->val;
+        return '%'+std::to_string(this->v_reg);
 }
 
 Type *ArithInst::get_type() const {
@@ -142,7 +142,7 @@ Alloca *AllocaInst::get_alloca() {
 }
 
 AllocaInst::AllocaInst(ALLOCA_TYPE _op, Alloca *_ptr, IRBase *_val): ptr(_ptr), op(_op), val(_val) {
-    // complete
+    this->output = _ptr->get_value();
 }
 
 AllocaInst::AllocaInst(ALLOCA_TYPE _op, Alloca *_ptr): ptr(_ptr), op(_op), val(nullptr) {
@@ -150,11 +150,10 @@ AllocaInst::AllocaInst(ALLOCA_TYPE _op, Alloca *_ptr): ptr(_ptr), op(_op), val(n
 }
 
 std::string AllocaInst::get_value() const {
-    if(!this->evaluated){
-        std::cout << "AllocaInst not evaluated before use" << std::endl;
-        exit(1);
-    }
-    return this->ptr->get_value();
+    if(this->isConst)
+        return this->con_ptr->get_value();
+    else
+        return this->output;
 }
 
 Type *AllocaInst::get_type() const {
@@ -162,7 +161,8 @@ Type *AllocaInst::get_type() const {
 }
 
 
-CmpInst::CmpInst(CMP_TYPE _op, IRBase *LHS, IRBase *RHS): op(_op), lhs(LHS), rhs(RHS) {
+CmpInst::CmpInst(unsigned int& st, CMP_TYPE _op, IRBase *LHS, IRBase *RHS): op(_op), lhs(LHS), rhs(RHS) {
+
     // complete, check constant;
     auto li = lhs->dyn_cast<Inst*>();
     auto ri = rhs->dyn_cast<Inst*>();
@@ -190,23 +190,22 @@ CmpInst::CmpInst(CMP_TYPE _op, IRBase *LHS, IRBase *RHS): op(_op), lhs(LHS), rhs
         }
         this->isConst = true;
     }
+    else{
+        this->v_reg = st++;
+    }
 }
 
-Inst *CmpInst::Create(CMP_TYPE _op, IRBase *lhs, IRBase *rhs) {
-    auto res = new CmpInst(_op, lhs, rhs);
+Inst *CmpInst::Create(unsigned int& st, CMP_TYPE _op, IRBase *lhs, IRBase *rhs) {
+    auto res = new CmpInst(st, _op, lhs, rhs);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(res));
     return res;
 }
 
 std::string CmpInst::get_value() const {
-    if(!this->isConst && !this->evaluated){
-        std::cout << "CmpInst not evaluated before use" << std::endl;
-        exit(1);
-    }
     if(this->isConst)
         return this->con_ptr->get_value();
     else
-        return this->val;
+        return '%'+std::to_string(this->v_reg);
 }
 
 Type *CmpInst::get_type() const {
@@ -217,7 +216,8 @@ Type *CmpInst::get_type() const {
 }
 
 
-LogicInst::LogicInst(LG_TYPE _op, IRBase *_lhs, IRBase *_rhs): op(_op),lhs(_lhs), rhs(_rhs) {
+LogicInst::LogicInst(unsigned int& st, LG_TYPE _op, IRBase *_lhs, IRBase *_rhs): op(_op),lhs(_lhs), rhs(_rhs) {
+
     // complete, check constant;
     auto li = lhs->dyn_cast<Inst*>();
     auto ri = rhs->dyn_cast<Inst*>();
@@ -245,23 +245,22 @@ LogicInst::LogicInst(LG_TYPE _op, IRBase *_lhs, IRBase *_rhs): op(_op),lhs(_lhs)
         }
         this->isConst = true;
     }
+    else{
+        this->v_reg = st++;
+    }
 }
 
-Inst *LogicInst::Create(LG_TYPE _op, IRBase *lhs, IRBase *rhs) {
-    auto res = new LogicInst(_op, lhs, rhs);
+Inst *LogicInst::Create(unsigned int& st, LG_TYPE _op, IRBase *lhs, IRBase *rhs) {
+    auto res = new LogicInst(st, _op, lhs, rhs);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(res));
     return res;
 }
 
 std::string LogicInst::get_value() const {
-    if(!this->isConst && !this->evaluated){
-        std::cout << "LogicInst not evaluated before use" << std::endl;
-        exit(1);
-    }
     if(this->isConst)
         return this->con_ptr->get_value();
     else
-        return this->val;
+        return '%' + std::to_string(this->v_reg);
 }
 
 Type *LogicInst::get_type() const {

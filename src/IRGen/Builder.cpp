@@ -21,38 +21,48 @@ IRBase *Builder::CreateConBr(IRBase *condition, BasicBlock *true_b, BasicBlock *
     return IRBase::CreateIRBase(IR_INST,res);
 }
 
+
+// TODO: Refactor starts from here
+
+
 IRBase *Builder::CreateAdd(IRBase *LHS, IRBase *RHS) {
-    auto res = ArithInst::Create(IR_ADD, LHS, RHS);
+    auto& st = this->current_at_bb->get_func_reg();
+    auto res = ArithInst::Create(st, IR_ADD, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }
 
 IRBase *Builder::CreateSub(IRBase *LHS, IRBase *RHS) {
-    auto res = ArithInst::Create(IR_SUB, LHS, RHS);
+    auto& st = this->current_at_bb->get_func_reg();
+    auto res = ArithInst::Create(st, IR_SUB, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }
 
 IRBase *Builder::CreateNeg(IRBase *LHS) {
-    auto res = ArithInst::Create(IR_NEG, LHS, nullptr);
+    auto& st = this->current_at_bb->get_func_reg();
+    auto res = ArithInst::Create(st, IR_NEG, LHS, nullptr);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }
 
 IRBase *Builder::CreateMul(IRBase *LHS, IRBase *RHS) {
-    auto res = ArithInst::Create(IR_MUL, LHS, RHS);
+    auto& st = this->current_at_bb->get_func_reg();
+    auto res = ArithInst::Create(st, IR_MUL, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }
 
 IRBase *Builder::CreateSDiv(IRBase *LHS, IRBase *RHS) {
-    auto res = ArithInst::Create(IR_S_DIV, LHS, RHS);
+    auto& st = this->current_at_bb->get_func_reg();
+    auto res = ArithInst::Create(st, IR_S_DIV, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }
 
 IRBase *Builder::CreateSRem(IRBase *LHS, IRBase *RHS) {
-    auto res = ArithInst::Create(IR_S_REM, LHS, RHS);
+    auto& st = this->current_at_bb->get_func_reg();
+    auto res = ArithInst::Create(st, IR_S_REM, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }
@@ -76,13 +86,13 @@ IRBase *Builder::CreateStore(IRBase *val, IRBase *ptr) {
         }
         res = AllocaInst::Store(val,dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
         current_at_bb->insert(res);
-        return IRBase::CreateIRBase(IR_ALLOCA, dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
+        return IRBase::CreateIRBase(IR_INST, res);
     }
     else{
         res = AllocaInst::Store(val,ptr->dyn_cast<Alloca*>());
     }
     current_at_bb->insert(res);
-    return ptr;
+    return IRBase::CreateIRBase(IR_INST, res);
 }
 
 IRBase *Builder::CreateLoad(IRBase *ptr, IRBase *reg) {
@@ -94,57 +104,65 @@ IRBase *Builder::CreateLoad(IRBase *ptr, IRBase *reg) {
         }
         res = AllocaInst::Store(reg,dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
         current_at_bb->insert(res);
-        return IRBase::CreateIRBase(IR_ALLOCA, dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
+        return IRBase::CreateIRBase(IR_INST, res);
     }
     res = AllocaInst::Load(ptr->dyn_cast<Alloca*>(),reg);
     current_at_bb->insert(res);
-    return ptr;
+    return IRBase::CreateIRBase(IR_INST, res);;
 }
 
 IRBase *Builder::CreateICmpSLT(IRBase *LHS, IRBase *RHS) {
-    auto res = CmpInst::Create(CMP_LT, LHS, RHS);
+    auto& st = this->current_at_bb->get_func_reg();
+    auto res = CmpInst::Create(st, CMP_LT, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }
 
 IRBase *Builder::CreateICmpSGT(IRBase *LHS, IRBase *RHS) {
-    auto res = CmpInst::Create(CMP_GT, LHS, RHS);
+    auto& st = this->current_at_bb->get_func_reg();
+    auto res = CmpInst::Create(st, CMP_GT, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }
 
 IRBase *Builder::CreateICmpSLE(IRBase *LHS, IRBase *RHS) {
-    auto res = CmpInst::Create(CMP_LE, LHS, RHS);
+    auto& st = this->current_at_bb->get_func_reg();
+    auto res = CmpInst::Create(st, CMP_LE, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }
 
 IRBase *Builder::CreateICmpSGE(IRBase *LHS, IRBase *RHS) {
-    auto res = CmpInst::Create(CMP_GE, LHS, RHS);
+    auto& st = this->current_at_bb->get_func_reg();
+    auto res = CmpInst::Create(st, CMP_GE, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }
 
 IRBase *Builder::CreateICmpEQ(IRBase *LHS, IRBase *RHS) {
-    auto res = CmpInst::Create(CMP_EQ, LHS, RHS);
+    auto& st = this->current_at_bb->get_func_reg();
+    auto res = CmpInst::Create(st, CMP_EQ, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }
 
 IRBase *Builder::CreateICmpNE(IRBase *LHS, IRBase *RHS) {
-    auto res = CmpInst::Create(CMP_NE, LHS, RHS);
+    auto& st = this->current_at_bb->get_func_reg();
+    auto res = CmpInst::Create(st, CMP_NE, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }
 
 IRBase *Builder::CreateLogicalOr(IRBase *LHS, IRBase *RHS) {
-    auto res = LogicInst::Create(LG_OR, LHS, RHS);
+    auto& st = this->current_at_bb->get_func_reg();
+    auto res = LogicInst::Create(st, LG_OR, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }
 
 IRBase *Builder::CreateLogicalAnd(IRBase *LHS, IRBase *RHS) {
-    auto res = LogicInst::Create(LG_AND, LHS, RHS);
+    auto& st = this->current_at_bb->get_func_reg();
+    auto res = LogicInst::Create(st, LG_AND, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }

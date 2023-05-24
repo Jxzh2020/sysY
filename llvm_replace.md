@@ -129,3 +129,25 @@ Now planning to refactor Builder::CreateXXXX to let virtual register distributed
 2. Separating static Node and dynamic Node clearly.
 There are some overlaps between AllocaInst and Alloca, since building tree phase need only the snapshot 
 of Alloca, which is provided by both AllocaInst and Alloca itself.**So now planing to remove Alloca class** :)
+
+Virtual register is assigned to Inst in constructor. Constant value Inst node is not assigned. Use isConst to verify.
+
+Now here's the thing: v_reg is set at the beginning of an Inst object( or not if Inst is ConstExp)
+Among all the Inst objects, some is inserted into basicblocks, while others don't.
+But at Builder level, all the Inst objects are inserted into the Inst vector.
+This means, **Inst::print() itself should be able to decide**, if it's going to return some string
+to the file.
+
+Of course, if we don't consider any optimization, all the inst are output to IR file, it's ok.
+
+The syncing of v_reg and value, in me opinion, is unnecessary. Inst first check if it's constant exp
+then return std::string according to v_reg. Inst::value is dumped.
+
+
+Now,
+1. Adding v_reg support on Create and constructors, modifying Inst::print() --done
+2. there maybe type cast? So this part should move to constructor -- leave unsolved
+3. remove Inst::val --done
+4. modifying Inst::get_value() --done
+
+Alloca::Load and Builder::CreateLoad is useless.

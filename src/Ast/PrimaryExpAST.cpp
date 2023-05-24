@@ -29,6 +29,7 @@ IRGen::IRBase *PrimaryExpAST::codegen() {
         res = Exp->codegen();
     } else {
         res = LVal->codegen();
+        res = IR::get()->getBuilder()->CreateLoad(res,nullptr);
 
     }
     return res;
