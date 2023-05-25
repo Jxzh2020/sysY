@@ -7,7 +7,7 @@ using namespace IRGen;
 std::stringstream Module::print() {
     std::stringstream code;
     for( auto& func: func_list){
-        code << func.second->print() << '\n';
+        code << func->print() << '\n';
     }
     return code;
 }
@@ -85,7 +85,8 @@ std::string Function::print() {
         // should print : define i32 @test(i32 %a, i32 %b)
         code << this->print_define() << " {";
         for( auto& block : this->b_list){
-            code << '\n' << block.first << ":\n" << block.second->print();
+            if(!block->isEmpty())
+                code << '\n' << block->get_name() << ":\n" << block->print();
         }
         code << "}";
         return std::string(code.str());
@@ -148,16 +149,16 @@ std::string AllocaInst::print() {
 
     switch(this->op){
         case ALLOCA_CREATE:
-            out = "; ALLOCA_CREATE";
+            out = '%'+this->ptr->get_name()+" = alloca "+this->ptr->get_type()->print();
             break;
         case ALLOCA_STORE:
-            // val is evaluated
-            assert(this->val);
+
+            assert(this->isConst == false);
             //this->ptr->set_value(this->val);
-            out = "; ALLOCA_STORE";
+            out = "store "+this->val->get_type()->print()+' '+ this->val->get_value() +", "+this->ptr->get_type()->print()+"* %"+this->ptr->get_name();
             break;
         case ALLOCA_LOAD:
-            out = "; ALLOCA_LOAD";
+            out = this->output + " = load "+this->ptr->get_type()->print()+", "+this->ptr->get_type()->print()+"* %"+this->ptr->get_name();
             //out += this->val->get_value();
             break;
     }

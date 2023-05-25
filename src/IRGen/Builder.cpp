@@ -71,7 +71,20 @@ IRBase *Builder::CreateSRem(IRBase *LHS, IRBase *RHS) {
  * TODO Not completed!
  */
 IRBase * Builder::CreateAlloca(Type *ty, const std::string &name) {
-    auto res = AllocaInst::Create(ty, name);
+    auto& st = this->current_at_bb->get_func_reg();
+    int cnt = 0;
+    auto ret = this->current_at_bb->get_func()->get_alloca(name);
+    Inst* res;
+
+    while(ret){
+        cnt++;
+        ret = this->current_at_bb->get_func()->get_alloca(name+std::to_string(cnt));
+    }
+    if(cnt)
+        res = AllocaInst::Create(st, ty, name+std::to_string(cnt));
+    else
+        res = AllocaInst::Create(st, ty, name);
+    this->current_at_bb->get_func()->add_alloca(dynamic_cast<AllocaInst*>(res)->get_alloca());
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
 }
@@ -79,17 +92,18 @@ IRBase * Builder::CreateAlloca(Type *ty, const std::string &name) {
 // type checking
 IRBase *Builder::CreateStore(IRBase *val, IRBase *ptr) {
     Inst* res;
+    auto& st = this->current_at_bb->get_func_reg();
     if( ptr->dyn_cast<Alloca*>() == nullptr){
         if( dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>()) == nullptr){
             std::cout << "IRGen::IRBase::dyn_cast<Alloca*> failed, IRGen::Builder::CreateStore argument error!" << std::endl;
             exit(1);
         }
-        res = AllocaInst::Store(val,dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
+        res = AllocaInst::Store(st, val,dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
         current_at_bb->insert(res);
         return IRBase::CreateIRBase(IR_INST, res);
     }
     else{
-        res = AllocaInst::Store(val,ptr->dyn_cast<Alloca*>());
+        res = AllocaInst::Store(st, val,ptr->dyn_cast<Alloca*>());
     }
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST, res);
@@ -97,16 +111,17 @@ IRBase *Builder::CreateStore(IRBase *val, IRBase *ptr) {
 
 IRBase *Builder::CreateLoad(IRBase *ptr) {
     Inst* res;
+    auto& st = this->current_at_bb->get_func_reg();
     if( ptr->dyn_cast<Alloca*>() == nullptr){
         if( dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>()) == nullptr){
             std::cout << "IRGen::IRBase::dyn_cast<Alloca*> failed, IRGen::Builder::CreateStore argument error!" << std::endl;
             exit(1);
         }
-        res = AllocaInst::Load(dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
+        res = AllocaInst::Load(st, dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
         current_at_bb->insert(res);
         return IRBase::CreateIRBase(IR_INST, res);
     }
-    res = AllocaInst::Load(ptr->dyn_cast<Alloca*>());
+    res = AllocaInst::Load(st, ptr->dyn_cast<Alloca*>());
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST, res);;
 }

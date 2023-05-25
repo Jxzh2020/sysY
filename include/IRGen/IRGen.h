@@ -111,7 +111,7 @@ namespace IRGen {
         std::stringstream print();
     private:
         std::string module_name;
-        std::unordered_map<std::string,std::unique_ptr<Function> > func_list;
+        std::list<std::unique_ptr<Function>> func_list;
         std::unordered_map<std::string, std::unique_ptr<GlobalVariable> > global_var_list;
     };
 
@@ -397,7 +397,9 @@ namespace IRGen {
         std::string print();
         [[nodiscard]] const std::string& get_name() const;
         void insert(Inst* );
+        Function* get_func();
         unsigned int & get_func_reg();
+        bool isEmpty() const;
     private:
         explicit BasicBlock(const std::string &name, Function *func);
         // TODO: not sure if Inst memory should be managed by BasicBlock
@@ -454,14 +456,18 @@ namespace IRGen {
         static Linkage ExternalLinkage;
         static Linkage InternalLinkage;
         void add_block(BasicBlock*);
+
+        Alloca* get_alloca(const std::string& name);
+        void add_alloca(Alloca* ptr);
+
     private:
         Linkage link;
         unsigned int v_reg_assigned;
         std::vector<std::unique_ptr<Arg> > arg_list;
-        std::unordered_map<std::string, std::unique_ptr<BasicBlock> > b_list;
+        std::list<std::unique_ptr<BasicBlock> > b_list;
 
         // mem2reg prepared here :>
-        std::unordered_map<std::string, std::unique_ptr<Alloca> > alloca_list;
+        std::unordered_map<std::string, Alloca* > alloca_list;
 
         FunctionType* type;
         std::string name;
@@ -557,13 +563,13 @@ namespace IRGen {
         std::string get_value() const override;
         std::string print() override;
         Type* get_type() const override;
-        static Inst* Create(Type* ty, const std::string& name);
-        static Inst* Store(IRBase* val, Alloca* ptr);
-        static Inst* Load(Alloca* ptr);
+        static Inst* Create(unsigned int &st, Type* ty, const std::string& name);
+        static Inst* Store(unsigned int &st, IRBase* val, Alloca* ptr);
+        static Inst* Load(unsigned int &st, Alloca* ptr);
         Alloca* get_alloca();
     private:
-        AllocaInst(ALLOCA_TYPE op, Alloca* ptr, IRBase* val);
-        AllocaInst(ALLOCA_TYPE op, Alloca* ptr);
+        AllocaInst(unsigned int &st ,ALLOCA_TYPE op, Alloca* ptr, IRBase* val);
+        AllocaInst(unsigned int &st ,ALLOCA_TYPE op, Alloca* ptr);
         Alloca* ptr;
         ALLOCA_TYPE op;
         IRBase* val;

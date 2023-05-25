@@ -115,15 +115,15 @@ Type *ArithInst::get_type() const {
 }
 
 
-Inst *AllocaInst::Create(Type *ty, const std::string &name) {
+Inst *AllocaInst::Create(unsigned int &st, Type *ty, const std::string &name) {
     auto _ptr = Alloca::Create(ty, name);
-    auto tmp = new AllocaInst(ALLOCA_CREATE, _ptr);
+    auto tmp = new AllocaInst(st, ALLOCA_CREATE, _ptr);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
     return tmp;
 }
 
-Inst *AllocaInst::Store(IRBase *val, Alloca *ptr) {
-    auto tmp = new AllocaInst(ALLOCA_STORE, ptr, val);
+Inst *AllocaInst::Store(unsigned int &st,IRBase *val, Alloca *ptr) {
+    auto tmp = new AllocaInst(st, ALLOCA_STORE, ptr, val);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
 
 
@@ -131,8 +131,8 @@ Inst *AllocaInst::Store(IRBase *val, Alloca *ptr) {
     return tmp;
 }
 
-Inst *AllocaInst::Load(Alloca *ptr) {
-    auto tmp = new AllocaInst(ALLOCA_LOAD, ptr, nullptr);
+Inst *AllocaInst::Load(unsigned int &st, Alloca *ptr) {
+    auto tmp = new AllocaInst(st, ALLOCA_LOAD, ptr, nullptr);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
     return tmp;
 }
@@ -141,23 +141,26 @@ Alloca *AllocaInst::get_alloca() {
     return ptr;
 }
 
-AllocaInst::AllocaInst(ALLOCA_TYPE _op, Alloca *_ptr, IRBase *_val): ptr(_ptr), op(_op), val(_val) {
+AllocaInst::AllocaInst(unsigned int &st,ALLOCA_TYPE _op, Alloca *_ptr, IRBase *_val): ptr(_ptr), op(_op), val(_val) {
     if( _val == nullptr){
         // load
         if( _ptr->isConstant()){
             // is constant
-            this->isConst = true;
-            this->con_ptr = _ptr->get_con_ptr();
+            this->output = _ptr->get_value();
+        }
+        else{
+            this->v_reg = st++;
+            this->output = '%'+std::to_string(this->v_reg);
         }
     }
     // store
     else{
-        _ptr->set_value(val);
+        this->output = _val->get_value();
     }
-    this->output = _ptr->get_value();
+
 }
 
-AllocaInst::AllocaInst(ALLOCA_TYPE _op, Alloca *_ptr): ptr(_ptr), op(_op), val(nullptr) {
+AllocaInst::AllocaInst(unsigned int &st, ALLOCA_TYPE _op, Alloca *_ptr): ptr(_ptr), op(_op), val(nullptr) {
     // complete
 }
 

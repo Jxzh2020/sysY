@@ -15,11 +15,12 @@ IRBase *Module::getGlobalVariable(const std::string &name) const {
 }
 
 void Module::add_func(const std::string& name, Function *F) {
-    if( this->func_list.find(name) != this->func_list.end()){
-        std::cout << "Function already exists!" << std::endl;
-        exit(1);
-    }
-    this->func_list.insert(std::pair<std::string, std::unique_ptr<Function>>( name,std::unique_ptr<Function>(F)));
+    for( auto& func : this->func_list)
+        if(func->get_name() == name){
+            std::cout << "Function already exists!" << std::endl;
+            exit(1);
+        }
+    this->func_list.insert(this->func_list.end(), std::unique_ptr<Function>(std::unique_ptr<Function>(F)));
 }
 
 Module::Module(const std::string& name): module_name(name) {
@@ -27,9 +28,10 @@ Module::Module(const std::string& name): module_name(name) {
 }
 
 Function *Module::get_function(const std::string &name) {
-    if(this->func_list.find(name) == this->func_list.end())
-        return nullptr;
-    return this->func_list[name].get();
+    for( auto& func : this->func_list)
+        if(func->get_name() == name)
+            return func.get();
+    return nullptr;
 }
 
 void Module::add_variable(GlobalVariable *var) {
@@ -330,12 +332,12 @@ std::vector<std::unique_ptr<Arg> >::iterator Function::arg_end() {
 
 
 void Function::add_block(BasicBlock * b) {
-    if( this->b_list.find(b->get_name()) != this->b_list.end()){
-        std::cout << "BasicBlocks name repetition." << std::endl;
-        exit(1);
-    }
-    this->b_list.insert(std::pair<std::string, std::unique_ptr<BasicBlock>>(b->get_name(),std::unique_ptr<BasicBlock>(b)));
-
+    for( auto& bl : this->b_list)
+        if(bl->get_name() == name){
+            std::cout << "BasicBlocks name repetition." << std::endl;
+            exit(1);
+        }
+    this->b_list.insert(this->b_list.end(), std::unique_ptr<BasicBlock>(b));
 }
 
 Linkage Function::ExternalLinkage = ExternalLinkage;
@@ -350,6 +352,24 @@ Function::Function(FunctionType *ty, const std::string &_name, Linkage _link):
 
 unsigned int &Function::get_reg() {
     return this->v_reg_assigned;
+}
+
+Alloca *Function::get_alloca(const std::string &name) {
+    if(this->alloca_list.find(name) == this->alloca_list.end())
+        return nullptr;
+    else
+        return this->alloca_list.find(name)->second;
+}
+
+void Function::add_alloca(Alloca *ptr) {
+    auto name = ptr->get_name();
+    if(this->alloca_list.find(name) != this->alloca_list.end()){
+        std::cout << "Internal Alloca name repetition" << std::endl;
+        assert(0);
+        exit(1);
+    }
+    else
+        this->alloca_list[name] = ptr;
 }
 
 
@@ -391,6 +411,14 @@ void BasicBlock::insert(Inst *inst) {
 unsigned int &BasicBlock::get_func_reg() {
     assert(this->function);
     return this->function->get_reg();
+}
+
+bool BasicBlock::isEmpty() const {
+    return this->inst_list.empty();
+}
+
+Function *BasicBlock::get_func() {
+    return this->function;
 }
 
 
