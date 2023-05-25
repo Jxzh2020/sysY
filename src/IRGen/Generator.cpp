@@ -145,6 +145,7 @@ std::string ArithInst::print() {
 
 std::string AllocaInst::print() {
     std::string out;
+
     switch(this->op){
         case ALLOCA_CREATE:
             out = "; ALLOCA_CREATE";

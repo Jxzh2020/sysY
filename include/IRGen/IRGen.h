@@ -141,7 +141,7 @@ namespace IRGen {
          */
         IRBase * CreateAlloca( Type* ty, const std::string& name);
         IRBase* CreateStore( IRBase* val, IRBase* ptr);
-        IRBase* CreateLoad( IRBase* ptr, IRBase* reg);
+        IRBase* CreateLoad( IRBase* ptr);
 
         IRBase* CreateGlobalVariable(Module* _module, Type* ty, bool isConstant, Linkage linkage, IRBase* Initializer, const std::string& name);
 
@@ -493,6 +493,8 @@ namespace IRGen {
         Type* get_type() const;
         const std::string& get_name() const;
         void set_value(IRBase* val);
+        bool isConstant() const;
+        Constant* get_con_ptr();
         /**
          *
          * @return the virtual register in string form.
@@ -558,7 +560,7 @@ namespace IRGen {
         Type* get_type() const override;
         static Inst* Create(Type* ty, const std::string& name);
         static Inst* Store(IRBase* val, Alloca* ptr);
-        static Inst* Load(Alloca* ptr, IRBase* val);
+        static Inst* Load(Alloca* ptr);
         Alloca* get_alloca();
     private:
         AllocaInst(ALLOCA_TYPE op, Alloca* ptr, IRBase* val);

@@ -435,7 +435,9 @@ void Alloca::set_value(IRBase *val) {
         this->value = this->con_ptr->get_value();
     }
     else{
+        // necessary, alloca from const to v_reg
         this->isConst = false;
+        this->con_ptr = nullptr;
         this->value = val->get_value();
     }
 }
@@ -443,6 +445,15 @@ void Alloca::set_value(IRBase *val) {
 std::string Alloca::get_value() {
 
     return this->value;
+}
+
+bool Alloca::isConstant() const {
+    return this->isConst;
+}
+
+Constant *Alloca::get_con_ptr() {
+    assert(this->con_ptr);
+    return this->con_ptr;
 }
 
 // TODO: only consider type of int and bool
@@ -520,6 +531,8 @@ std::string Constant::get_value() {
     switch(this->type->get_type()){
         case INT32:
             return std::to_string(this->value.int_val);
+        case INT1:
+            return this->value.bool_val ? "true" : "false";
         default:
             std::cout << "Constant of non-int32 type!" << std::endl;
             exit(1);

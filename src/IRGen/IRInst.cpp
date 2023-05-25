@@ -126,13 +126,13 @@ Inst *AllocaInst::Store(IRBase *val, Alloca *ptr) {
     auto tmp = new AllocaInst(ALLOCA_STORE, ptr, val);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
 
-    ptr->set_value(val);
+
 
     return tmp;
 }
 
-Inst *AllocaInst::Load(Alloca *ptr, IRBase *val) {
-    auto tmp = new AllocaInst(ALLOCA_LOAD, ptr, val);
+Inst *AllocaInst::Load(Alloca *ptr) {
+    auto tmp = new AllocaInst(ALLOCA_LOAD, ptr, nullptr);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
     return tmp;
 }
@@ -142,6 +142,18 @@ Alloca *AllocaInst::get_alloca() {
 }
 
 AllocaInst::AllocaInst(ALLOCA_TYPE _op, Alloca *_ptr, IRBase *_val): ptr(_ptr), op(_op), val(_val) {
+    if( _val == nullptr){
+        // load
+        if( _ptr->isConstant()){
+            // is constant
+            this->isConst = true;
+            this->con_ptr = _ptr->get_con_ptr();
+        }
+    }
+    // store
+    else{
+        _ptr->set_value(val);
+    }
     this->output = _ptr->get_value();
 }
 

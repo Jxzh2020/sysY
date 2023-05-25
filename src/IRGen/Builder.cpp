@@ -95,18 +95,18 @@ IRBase *Builder::CreateStore(IRBase *val, IRBase *ptr) {
     return IRBase::CreateIRBase(IR_INST, res);
 }
 
-IRBase *Builder::CreateLoad(IRBase *ptr, IRBase *reg) {
+IRBase *Builder::CreateLoad(IRBase *ptr) {
     Inst* res;
     if( ptr->dyn_cast<Alloca*>() == nullptr){
         if( dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>()) == nullptr){
             std::cout << "IRGen::IRBase::dyn_cast<Alloca*> failed, IRGen::Builder::CreateStore argument error!" << std::endl;
             exit(1);
         }
-        res = AllocaInst::Store(reg,dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
+        res = AllocaInst::Load(dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
         current_at_bb->insert(res);
         return IRBase::CreateIRBase(IR_INST, res);
     }
-    res = AllocaInst::Load(ptr->dyn_cast<Alloca*>(),reg);
+    res = AllocaInst::Load(ptr->dyn_cast<Alloca*>());
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST, res);;
 }
