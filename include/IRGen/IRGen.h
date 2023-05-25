@@ -400,6 +400,8 @@ namespace IRGen {
         Function* get_func();
         unsigned int & get_func_reg();
         bool isEmpty() const;
+        void set_v_reg_range(unsigned int v);
+        const unsigned int* get_v_reg_range() const;
     private:
         explicit BasicBlock(const std::string &name, Function *func);
         // TODO: not sure if Inst memory should be managed by BasicBlock
@@ -407,6 +409,7 @@ namespace IRGen {
         std::list<Inst* >::iterator insert_point;
         std::string name;
         Function* function;
+        unsigned int range[2];
     };
 
     class Arg {

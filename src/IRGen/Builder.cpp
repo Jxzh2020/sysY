@@ -27,6 +27,7 @@ IRBase *Builder::CreateConBr(IRBase *condition, BasicBlock *true_b, BasicBlock *
 
 IRBase *Builder::CreateAdd(IRBase *LHS, IRBase *RHS) {
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     auto res = ArithInst::Create(st, IR_ADD, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
@@ -34,6 +35,7 @@ IRBase *Builder::CreateAdd(IRBase *LHS, IRBase *RHS) {
 
 IRBase *Builder::CreateSub(IRBase *LHS, IRBase *RHS) {
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     auto res = ArithInst::Create(st, IR_SUB, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
@@ -41,6 +43,7 @@ IRBase *Builder::CreateSub(IRBase *LHS, IRBase *RHS) {
 
 IRBase *Builder::CreateNeg(IRBase *LHS) {
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     auto res = ArithInst::Create(st, IR_NEG, LHS, nullptr);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
@@ -48,6 +51,7 @@ IRBase *Builder::CreateNeg(IRBase *LHS) {
 
 IRBase *Builder::CreateMul(IRBase *LHS, IRBase *RHS) {
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     auto res = ArithInst::Create(st, IR_MUL, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
@@ -55,6 +59,7 @@ IRBase *Builder::CreateMul(IRBase *LHS, IRBase *RHS) {
 
 IRBase *Builder::CreateSDiv(IRBase *LHS, IRBase *RHS) {
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     auto res = ArithInst::Create(st, IR_S_DIV, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
@@ -62,6 +67,7 @@ IRBase *Builder::CreateSDiv(IRBase *LHS, IRBase *RHS) {
 
 IRBase *Builder::CreateSRem(IRBase *LHS, IRBase *RHS) {
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     auto res = ArithInst::Create(st, IR_S_REM, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
@@ -72,6 +78,7 @@ IRBase *Builder::CreateSRem(IRBase *LHS, IRBase *RHS) {
  */
 IRBase * Builder::CreateAlloca(Type *ty, const std::string &name) {
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     int cnt = 0;
     auto ret = this->current_at_bb->get_func()->get_alloca(name);
     Inst* res;
@@ -93,6 +100,7 @@ IRBase * Builder::CreateAlloca(Type *ty, const std::string &name) {
 IRBase *Builder::CreateStore(IRBase *val, IRBase *ptr) {
     Inst* res;
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     if( ptr->dyn_cast<Alloca*>() == nullptr){
         if( dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>()) == nullptr){
             std::cout << "IRGen::IRBase::dyn_cast<Alloca*> failed, IRGen::Builder::CreateStore argument error!" << std::endl;
@@ -112,6 +120,7 @@ IRBase *Builder::CreateStore(IRBase *val, IRBase *ptr) {
 IRBase *Builder::CreateLoad(IRBase *ptr) {
     Inst* res;
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     if( ptr->dyn_cast<Alloca*>() == nullptr){
         if( dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>()) == nullptr){
             std::cout << "IRGen::IRBase::dyn_cast<Alloca*> failed, IRGen::Builder::CreateStore argument error!" << std::endl;
@@ -128,6 +137,7 @@ IRBase *Builder::CreateLoad(IRBase *ptr) {
 
 IRBase *Builder::CreateICmpSLT(IRBase *LHS, IRBase *RHS) {
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     auto res = CmpInst::Create(st, CMP_LT, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
@@ -135,6 +145,7 @@ IRBase *Builder::CreateICmpSLT(IRBase *LHS, IRBase *RHS) {
 
 IRBase *Builder::CreateICmpSGT(IRBase *LHS, IRBase *RHS) {
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     auto res = CmpInst::Create(st, CMP_GT, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
@@ -142,6 +153,7 @@ IRBase *Builder::CreateICmpSGT(IRBase *LHS, IRBase *RHS) {
 
 IRBase *Builder::CreateICmpSLE(IRBase *LHS, IRBase *RHS) {
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     auto res = CmpInst::Create(st, CMP_LE, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
@@ -149,6 +161,7 @@ IRBase *Builder::CreateICmpSLE(IRBase *LHS, IRBase *RHS) {
 
 IRBase *Builder::CreateICmpSGE(IRBase *LHS, IRBase *RHS) {
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     auto res = CmpInst::Create(st, CMP_GE, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
@@ -156,6 +169,7 @@ IRBase *Builder::CreateICmpSGE(IRBase *LHS, IRBase *RHS) {
 
 IRBase *Builder::CreateICmpEQ(IRBase *LHS, IRBase *RHS) {
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     auto res = CmpInst::Create(st, CMP_EQ, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
@@ -163,6 +177,7 @@ IRBase *Builder::CreateICmpEQ(IRBase *LHS, IRBase *RHS) {
 
 IRBase *Builder::CreateICmpNE(IRBase *LHS, IRBase *RHS) {
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     auto res = CmpInst::Create(st, CMP_NE, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
@@ -170,6 +185,7 @@ IRBase *Builder::CreateICmpNE(IRBase *LHS, IRBase *RHS) {
 
 IRBase *Builder::CreateLogicalOr(IRBase *LHS, IRBase *RHS) {
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     auto res = LogicInst::Create(st, LG_OR, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
@@ -177,6 +193,7 @@ IRBase *Builder::CreateLogicalOr(IRBase *LHS, IRBase *RHS) {
 
 IRBase *Builder::CreateLogicalAnd(IRBase *LHS, IRBase *RHS) {
     auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
     auto res = LogicInst::Create(st, LG_AND, LHS, RHS);
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);

@@ -73,7 +73,16 @@ std::string Function::print_declare() const {
     return code;
 }
 
+bool mySort(std::unique_ptr<BasicBlock>& a, std::unique_ptr<BasicBlock>& b) {
+    auto a_r = a->get_v_reg_range();
+    auto b_r = b->get_v_reg_range();
+    //return a_r[0] < b_r[0] ? true : a_r[0] > b_r[0] ? false : a_r[1] < b_r[1] ? true : false;
+    return (a_r[0] < b_r[0]) || (a_r[0] == b_r[0] && a_r[1] < b_r[1]);
+}
+
+
 std::string Function::print() {
+
     std::stringstream code;
     // declare
     if(this->b_list.empty()){
@@ -84,8 +93,11 @@ std::string Function::print() {
     else{
         // should print : define i32 @test(i32 %a, i32 %b)
         code << this->print_define() << " {";
+        auto head  = this->b_list.begin()->get();
+        this->b_list.sort(mySort);
+        code << '\n' << head->get_name() << ":\n" << head->print();
         for( auto& block : this->b_list){
-            if(!block->isEmpty())
+            if(!block->isEmpty() && block.get() != head)
                 code << '\n' << block->get_name() << ":\n" << block->print();
         }
         code << "}";

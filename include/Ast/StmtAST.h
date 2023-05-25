@@ -35,6 +35,8 @@ public:
     [[nodiscard]] IRGen::IRBase *codegen() override;
 
     [[nodiscard]] IRGen::IRBase *bool_convert() const;
+
+    bool isBlock() const;
 };
 
 

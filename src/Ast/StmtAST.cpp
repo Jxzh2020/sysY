@@ -105,6 +105,7 @@ IRGen::IRBase *StmtAST::codegen() {
         case WHILE:
             t_bb = IR::get()->NewBasicBlock();
             true_bb = IR::get()->NewBasicBlock();
+
             false_bb = IR::get()->NewBasicBlock();
 
             builder->CreateBr(t_bb);
@@ -127,6 +128,7 @@ IRGen::IRBase *StmtAST::codegen() {
             // skip while stmt, compilation goes on
             IR::get()->pop_while();
             IR::get()->EnterBlock(false_bb);
+
             res = nullptr;
             break;
         case BREAK:
@@ -175,4 +177,8 @@ bool StmtAST::isBranch() const {
         has_branch_block = dynamic_cast<BlockAST *>(Block.get())->isBranch();
     }
     return type == RET || type == BREAK || type == CONTINUE || has_branch_block;
+}
+
+bool StmtAST::isBlock() const {
+    return this->type == BLOCK;
 }

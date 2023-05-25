@@ -392,6 +392,8 @@ Type *Arg::get_type() const {
 
 BasicBlock::BasicBlock(const std::string &_name, Function *func) : name(_name), function(func) {
     insert_point = inst_list.end();
+    this->range[0] = 0;
+    this->range[1] = 0;
     // complete
 }
 BasicBlock *BasicBlock::Create(const std::string &name, Function *function) {
@@ -419,6 +421,17 @@ bool BasicBlock::isEmpty() const {
 
 Function *BasicBlock::get_func() {
     return this->function;
+}
+
+const unsigned int *BasicBlock::get_v_reg_range() const {
+    return this->range;
+}
+
+void BasicBlock::set_v_reg_range(unsigned int v) {
+    if( this->range[0] == this->range[1])
+        this->range[0] = v;
+    else
+        this->range[1] = v;
 }
 
 
