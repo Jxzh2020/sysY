@@ -396,12 +396,22 @@ unsigned int &BasicBlock::get_func_reg() {
 
 std::list<std::unique_ptr<Alloca>> Alloca::alloca_list;
 
-Alloca::Alloca(Type *ty, const std::string &_name):  isConst(false), con_ptr(nullptr), type(ty), name(_name), v_reg(0) {}
+Alloca::Alloca(Type *ty, const std::string &_name): isConst(false), type(ty), name(_name), v_reg(0) {}
 
 Alloca *Alloca::Create(Type *ty, const std::string &name) {
     auto res = new Alloca(ty, name);
     Alloca::alloca_list.push_back(std::unique_ptr<Alloca>(res));
     return res;
+}
+
+Alloca *Alloca::CreateConstant(Type *ty, const std::string &name, IRBase* _val) {
+    auto res = new Alloca(ty, name, _val);
+    Alloca::alloca_list.push_back(std::unique_ptr<Alloca>(res));
+    return res;
+}
+
+Alloca::Alloca(Type *ty, const std::string &_name, IRBase *_val): isConst(true), type(ty), name(_name), v_reg(0)  {
+    this->value = _val->get_value();
 }
 
 /**
@@ -426,21 +436,6 @@ const std::string &Alloca::get_name() const {
     return name;
 }
 
-void Alloca::set_value(IRBase *val) {
-    auto cons = val->dyn_cast<Constant*>();
-    auto inst = val->dyn_cast<Inst*>();
-    if(cons){
-        this->isConst = true;
-        this->con_ptr = cons;
-        this->value = this->con_ptr->get_value();
-    }
-    else{
-        // necessary, alloca from const to v_reg
-        this->isConst = false;
-        this->con_ptr = nullptr;
-        this->value = val->get_value();
-    }
-}
 
 std::string Alloca::get_value() {
 
@@ -451,10 +446,6 @@ bool Alloca::isConstant() const {
     return this->isConst;
 }
 
-Constant *Alloca::get_con_ptr() {
-    assert(this->con_ptr);
-    return this->con_ptr;
-}
 
 // TODO: only consider type of int and bool
 Constant *Constant::Create(ARITH_TYPE op, Constant *lhs, Constant *rhs) {

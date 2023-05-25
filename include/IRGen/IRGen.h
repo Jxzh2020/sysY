@@ -489,12 +489,11 @@ namespace IRGen {
     class Alloca {
     public:
         static Alloca* Create(Type* ty, const std::string& name);
+        static Alloca* CreateConstant(Type* ty, const std::string& name, IRBase* _val);
         static void Kill(Alloca* ptr);
         Type* get_type() const;
         const std::string& get_name() const;
-        void set_value(IRBase* val);
         bool isConstant() const;
-        Constant* get_con_ptr();
         /**
          *
          * @return the virtual register in string form.
@@ -502,8 +501,8 @@ namespace IRGen {
         std::string get_value();
     private:
         bool isConst;
-        Constant* con_ptr;
         Alloca(Type* ty, const std::string& name);
+        Alloca(Type* ty, const std::string& name, IRBase* _val);
         Type* type;
         std::string name;
         unsigned int v_reg;
