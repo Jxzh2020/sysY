@@ -76,7 +76,7 @@ IRBase *Builder::CreateSRem(IRBase *LHS, IRBase *RHS) {
 /**
  * TODO Not completed!
  */
-IRBase * Builder::CreateAlloca(Type *ty, const std::string &name) {
+IRBase * Builder::CreateAlloca(Type *ty, const std::string &name, bool isConstant) {
     auto& st = this->current_at_bb->get_func_reg();
     current_at_bb->set_v_reg_range(st);
     int cnt = 0;
@@ -88,9 +88,9 @@ IRBase * Builder::CreateAlloca(Type *ty, const std::string &name) {
         ret = this->current_at_bb->get_func()->get_alloca(name+std::to_string(cnt));
     }
     if(cnt)
-        res = AllocaInst::Create(st, ty, name+std::to_string(cnt));
+        res = AllocaInst::Create(st, ty, name+std::to_string(cnt), isConstant);
     else
-        res = AllocaInst::Create(st, ty, name);
+        res = AllocaInst::Create(st, ty, name, isConstant);
     this->current_at_bb->get_func()->add_alloca(dynamic_cast<AllocaInst*>(res)->get_alloca());
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);

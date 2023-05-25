@@ -17,7 +17,7 @@ IRGen::IRBase *ConstDeclAST::codegen() {
         auto pairs = dynamic_cast<ConstDefAST *>(const_def.get())->get_defs();
         if (!IR::get()->isGlobeBlock()) {
             //builder->CreateAlloca(type,pairs.second,pairs.first);
-            auto res = builder->CreateAlloca(type, pairs.first);
+            auto res = builder->CreateAlloca(type, pairs.first, true);
             IR::get()->AddAlloca(res, pairs.first);
             builder->CreateStore(pairs.second, res);
         } else {

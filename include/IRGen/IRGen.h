@@ -139,7 +139,7 @@ namespace IRGen {
          *  kind of complicated here, builder has to check name repetition,
          *  if there is, rename the alloca.
          */
-        IRBase * CreateAlloca( Type* ty, const std::string& name);
+        IRBase * CreateAlloca( Type* ty, const std::string& name, bool isConstant);
         IRBase* CreateStore( IRBase* val, IRBase* ptr);
         IRBase* CreateLoad( IRBase* ptr);
 
@@ -497,12 +497,13 @@ namespace IRGen {
      */
     class Alloca {
     public:
-        static Alloca* Create(Type* ty, const std::string& name);
-        static Alloca* CreateConstant(Type* ty, const std::string& name, IRBase* _val);
+        static Alloca* Create(Type* ty, const std::string& name, bool isConstant);
         static void Kill(Alloca* ptr);
         Type* get_type() const;
         const std::string& get_name() const;
         bool isConstant() const;
+        bool isInitialized() const;
+        void Initialize();
         /**
          *
          * @return the virtual register in string form.
@@ -510,7 +511,8 @@ namespace IRGen {
         std::string get_value();
     private:
         bool isConst;
-        Alloca(Type* ty, const std::string& name);
+        bool initialized;
+        Alloca(Type* ty, const std::string& name, bool isConstant);
         Alloca(Type* ty, const std::string& name, IRBase* _val);
         Type* type;
         std::string name;
@@ -566,7 +568,7 @@ namespace IRGen {
         std::string get_value() const override;
         std::string print() override;
         Type* get_type() const override;
-        static Inst* Create(unsigned int &st, Type* ty, const std::string& name);
+        static Inst* Create(unsigned int &st, Type* ty, const std::string& name, bool isConstant);
         static Inst* Store(unsigned int &st, IRBase* val, Alloca* ptr);
         static Inst* Load(unsigned int &st, Alloca* ptr);
         Alloca* get_alloca();

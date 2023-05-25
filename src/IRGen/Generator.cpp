@@ -164,8 +164,6 @@ std::string AllocaInst::print() {
             out = '%'+this->ptr->get_name()+" = alloca "+this->ptr->get_type()->print();
             break;
         case ALLOCA_STORE:
-
-            assert(this->isConst == false);
             //this->ptr->set_value(this->val);
             out = "store "+this->val->get_type()->print()+' '+ this->val->get_value() +", "+this->ptr->get_type()->print()+"* %"+this->ptr->get_name();
             break;

@@ -437,19 +437,14 @@ void BasicBlock::set_v_reg_range(unsigned int v) {
 
 std::list<std::unique_ptr<Alloca>> Alloca::alloca_list;
 
-Alloca::Alloca(Type *ty, const std::string &_name): isConst(false), type(ty), name(_name), v_reg(0) {}
+Alloca::Alloca(Type *ty, const std::string &_name, bool isConstant): isConst(isConstant),initialized(false), type(ty), name(_name), v_reg(0) {}
 
-Alloca *Alloca::Create(Type *ty, const std::string &name) {
-    auto res = new Alloca(ty, name);
+Alloca *Alloca::Create(Type *ty, const std::string &name, bool isConstant) {
+    auto res = new Alloca(ty, name, isConstant);
     Alloca::alloca_list.push_back(std::unique_ptr<Alloca>(res));
     return res;
 }
 
-Alloca *Alloca::CreateConstant(Type *ty, const std::string &name, IRBase* _val) {
-    auto res = new Alloca(ty, name, _val);
-    Alloca::alloca_list.push_back(std::unique_ptr<Alloca>(res));
-    return res;
-}
 
 Alloca::Alloca(Type *ty, const std::string &_name, IRBase *_val): isConst(true), type(ty), name(_name), v_reg(0)  {
     this->value = _val->get_value();
@@ -485,6 +480,14 @@ std::string Alloca::get_value() {
 
 bool Alloca::isConstant() const {
     return this->isConst;
+}
+
+bool Alloca::isInitialized() const {
+    return this->initialized;
+}
+void Alloca::Initialize() {
+    assert(!this->initialized);
+    this->initialized = true;
 }
 
 

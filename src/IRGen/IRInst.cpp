@@ -115,8 +115,8 @@ Type *ArithInst::get_type() const {
 }
 
 
-Inst *AllocaInst::Create(unsigned int &st, Type *ty, const std::string &name) {
-    auto _ptr = Alloca::Create(ty, name);
+Inst *AllocaInst::Create(unsigned int &st, Type *ty, const std::string &name, bool isConstant) {
+    auto _ptr = Alloca::Create(ty, name, isConstant);
     auto tmp = new AllocaInst(st, ALLOCA_CREATE, _ptr);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
     return tmp;
@@ -125,8 +125,6 @@ Inst *AllocaInst::Create(unsigned int &st, Type *ty, const std::string &name) {
 Inst *AllocaInst::Store(unsigned int &st,IRBase *val, Alloca *ptr) {
     auto tmp = new AllocaInst(st, ALLOCA_STORE, ptr, val);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
-
-
 
     return tmp;
 }
@@ -155,6 +153,12 @@ AllocaInst::AllocaInst(unsigned int &st,ALLOCA_TYPE _op, Alloca *_ptr, IRBase *_
     }
     // store
     else{
+        if(_ptr->isInitialized() && _ptr->isConstant()){
+            std::cout << " Const Alloca Store!" << std::endl;
+            assert(0);
+        }
+        if(_ptr->isConstant())
+            _ptr->Initialize();
         this->output = _val->get_value();
     }
 

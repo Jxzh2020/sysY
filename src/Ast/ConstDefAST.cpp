@@ -13,7 +13,7 @@ IRGen::IRBase *ConstDefAST::codegen() {
     auto &builder = IR::get()->getBuilder();
     auto down = ConstInitVal->codegen();
     // TODO: unknown_usage
-    auto res = builder->CreateAlloca(down->get_type(), ident);
+    auto res = builder->CreateAlloca(down->get_type(), ident, true);
     builder->CreateStore(down, res);
     return res;
 }
