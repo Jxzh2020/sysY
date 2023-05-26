@@ -121,6 +121,11 @@ void IR::AddAlloca(IRGen::IRBase *_al, const std::string &o_name) {
 }
 
 IRGen::IRBase *IR::GetAlloca(const std::string &name) {
+    if(!Func_Context){
+        std::cout << "Fetching Allocas Not in Function Context" << std::endl;
+        assert(0);
+        return nullptr;
+    }
     return GetAlloca(name, Func_Context->curblock);
 }
 

@@ -16,15 +16,15 @@ IRGen::IRBase *LValAST::codegen() {
     auto ref = IR::get()->GetAlloca(ident);
     // 2. function parameter
     // TODO: here now seems useless
-    if (ref == nullptr && !IR::get()->getFunc()->arg_empty()) {
-        auto argIter = IR::get()->getFunc()->arg_begin();
-        auto argEnd = IR::get()->getFunc()->arg_end();
-        for (; argIter != argEnd; argIter++)
-            if (argIter->get()->get_name() == ident) {
-                ref = IRGen::IRBase::CreateIRBase(IRGen::IR_ARG, argIter->get());  //IR::get()->getBuilder()->CreateLoad(argIter->getType(),argIter);
-                break;
-            }
-    }
+//    if (ref == nullptr && !IR::get()->getFunc()->arg_empty()) {
+//        auto argIter = IR::get()->getFunc()->arg_begin();
+//        auto argEnd = IR::get()->getFunc()->arg_end();
+//        for (; argIter != argEnd; argIter++)
+//            if (argIter->get()->get_name() == ident) {
+//                ref = IRGen::IRBase::CreateIRBase(IRGen::IR_ARG, argIter->get());  //IR::get()->getBuilder()->CreateLoad(argIter->getType(),argIter);
+//                break;
+//            }
+//    }
     // 3. global variable
     if (ref == nullptr) {
         ref = IR::get()->getModule()->getGlobalVariable(ident);

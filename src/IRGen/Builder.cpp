@@ -162,6 +162,10 @@ IRBase *Builder::CreateStore(Arg *val, IRBase *ptr) {
 
 
 IRBase *Builder::CreateLoad(IRBase *ptr) {
+    if(!this->current_at_bb){
+        std::cout << "GlobalVariable Assignment non Constant" << std::endl;
+        assert(0);
+    }
     Inst* res;
     auto& st = this->current_at_bb->get_func_reg();
     current_at_bb->set_v_reg_range(st);
