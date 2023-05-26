@@ -10,7 +10,7 @@ std::stringstream Module::print() {
         if(!gl.second->isConstant())
             code << gl.second->get_value() + " = global " + gl.second->get_type()->print() + ' ' + gl.second->get_initial_value()+'\n';
         else
-            assert(0);
+            code << gl.second->get_value() + " = constant " + gl.second->get_type()->print() + ' ' + gl.second->get_initial_value()+'\n';
     }
     for( auto& func: func_list){
         code << func->print() << '\n';

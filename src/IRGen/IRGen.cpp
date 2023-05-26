@@ -232,6 +232,12 @@ const std::string &IRBase::get_name() const {
             std::cout << "Error function call Inst::get_name() at IRBase::get_name()" << std::endl;
             exit(1);
             break;
+        case IR_GLOBAL_VAR:
+            return global->get_name();
+            break;
+        case IR_ARG:
+            return arg->get_name();
+            break;
     }
 }
 

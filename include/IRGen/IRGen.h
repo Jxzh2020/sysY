@@ -201,7 +201,6 @@ namespace IRGen {
         static Inst* Cast(Constant* from, Type* to_type);
         static Inst* Cast(Inst* from_inst, Type* to_type);
         static Inst* Cast(IRBase* from, Type* to);
-        ~Type() { int a = 1;}
     private:
         explicit Type(P_TYPE);
         static void gen_all_instances();
