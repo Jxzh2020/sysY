@@ -151,3 +151,33 @@ Now,
 4. modifying Inst::get_value() --done
 
 Alloca::Load and Builder::CreateLoad is useless.
+
+## Array support
+
+Now, this project supports sysY basic features except array type. And Function Argument is solved in a sloppy way.
+
+Inorder to support array, not only a new kind of Inst class is needed, the whole arg system needs refactor, too.
+
+```c
+void h(int input[]){
+    int *start = input;
+    start[0] = 1;
+}
+```
+
+It seems that `store ptr %0, ptr %2` simply assign `%2` with `%0`, which makes current arg system possible.
+```llvm
+define void @h(ptr %0) {
+  %2 = alloca ptr
+  %3 = alloca ptr
+  store ptr %0, ptr %2
+  %4 = load ptr, ptr %2
+  store ptr %4, ptr %3
+  %5 = load ptr, ptr %3,
+  %6 = getelementptr inbounds i32, ptr %5, i64 0
+  store i32 1, ptr %6
+  ret void
+}
+```
+
+**Maybe** the arg system need no modification. Just add support a new type `ptr` and a New Inst `getelementptr`
