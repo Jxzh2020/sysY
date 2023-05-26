@@ -139,9 +139,12 @@ namespace IRGen {
          *  kind of complicated here, builder has to check name repetition,
          *  if there is, rename the alloca.
          */
-        IRBase * CreateAlloca( Type* ty, const std::string& name, bool isConstant);
+        IRBase* CreateAlloca( Type* ty, const std::string& name, bool isConstant);
         IRBase* CreateStore( IRBase* val, IRBase* ptr);
         IRBase* CreateStore( Arg* val, IRBase* ptr);
+
+        // arg load is not supported. Since arg is first translated to alloca implicitly,
+        // arg is only stored into alloca
         IRBase* CreateLoad( IRBase* ptr);
 
         IRBase* CreateGlobalVariable(Module* _module, Type* ty, bool isConstant, Linkage linkage, IRBase* Initializer, const std::string& name);
@@ -487,11 +490,16 @@ namespace IRGen {
         Type* get_type();
         const std::string& get_name() const;
         bool isConstant() const;
+        bool isInitialized() const;
+        void Initialize();
+        std::string get_value();
+        std::string get_initial_value();
     private:
         explicit GlobalVariable(Type* ty, bool constant, IRBase* val, const std::string& ident);
 
         Type* type;
         bool isConst;
+        bool initialized;
         IRBase* val;
         std::string name;
 
@@ -588,13 +596,18 @@ namespace IRGen {
         Type* get_type() const override;
         static Inst* Create(unsigned int &st, Type* ty, const std::string& name, bool isConstant);
         static Inst* Store(unsigned int &st, IRBase* val, Alloca* ptr);
+        static Inst* Store(unsigned int &st, IRBase* val, GlobalVariable* ptr);
+        static Inst* Store(unsigned int &st, Arg* val, GlobalVariable* ptr);
         static Inst* Store(unsigned int &st, Arg* val, Alloca* ptr);
         static Inst* Load(unsigned int &st, Alloca* ptr);
+        static Inst* Load(unsigned int &st, GlobalVariable* ptr);
         Alloca* get_alloca();
     private:
         AllocaInst(unsigned int &st ,ALLOCA_TYPE op, Alloca* ptr, IRBase* val);
+        AllocaInst(unsigned int &st ,ALLOCA_TYPE op, GlobalVariable* ptr, IRBase* val);
         AllocaInst(unsigned int &st ,ALLOCA_TYPE op, Alloca* ptr);
         Alloca* ptr;
+        GlobalVariable* gl_ptr;
         ALLOCA_TYPE op;
         IRBase* val;
     };

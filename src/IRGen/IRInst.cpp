@@ -173,7 +173,10 @@ Alloca *AllocaInst::get_alloca() {
     return ptr;
 }
 
-AllocaInst::AllocaInst(unsigned int &st,ALLOCA_TYPE _op, Alloca *_ptr, IRBase *_val): ptr(_ptr), op(_op), val(_val) {
+AllocaInst::AllocaInst(unsigned int &st,ALLOCA_TYPE _op, Alloca *_ptr, IRBase *_val): ptr(_ptr), gl_ptr(nullptr), op(_op), val(_val) {
+
+    // alloca load store
+
     if( _val == nullptr){
         // load
 
@@ -193,7 +196,7 @@ AllocaInst::AllocaInst(unsigned int &st,ALLOCA_TYPE _op, Alloca *_ptr, IRBase *_
 
 }
 
-AllocaInst::AllocaInst(unsigned int &st, ALLOCA_TYPE _op, Alloca *_ptr): ptr(_ptr), op(_op), val(nullptr) {
+AllocaInst::AllocaInst(unsigned int &st, ALLOCA_TYPE _op, Alloca *_ptr): ptr(_ptr), gl_ptr(nullptr), op(_op), val(nullptr) {
     // complete
 }
 
@@ -205,9 +208,61 @@ std::string AllocaInst::get_value() const {
 }
 
 Type *AllocaInst::get_type() const {
-    return this->ptr->get_type();
+    if(this->ptr)
+        return this->ptr->get_type();
+    else{
+        return this->gl_ptr->get_type();
+    }
 }
 
+Inst *AllocaInst::Store(unsigned int &st,IRBase *val, GlobalVariable *ptr) {
+    auto tmp = new AllocaInst(st, ALLOCA_STORE, ptr, val);
+    Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
+
+    return tmp;
+}
+
+Inst *AllocaInst::Store(unsigned int &st, Arg *val, GlobalVariable *ptr) {
+    auto tmp = new AllocaInst(st, ALLOCA_STORE, ptr, IRBase::CreateIRBase(IR_ARG,val));
+    Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
+
+    return tmp;
+}
+
+
+Inst *AllocaInst::Load(unsigned int &st, GlobalVariable *ptr) {
+    auto tmp = new AllocaInst(st, ALLOCA_LOAD, ptr, nullptr);
+    Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
+
+    return tmp;
+}
+
+AllocaInst::AllocaInst(unsigned int &st, ALLOCA_TYPE _op, GlobalVariable *_ptr, IRBase *_val): ptr(nullptr), gl_ptr(_ptr), op(_op), val(_val) {
+
+    // GlobalVariable load store
+
+    if( _val == nullptr){
+        // load
+        this->v_reg = st++;
+        this->output = '%'+std::to_string(this->v_reg);
+
+        if(!_ptr->isInitialized() && _ptr->isConstant()){
+            std::cout << " Const GlobalVariable Load Uninitialized!" << std::endl;
+            assert(0);
+        }
+
+    }
+        // store
+    else{
+        if(_ptr->isInitialized() && _ptr->isConstant()){
+            std::cout << " Const GlobalVariable Store!" << std::endl;
+            assert(0);
+        }
+        if(_ptr->isConstant())
+            _ptr->Initialize();
+        this->output = _val->get_value();
+    }
+}
 
 
 CmpInst::CmpInst(unsigned int& st, CMP_TYPE _op, IRBase *LHS, IRBase *RHS): op(_op), lhs(LHS), rhs(RHS) {

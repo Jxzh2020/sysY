@@ -256,6 +256,8 @@ std::string IRBase::get_value() const {
             return this->allo->get_value();
         case IR_ARG:
             return this->arg->get_value();
+        case IR_GLOBAL_VAR:
+            return this->global->get_value();
     }
 }
 
@@ -602,8 +604,25 @@ bool GlobalVariable::isConstant() const {
     return this->isConst;
 }
 
-GlobalVariable::GlobalVariable(Type *ty, bool constant, IRBase *_val, const std::string &ident): type(ty), isConst(constant), val(_val), name(ident) {
+GlobalVariable::GlobalVariable(Type *ty, bool constant, IRBase *_val, const std::string &ident): type(ty), isConst(constant), initialized(true), val(_val), name(ident) {
     // complete
+}
+
+bool GlobalVariable::isInitialized() const {
+    return this->initialized;
+}
+
+void GlobalVariable::Initialize() {
+    assert(!this->initialized);
+    this->initialized = true;
+}
+
+std::string GlobalVariable::get_value() {
+    return '@'+this->name;
+}
+
+std::string GlobalVariable::get_initial_value() {
+    return this->val->get_value();
 }
 
 

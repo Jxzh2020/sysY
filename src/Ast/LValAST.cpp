@@ -15,6 +15,7 @@ IRGen::IRBase *LValAST::codegen() {
     //auto ref = IR::get()->getFunc()->getValueSymbolTable()->lookup(ident);
     auto ref = IR::get()->GetAlloca(ident);
     // 2. function parameter
+    // TODO: here now seems useless
     if (ref == nullptr && !IR::get()->getFunc()->arg_empty()) {
         auto argIter = IR::get()->getFunc()->arg_begin();
         auto argEnd = IR::get()->getFunc()->arg_end();

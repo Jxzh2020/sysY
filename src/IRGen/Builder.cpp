@@ -119,12 +119,18 @@ IRBase *Builder::CreateStore(IRBase *val, IRBase *ptr) {
     current_at_bb->set_v_reg_range(st);
     if( ptr->dyn_cast<Alloca*>() == nullptr){
         if( dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>()) == nullptr){
-            std::cout << "IRGen::IRBase::dyn_cast<Alloca*> failed, IRGen::Builder::CreateStore argument error!" << std::endl;
-            exit(1);
+            if(ptr->dyn_cast<GlobalVariable*>() == nullptr){
+                std::cout << "IRGen::Builder::CreateStore argument error! Not Alloca, AllocaInst or GlobalVariable." << std::endl;
+                assert(0);
+            }
+            else{
+                res = AllocaInst::Store(st, val,ptr->dyn_cast<GlobalVariable*>());
+            }
+
         }
-        res = AllocaInst::Store(st, val,dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
-        current_at_bb->insert(res);
-        return IRBase::CreateIRBase(IR_INST, res);
+        else{
+            res = AllocaInst::Store(st, val,dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
+        }
     }
     else{
         res = AllocaInst::Store(st, val,ptr->dyn_cast<Alloca*>());
@@ -142,9 +148,9 @@ IRBase *Builder::CreateStore(Arg *val, IRBase *ptr) {
             std::cout << "IRGen::IRBase::dyn_cast<Alloca*> failed, IRGen::Builder::CreateStore argument error!" << std::endl;
             exit(1);
         }
-        res = AllocaInst::Store(st, val,dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
-        current_at_bb->insert(res);
-        return IRBase::CreateIRBase(IR_INST, res);
+        else{
+            res = AllocaInst::Store(st, val,dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
+        }
     }
     else{
         res = AllocaInst::Store(st, val,ptr->dyn_cast<Alloca*>());
@@ -154,20 +160,29 @@ IRBase *Builder::CreateStore(Arg *val, IRBase *ptr) {
 }
 
 
+
 IRBase *Builder::CreateLoad(IRBase *ptr) {
     Inst* res;
     auto& st = this->current_at_bb->get_func_reg();
     current_at_bb->set_v_reg_range(st);
     if( ptr->dyn_cast<Alloca*>() == nullptr){
         if( dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>()) == nullptr){
-            std::cout << "IRGen::IRBase::dyn_cast<Alloca*> failed, IRGen::Builder::CreateStore argument error!" << std::endl;
-            exit(1);
+            if(ptr->dyn_cast<GlobalVariable*>() == nullptr){
+                std::cout << "IRGen::Builder::CreateLoad argument error! Not Alloca, AllocaInst or GlobalVariable." << std::endl;
+                assert(0);
+            }
+            else{
+                res = AllocaInst::Load(st, ptr->dyn_cast<GlobalVariable*>());
+            }
         }
-        res = AllocaInst::Load(st, dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
-        current_at_bb->insert(res);
-        return IRBase::CreateIRBase(IR_INST, res);
+        else{
+            res = AllocaInst::Load(st, dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
+        }
     }
-    res = AllocaInst::Load(st, ptr->dyn_cast<Alloca*>());
+    else{
+        res = AllocaInst::Load(st, ptr->dyn_cast<Alloca*>());
+    }
+
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST, res);;
 }
@@ -271,5 +286,15 @@ IRBase *Builder::CreateCall(Function *fun, std::vector<IRBase *> args) {
 BasicBlock *Builder::SetInsertPoint(BasicBlock *basicblock) {
     this->current_at_bb = basicblock;
     return nullptr;
+}
+
+IRBase *Builder::CreateGlobalVariable(Module *_module, Type *ty, bool isConstant, Linkage linkage, IRBase *Initializer,
+                                      const std::string &name) {
+    if(_module->getGlobalVariable(name) != nullptr){
+        std::cout << "Global Variable name Repetition" << std::endl;
+        assert(0);
+    }
+    auto res = GlobalVariable::Create(_module, ty,isConstant,Initializer, name);
+    return res;
 }
 

@@ -6,6 +6,12 @@ using namespace IRGen;
 
 std::stringstream Module::print() {
     std::stringstream code;
+    for( auto& gl: global_var_list){
+        if(!gl.second->isConstant())
+            code << gl.second->get_value() + " = global " + gl.second->get_type()->print() + ' ' + gl.second->get_initial_value()+'\n';
+        else
+            assert(0);
+    }
     for( auto& func: func_list){
         code << func->print() << '\n';
     }
@@ -181,18 +187,36 @@ std::string ArithInst::print() {
 std::string AllocaInst::print() {
     std::string out;
 
-    switch(this->op){
-        case ALLOCA_CREATE:
-            out = '%'+this->ptr->get_name()+" = alloca "+this->ptr->get_type()->print();
-            break;
-        case ALLOCA_STORE:
-            //this->ptr->set_value(this->val);
-            out = "store "+this->val->get_type()->print()+' '+ this->val->get_value() +", "+this->ptr->get_type()->print()+"* %"+this->ptr->get_name();
-            break;
-        case ALLOCA_LOAD:
-            out = this->output + " = load "+this->ptr->get_type()->print()+", "+this->ptr->get_type()->print()+"* %"+this->ptr->get_name();
-            //out += this->val->get_value();
-            break;
+    if(ptr){
+        switch(this->op){
+            case ALLOCA_CREATE:
+                out = '%'+this->ptr->get_name()+" = alloca "+this->ptr->get_type()->print();
+                break;
+            case ALLOCA_STORE:
+                //this->ptr->set_value(this->val);
+                out = "store "+this->val->get_type()->print()+' '+ this->val->get_value() +", "+this->ptr->get_type()->print()+"* %"+this->ptr->get_name();
+                break;
+            case ALLOCA_LOAD:
+                out = this->output + " = load "+this->ptr->get_type()->print()+", "+this->ptr->get_type()->print()+"* %"+this->ptr->get_name();
+                //out += this->val->get_value();
+                break;
+        }
+    }
+    // global variable
+    else{
+        switch(this->op){
+            case ALLOCA_CREATE:
+                std::cout << "Alloca Create on GlobalVariable" << std::endl;
+                assert(0);
+                break;
+            case ALLOCA_STORE:
+                out = "store "+this->val->get_type()->print()+' '+ this->val->get_value() +", "+this->gl_ptr->get_type()->print()+"* @"+this->gl_ptr->get_name();
+                break;
+            case ALLOCA_LOAD:
+                out = this->output + " = load "+this->gl_ptr->get_type()->print()+", "+this->gl_ptr->get_type()->print()+"* @"+this->gl_ptr->get_name();
+                //out += this->val->get_value();
+                break;
+        }
     }
     return out;
 }
