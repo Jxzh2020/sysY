@@ -17,6 +17,7 @@ public:
     std::vector<std::unique_ptr<BaseAST>> params;
 
     void Dump() const override;
+    void SetArgAlloca(llvm::Function*);
 
     [[nodiscard]] llvm::Value *codegen() override;
 

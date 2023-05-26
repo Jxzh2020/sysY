@@ -25,7 +25,7 @@ llvm::Value *FuncDefAST::codegen() {
         IR::get()->EnterFunc(F);
         this->SetName(F);
         IR::get()->NewLogicalBlockStart();
-        //this->SetAlloca(F);
+        this->SetArgAlloca(F);
         block->codegen();
         IR::get()->NewLogicalBlockEnd();
         IR::get()->ExitFunc();
@@ -53,5 +53,21 @@ void FuncDefAST::SetName(llvm::Function *F) const {
     for (; argIter != argEnd; argIter++) {
         argIter->setName(dynamic_cast<FuncFParamAST *>(paraIter->get())->getName());
         paraIter++;
+    }
+}
+
+void FuncDefAST::SetArgAlloca(llvm::Function *F) {
+    auto &builder = IR::get()->getBuilder();
+    if (F->arg_empty())
+        return;
+
+    auto argIter = F->arg_begin();
+    auto argEnd = F->arg_end();
+    llvm::AllocaInst* arg;
+
+    for (; argIter != argEnd; argIter++) {
+        arg = builder->CreateAlloca(argIter->getType(),nullptr,argIter->getName());
+        IR::get()->AddAlloca(arg,argIter->getName().str());
+        builder->CreateStore(argIter,arg);
     }
 }
