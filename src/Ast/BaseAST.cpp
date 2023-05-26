@@ -5,6 +5,8 @@
 #include "Ast/BaseAST.h"
 #include "IRGen/IRGen.h"
 
+std::vector<std::unique_ptr<IRGen::Type> > IRGen::Type::allocated;
+
 std::unique_ptr<IR> IR::instance(new IR);
 
 std::unique_ptr<IR> &IR::get() {

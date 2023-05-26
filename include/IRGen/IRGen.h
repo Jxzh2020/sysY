@@ -198,12 +198,14 @@ namespace IRGen {
         static Inst* Cast(Constant* from, Type* to_type);
         static Inst* Cast(Inst* from_inst, Type* to_type);
         static Inst* Cast(IRBase* from, Type* to);
+        ~Type() { int a = 1;}
     private:
         explicit Type(P_TYPE);
         static void gen_all_instances();
         static std::vector<std::unique_ptr<Type> > allocated;
         P_TYPE type;
     };
+
     class Inst {
     public:
         Inst();
@@ -464,6 +466,7 @@ namespace IRGen {
 
         Alloca* get_alloca(const std::string& name);
         void add_alloca(Alloca* ptr);
+        FunctionType* get_func_type() const;
 
     private:
         Linkage link;
@@ -547,6 +550,19 @@ namespace IRGen {
         BasicBlock* t_des;
         BasicBlock* f_des;
         IRBase* con;
+    };
+
+    class CallInst: public Inst {
+    public:
+        std::string print() override;
+        Type* get_type() const override;
+        std::string get_value() const override;
+        static Inst* Create(unsigned int &st, Function* func, std::vector<IRBase *>& args);
+    private:
+        explicit CallInst(unsigned int &st, Function* func, std::vector<IRBase *>& _args);
+        std::vector<IRBase*> args;
+        Function* func;
+        Type* ret_type;
     };
 
     /**

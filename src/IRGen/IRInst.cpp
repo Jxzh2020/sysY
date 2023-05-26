@@ -51,9 +51,36 @@ Type *BranchInst::get_type() const {
 }
 
 std::string BranchInst::get_value() const {
+    std::cout << " BranchInst::get_value() undefined." << std::endl;
     assert(false);
     return "";
 }
+
+Type *CallInst::get_type() const {
+    return this->ret_type;
+}
+
+std::string CallInst::get_value() const {
+    if(Type::isVoid(this->ret_type)){
+        std::cout << " CallInst::get_value() undefined in Void type." << std::endl;
+        assert(0);
+    }
+    return this->output;
+}
+
+Inst *CallInst::Create(unsigned int &st, Function *func, std::vector<IRBase *> &args) {
+    auto tmp = new CallInst(st, func, args);
+    Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
+    return tmp;
+}
+
+CallInst::CallInst(unsigned int &st, Function *_func, std::vector<IRBase *> &_args): args(_args), func(_func), ret_type(_func->get_func_type()->get_ret_type()) {
+    if(!Type::isVoid(this->ret_type)){
+        this->v_reg = st++;
+        this->output = '%'+std::to_string(this->v_reg);
+    }
+}
+
 
 
 Inst *ArithInst::Create(unsigned int &st, ARITH_TYPE op, IRBase *_lhs, IRBase *_rhs) {
@@ -149,14 +176,9 @@ Alloca *AllocaInst::get_alloca() {
 AllocaInst::AllocaInst(unsigned int &st,ALLOCA_TYPE _op, Alloca *_ptr, IRBase *_val): ptr(_ptr), op(_op), val(_val) {
     if( _val == nullptr){
         // load
-        if( _ptr->isConstant()){
-            // is constant
-            this->output = _ptr->get_value();
-        }
-        else{
-            this->v_reg = st++;
-            this->output = '%'+std::to_string(this->v_reg);
-        }
+
+        this->v_reg = st++;
+        this->output = '%'+std::to_string(this->v_reg);
     }
     // store
     else{

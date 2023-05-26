@@ -134,6 +134,28 @@ std::string BranchInst::print() {
 }
 
 
+std::string CallInst::print() {
+    std::string out;
+    if(!Type::isVoid(this->ret_type)){
+        out+=(this->output+" = ");    //call "+this->ret_type->print()+" @"+this->func->get_name()
+    }
+    out+=("call " + this->ret_type->print() + " @" + this->func->get_name());
+    out+='(';
+    if(!this->args.empty()){
+        auto iter = *this->args.begin();
+        out+=(iter->get_type()->print()+' '+iter->get_value());
+        for( auto &arg : this->args){
+            if( arg == iter)
+                continue;
+            out+=(", "+arg->get_type()->print()+' '+arg->get_value());
+
+        }
+    }
+    out+=')';
+    return out;
+}
+
+
 std::string ArithInst::print() {
 
     static const std::string list[] = {"add", "sub", "???", "sdiv", "mul", "srem"};

@@ -252,13 +252,20 @@ IRBase *Builder::CreateRet(IRBase *val) {
 }
 
 IRBase *Builder::CreateCall(Function *fun) {
-    assert(false);
-    return nullptr;
+    std::vector<IRBase*> tmp;
+    auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
+    auto res = CallInst::Create(st, fun, tmp);
+    current_at_bb->insert(res);
+    return IRBase::CreateIRBase(IR_INST, res);
 }
 
 IRBase *Builder::CreateCall(Function *fun, std::vector<IRBase *> args) {
-    assert(false);
-    return nullptr;
+    auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
+    auto res = CallInst::Create(st, fun, args);
+    current_at_bb->insert(res);
+    return IRBase::CreateIRBase(IR_INST, res);
 }
 
 BasicBlock *Builder::SetInsertPoint(BasicBlock *basicblock) {

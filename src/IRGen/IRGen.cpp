@@ -43,7 +43,7 @@ void Module::add_variable(GlobalVariable *var) {
 }
 
 
-std::vector<std::unique_ptr<Type> > Type::allocated;
+
 
 Type *IRGen::Type::getInt32() {
     if( Type::allocated.empty()){
@@ -374,6 +374,10 @@ void Function::add_alloca(Alloca *ptr) {
         this->alloca_list[name] = ptr;
 }
 
+FunctionType *Function::get_func_type() const{
+    return this->type;
+}
+
 
 const std::string &Arg::get_name() {
     return this->name;
@@ -601,3 +605,5 @@ bool GlobalVariable::isConstant() const {
 GlobalVariable::GlobalVariable(Type *ty, bool constant, IRBase *_val, const std::string &ident): type(ty), isConst(constant), val(_val), name(ident) {
     // complete
 }
+
+
