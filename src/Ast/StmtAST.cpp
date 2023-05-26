@@ -91,7 +91,8 @@ llvm::Value *StmtAST::codegen() {
                 else_stmt->codegen();
                 if(IR::get()->hasBranchAtEnd()){
                     // false_bb 已经结束了， 取消末尾branch标识
-                    IR::get()->ClearBranch();
+                    if(!isEndBranch)
+                        IR::get()->ClearBranch();
                 }
                     // 只有在末尾不是 break 或者 continue 的时候，才设置 false_bb 的默认跳转
                 else{
