@@ -25,8 +25,10 @@ IRGen::IRBase *FuncDefAST::codegen() {
         IR::get()->EnterFunc(F);
         this->SetName(F);
         IR::get()->NewLogicalBlockStart();
-        //this->SetAlloca(F);
+        this->SetArgAlloca(F);
+        IR::get()->NewLogicalBlockStart();
         block->codegen();
+        IR::get()->NewLogicalBlockEnd();
         IR::get()->NewLogicalBlockEnd();
         IR::get()->ExitFunc();
     }
@@ -53,5 +55,21 @@ void FuncDefAST::SetName(IRGen::Function *F) const {
     for (; argIter != argEnd; argIter++) {
         argIter->get()->set_name(dynamic_cast<FuncFParamAST *>(paraIter->get())->getName());
         paraIter++;
+    }
+}
+
+void FuncDefAST::SetArgAlloca(IRGen::Function *F) {
+    auto &builder = IR::get()->getBuilder();
+    if (F->arg_empty())
+        return;
+
+    auto argIter = F->arg_begin();
+    auto argEnd = F->arg_end();
+    IRGen::IRBase* arg;
+
+    for (; argIter != argEnd; argIter++) {
+        arg = builder->CreateAlloca(argIter->get()->get_type(),argIter->get()->get_name(), false);
+        IR::get()->AddAlloca(arg,argIter->get()->get_name());
+        builder->CreateStore(argIter->get(),arg);
     }
 }

@@ -104,8 +104,9 @@ void IR::AddAlloca(IRGen::IRBase *_al, const std::string &o_name) {
     }
     auto &map = Func_Context->name_map[Func_Context->logical_block_of[Func_Context->curblock]];
     if (map->find(o_name) != map->end()) {
+
         std::cout << "Error! Repeated variable name in one block!" << std::endl;
-        exit(1);
+        assert(0);
     }
     (*map)[o_name] = al;
 

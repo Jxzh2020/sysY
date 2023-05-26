@@ -20,6 +20,8 @@ public:
 
     [[nodiscard]] IRGen::IRBase *codegen() override;
 
+    void SetArgAlloca(IRGen::Function *F);
+
     void SetName(IRGen::Function *) const;
 };
 

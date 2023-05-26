@@ -254,6 +254,8 @@ std::string IRBase::get_value() const {
         case IR_ALLOCA:
             assert(0);
             return this->allo->get_value();
+        case IR_ARG:
+            return this->arg->get_value();
     }
 }
 
@@ -387,6 +389,10 @@ Arg::Arg(Type *ty) {
 
 Type *Arg::get_type() const {
     return this->type;
+}
+
+std::string Arg::get_value() {
+    return '%'+this->name;
 }
 
 

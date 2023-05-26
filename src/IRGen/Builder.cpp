@@ -80,17 +80,33 @@ IRBase * Builder::CreateAlloca(Type *ty, const std::string &name, bool isConstan
     auto& st = this->current_at_bb->get_func_reg();
     current_at_bb->set_v_reg_range(st);
     int cnt = 0;
-    auto ret = this->current_at_bb->get_func()->get_alloca(name);
+
+    for( auto iter = this->current_at_bb->get_func()->arg_begin(); iter != this->current_at_bb->get_func()->arg_end();iter++){
+        if(cnt){
+            if(iter->get()->get_name() == name+std::to_string(cnt))
+                cnt++;
+        }
+        else{
+            if(iter->get()->get_name() == name)
+                cnt++;
+        }
+    }
+
+
+    auto ret = this->current_at_bb->get_func()->get_alloca(cnt ? name+std::to_string(cnt) : name);
     Inst* res;
 
     while(ret){
         cnt++;
         ret = this->current_at_bb->get_func()->get_alloca(name+std::to_string(cnt));
     }
+
     if(cnt)
         res = AllocaInst::Create(st, ty, name+std::to_string(cnt), isConstant);
     else
         res = AllocaInst::Create(st, ty, name, isConstant);
+
+
     this->current_at_bb->get_func()->add_alloca(dynamic_cast<AllocaInst*>(res)->get_alloca());
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST,res);
@@ -116,6 +132,27 @@ IRBase *Builder::CreateStore(IRBase *val, IRBase *ptr) {
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST, res);
 }
+
+IRBase *Builder::CreateStore(Arg *val, IRBase *ptr) {
+    Inst* res;
+    auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
+    if( ptr->dyn_cast<Alloca*>() == nullptr){
+        if( dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>()) == nullptr){
+            std::cout << "IRGen::IRBase::dyn_cast<Alloca*> failed, IRGen::Builder::CreateStore argument error!" << std::endl;
+            exit(1);
+        }
+        res = AllocaInst::Store(st, val,dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>())->get_alloca());
+        current_at_bb->insert(res);
+        return IRBase::CreateIRBase(IR_INST, res);
+    }
+    else{
+        res = AllocaInst::Store(st, val,ptr->dyn_cast<Alloca*>());
+    }
+    current_at_bb->insert(res);
+    return IRBase::CreateIRBase(IR_INST, res);
+}
+
 
 IRBase *Builder::CreateLoad(IRBase *ptr) {
     Inst* res;
@@ -228,3 +265,4 @@ BasicBlock *Builder::SetInsertPoint(BasicBlock *basicblock) {
     this->current_at_bb = basicblock;
     return nullptr;
 }
+

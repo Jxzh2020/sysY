@@ -141,6 +141,7 @@ namespace IRGen {
          */
         IRBase * CreateAlloca( Type* ty, const std::string& name, bool isConstant);
         IRBase* CreateStore( IRBase* val, IRBase* ptr);
+        IRBase* CreateStore( Arg* val, IRBase* ptr);
         IRBase* CreateLoad( IRBase* ptr);
 
         IRBase* CreateGlobalVariable(Module* _module, Type* ty, bool isConstant, Linkage linkage, IRBase* Initializer, const std::string& name);
@@ -416,6 +417,7 @@ namespace IRGen {
     public:
         explicit Arg(Type*);
         const std::string& get_name();
+        std::string get_value();
         std::string print_type() const;
         std::string print_name() const;
         void set_name(const std::string&);
@@ -570,6 +572,7 @@ namespace IRGen {
         Type* get_type() const override;
         static Inst* Create(unsigned int &st, Type* ty, const std::string& name, bool isConstant);
         static Inst* Store(unsigned int &st, IRBase* val, Alloca* ptr);
+        static Inst* Store(unsigned int &st, Arg* val, Alloca* ptr);
         static Inst* Load(unsigned int &st, Alloca* ptr);
         Alloca* get_alloca();
     private:

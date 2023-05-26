@@ -129,6 +129,13 @@ Inst *AllocaInst::Store(unsigned int &st,IRBase *val, Alloca *ptr) {
     return tmp;
 }
 
+Inst *AllocaInst::Store(unsigned int &st, Arg *val, Alloca *ptr) {
+    auto tmp = new AllocaInst(st, ALLOCA_STORE, ptr, IRBase::CreateIRBase(IR_ARG,val));
+    Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
+
+    return tmp;
+}
+
 Inst *AllocaInst::Load(unsigned int &st, Alloca *ptr) {
     auto tmp = new AllocaInst(st, ALLOCA_LOAD, ptr, nullptr);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
@@ -178,6 +185,7 @@ std::string AllocaInst::get_value() const {
 Type *AllocaInst::get_type() const {
     return this->ptr->get_type();
 }
+
 
 
 CmpInst::CmpInst(unsigned int& st, CMP_TYPE _op, IRBase *LHS, IRBase *RHS): op(_op), lhs(LHS), rhs(RHS) {
