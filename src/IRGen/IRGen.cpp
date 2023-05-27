@@ -127,8 +127,9 @@ Inst *Type::Cast(IRBase *from, Type *to) {
     return nullptr;
 }
 
-
-
+bool Type::isArrayType() const {
+    return this->isArray;
+}
 
 
 std::vector<std::unique_ptr<Constant> > Constant::const_list;

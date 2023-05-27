@@ -148,6 +148,15 @@ namespace IRGen {
         // arg is only stored into alloca
         IRBase* CreateLoad( IRBase* ptr);
 
+        /**
+         *
+         * @param _module the module to add gl in
+         * @param ty the gl type
+         * @param isConstant if gl is constant
+         * @param Initializer the initial value of gl
+         * @param name the gl name
+         * @return the GlobalVariable wrapped in IRBase
+         */
         IRBase* CreateGlobalVariable(Module* _module, Type* ty, bool isConstant, IRBase* Initializer, const std::string& name );
 
         IRBase* CreateICmpSLT( IRBase* LHS, IRBase* RHS);
@@ -191,6 +200,7 @@ namespace IRGen {
         static bool isInt1(Type* ty);
         static bool isVoid(Type* ty);
         static bool isPtr(Type* ty);
+        bool isArrayType() const;
 
         // need modification when add self-defined type
         P_TYPE get_type();
@@ -205,6 +215,11 @@ namespace IRGen {
         static Inst* Cast(Inst* from_inst, Type* to_type);
         static Inst* Cast(IRBase* from, Type* to);
     private:
+        /**
+         * Array Type's Type representation is: P_TYPE = PTR, and arraysize > 0;
+         * @param ele_type if is array type, this is the element type, if not, it's the same as type
+         * @param _arraysize if > 0, this is array type
+         */
         explicit Type(P_TYPE ele_type, unsigned int _arraysize);
         static void gen_all_instances();
         static std::vector<std::unique_ptr<Type> > allocated;

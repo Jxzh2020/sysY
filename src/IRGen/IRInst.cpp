@@ -176,6 +176,9 @@ Alloca *AllocaInst::get_alloca() {
 AllocaInst::AllocaInst(unsigned int &st,ALLOCA_TYPE _op, Alloca *_ptr, IRBase *_val): ptr(_ptr), gl_ptr(nullptr), op(_op), val(_val) {
 
     // alloca load store
+    if( Type::isPtr(_ptr->get_type()) && _ptr->get_type()->isArrayType()){
+        assert(0 && "Array type can not store or load directly");
+    }
 
     if( _val == nullptr){
         // load
@@ -240,6 +243,9 @@ Inst *AllocaInst::Load(unsigned int &st, GlobalVariable *ptr) {
 AllocaInst::AllocaInst(unsigned int &st, ALLOCA_TYPE _op, GlobalVariable *_ptr, IRBase *_val): ptr(nullptr), gl_ptr(_ptr), op(_op), val(_val) {
 
     // GlobalVariable load store
+    if( Type::isPtr(_ptr->get_type()) && _ptr->get_type()->isArrayType()){
+        assert(0 && "Array type can not store or load directly");
+    }
 
     if( _val == nullptr){
         // load
