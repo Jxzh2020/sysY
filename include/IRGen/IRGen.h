@@ -60,7 +60,8 @@ namespace IRGen {
     enum P_TYPE {
         INT32,
         INT1,
-        VOID
+        VOID,
+        PTR
     };
 
     /**
@@ -183,12 +184,14 @@ namespace IRGen {
     public:
         static Type* getInt32();
         static Type* getInt1();
-//        static Type getInt32();
         static Type* getVoid();
-//        static Type getInt32();
+        static Type* getPtr();
+
         static bool isInt32(Type* ty);
         static bool isInt1(Type* ty);
         static bool isVoid(Type* ty);
+        static bool isPtr(Type* ty);
+
         // need modification when add self-defined type
         P_TYPE get_type();
         std::string print() const;
@@ -206,6 +209,7 @@ namespace IRGen {
         static void gen_all_instances();
         static std::vector<std::unique_ptr<Type> > allocated;
         P_TYPE type;
+        bool isArray;
     };
 
     class Inst {
@@ -504,14 +508,17 @@ namespace IRGen {
 
     };
 
-    /**
-     *  For mem2reg preparation
-     */
+
     class Alloca {
     public:
         static Alloca* Create(Type* ty, const std::string& name, bool isConstant);
         static void Kill(Alloca* ptr);
         Type* get_type() const;
+        /**
+         *
+         * @return the type in string form
+         */
+        std::string print_type() const;
         const std::string& get_name() const;
         bool isConstant() const;
         bool isInitialized() const;
@@ -529,7 +536,7 @@ namespace IRGen {
         Type* type;
         std::string name;
         unsigned int v_reg;
-        std::string value;
+//        std::string value;
         static std::list<std::unique_ptr<Alloca>> alloca_list;
     };
 

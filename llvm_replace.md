@@ -181,3 +181,8 @@ define void @h(ptr %0) {
 ```
 
 **Maybe** the arg system need no modification. Just add support a new type `ptr` and a New Inst `getelementptr`
+
+Now alloca type `i32*` is hard-coded in the AllocaInst::print(), which outputs string like `%a = alloca i32`, `store i32 %1, i32* %a`.
+
+Intended to print type properly for newly added type `ptr`, the type print of alloca need an upper level of abstraction to type print.
+Well, it's the same simply use `ptr` for all allocas, since our project don't check type.

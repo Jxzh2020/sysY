@@ -194,10 +194,10 @@ std::string AllocaInst::print() {
                 break;
             case ALLOCA_STORE:
                 //this->ptr->set_value(this->val);
-                out = "store "+this->val->get_type()->print()+' '+ this->val->get_value() +", "+this->ptr->get_type()->print()+"* %"+this->ptr->get_name();
+                out = "store "+this->val->get_type()->print()+' '+ this->val->get_value() +", "+this->ptr->print_type()+" "+this->ptr->get_value();
                 break;
             case ALLOCA_LOAD:
-                out = this->output + " = load "+this->ptr->get_type()->print()+", "+this->ptr->get_type()->print()+"* %"+this->ptr->get_name();
+                out = this->output + " = load "+this->ptr->get_type()->print()+", "+this->ptr->print_type()+" "+this->ptr->get_value();
                 //out += this->val->get_value();
                 break;
         }

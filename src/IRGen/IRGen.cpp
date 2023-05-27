@@ -66,8 +66,15 @@ Type *IRGen::Type::getVoid() {
     return Type::allocated[VOID].get();
 }
 
-Type::Type(P_TYPE _type) {
-    type = _type;
+Type *Type::getPtr() {
+    if( Type::allocated.empty()){
+        Type::gen_all_instances();
+    }
+    return Type::allocated[PTR].get();
+}
+
+Type::Type(P_TYPE _type): type(_type), isArray(false) {
+    // complete
 }
 
 /**
@@ -80,6 +87,8 @@ void Type::gen_all_instances() {
     gen = new Type(INT1);
     Type::allocated.push_back(std::unique_ptr<Type>(gen));
     gen = new Type(VOID);
+    Type::allocated.push_back(std::unique_ptr<Type>(gen));
+    gen = new Type(PTR);
     Type::allocated.push_back(std::unique_ptr<Type>(gen));
 }
 
@@ -99,18 +108,27 @@ bool Type::isVoid(Type *ty) {
     return ty == allocated[VOID].get();
 }
 
+bool Type::isPtr(Type *ty) {
+    return ty == allocated[PTR].get();
+}
+
 Inst *Type::Cast(Constant *from, Type *to_type) {
+    assert(0 && "Type::Cast use before definition");
     return nullptr;
 }
 
 Inst *Type::Cast(Inst *from_inst, Type *to_type) {
+    assert(0 && "Type::Cast use before definition");
     return nullptr;
 }
 
 Inst *Type::Cast(IRBase *from, Type *to) {
-    assert(0);
+    assert(0 && "Type::Cast use before definition");
     return nullptr;
 }
+
+
+
 
 
 std::vector<std::unique_ptr<Constant> > Constant::const_list;
@@ -465,7 +483,7 @@ Alloca *Alloca::Create(Type *ty, const std::string &name, bool isConstant) {
 
 
 Alloca::Alloca(Type *ty, const std::string &_name, IRBase *_val): isConst(true), type(ty), name(_name), v_reg(0)  {
-    this->value = _val->get_value();
+    // complete
 }
 
 /**
@@ -492,8 +510,7 @@ const std::string &Alloca::get_name() const {
 
 
 std::string Alloca::get_value() {
-
-    return this->value;
+    return '%'+this->name;
 }
 
 bool Alloca::isConstant() const {
@@ -506,6 +523,10 @@ bool Alloca::isInitialized() const {
 void Alloca::Initialize() {
     assert(!this->initialized);
     this->initialized = true;
+}
+
+std::string Alloca::print_type() const {
+    return Type::isPtr(this->type) ? this->type->print() : this->type->print()+'*';
 }
 
 
