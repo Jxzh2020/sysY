@@ -292,8 +292,7 @@ BasicBlock *Builder::SetInsertPoint(BasicBlock *basicblock) {
     return nullptr;
 }
 
-IRBase *Builder::CreateGlobalVariable(Module *_module, Type *ty, bool isConstant, Linkage linkage, IRBase *Initializer,
-                                      const std::string &name) {
+IRBase *Builder::CreateGlobalVariable(Module *_module, Type *ty, bool isConstant, IRBase *Initializer, const std::string &name ) {
     if(_module->getGlobalVariable(name) != nullptr){
         std::cout << "Global Variable name Repetition" << std::endl;
         assert(0);

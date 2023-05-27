@@ -186,3 +186,5 @@ Now alloca type `i32*` is hard-coded in the AllocaInst::print(), which outputs s
 
 Intended to print type properly for newly added type `ptr`, the type print of alloca need an upper level of abstraction to type print.
 Well, it's the same simply use `ptr` for all allocas, since our project don't check type.
+
+It's better to wrap the ArrayType in Type, for general purpose.

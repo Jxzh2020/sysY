@@ -73,7 +73,7 @@ Type *Type::getPtr() {
     return Type::allocated[PTR].get();
 }
 
-Type::Type(P_TYPE _type): type(_type), isArray(false) {
+Type::Type(P_TYPE _type, unsigned int _arraysize) : type(_arraysize != 0 ? PTR : _type), isArray(_arraysize!=0), arraysize(_arraysize), ele_type(_type) {
     // complete
 }
 
@@ -82,13 +82,13 @@ Type::Type(P_TYPE _type): type(_type), isArray(false) {
  *  be the same as P_TYPE order.
  */
 void Type::gen_all_instances() {
-    auto gen = new Type(INT32);
+    auto gen = new Type(INT32, 0);
     Type::allocated.push_back(std::unique_ptr<Type>(gen));
-    gen = new Type(INT1);
+    gen = new Type(INT1, 0);
     Type::allocated.push_back(std::unique_ptr<Type>(gen));
-    gen = new Type(VOID);
+    gen = new Type(VOID, 0);
     Type::allocated.push_back(std::unique_ptr<Type>(gen));
-    gen = new Type(PTR);
+    gen = new Type(PTR, 0);
     Type::allocated.push_back(std::unique_ptr<Type>(gen));
 }
 

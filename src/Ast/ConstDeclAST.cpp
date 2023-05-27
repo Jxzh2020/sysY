@@ -21,7 +21,7 @@ IRGen::IRBase *ConstDeclAST::codegen() {
             IR::get()->AddAlloca(res, pairs.first);
             builder->CreateStore(pairs.second, res);
         } else {
-            auto gl = IRGen::GlobalVariable::Create(IR::get()->getModule().get(),
+            builder->CreateGlobalVariable(IR::get()->getModule().get(),
                                                type,
                                                true,
                                                pairs.second,

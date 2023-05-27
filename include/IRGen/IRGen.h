@@ -148,7 +148,7 @@ namespace IRGen {
         // arg is only stored into alloca
         IRBase* CreateLoad( IRBase* ptr);
 
-        IRBase* CreateGlobalVariable(Module* _module, Type* ty, bool isConstant, Linkage linkage, IRBase* Initializer, const std::string& name);
+        IRBase* CreateGlobalVariable(Module* _module, Type* ty, bool isConstant, IRBase* Initializer, const std::string& name );
 
         IRBase* CreateICmpSLT( IRBase* LHS, IRBase* RHS);
         IRBase* CreateICmpSGT( IRBase* LHS, IRBase* RHS);
@@ -205,11 +205,13 @@ namespace IRGen {
         static Inst* Cast(Inst* from_inst, Type* to_type);
         static Inst* Cast(IRBase* from, Type* to);
     private:
-        explicit Type(P_TYPE);
+        explicit Type(P_TYPE ele_type, unsigned int _arraysize);
         static void gen_all_instances();
         static std::vector<std::unique_ptr<Type> > allocated;
         P_TYPE type;
         bool isArray;
+        unsigned int arraysize;
+        P_TYPE ele_type;
     };
 
     class Inst {
@@ -536,7 +538,6 @@ namespace IRGen {
         Type* type;
         std::string name;
         unsigned int v_reg;
-//        std::string value;
         static std::list<std::unique_ptr<Alloca>> alloca_list;
     };
 
