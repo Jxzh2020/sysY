@@ -138,7 +138,7 @@ Stmt          ::= LVal "=" Exp ";"
 #include <map>
 #include "Ast/BaseAST.h"
 
-
+#define GEP_TEST
 using namespace std;
 
 // 声明 lexer 的输入, 以及 parser 函数
@@ -151,7 +151,14 @@ extern FILE *yyin;
 
 extern int yyparse(unique_ptr<BaseAST> &ast);
 
+void gep_test();
+
 int main(int argc, const char *argv[]) {
+#ifdef GEP_TEST
+    gep_test();
+    return 0;
+#endif
+
     // 解析命令行参数. 测试脚本/评测平台要求你的编译器能接收如下参数:
     // compiler 模式 输入文件 -o 输出文件
     //assert(argc == 5);
@@ -179,4 +186,21 @@ int main(int argc, const char *argv[]) {
     file.close();
 
     return 0;
+}
+
+void gep_test(){
+    auto builder = IR::get()->getBuilder().get();
+    auto F = IRGen::Function::Create(IRGen::FunctionType::get(IRGen::Type::getInt32()),IRGen::Function::ExternalLinkage,"main",IR::get()->getModule().get());
+    IR::get()->EnterFunc(F);
+    IR::get()->NewLogicalBlockStart();
+    auto inst = builder->CreateAlloca(IRGen::Type::getArray(IRGen::Type::getInt32(),5),"array");
+
+    builder->CreateRet(IRGen::Constant::get(IRGen::Type::getInt32(),1));
+    IR::get()->IR::NewLogicalBlockEnd();
+
+    std::ofstream file("demo.ll");
+    file << IR::get()->getModule()->print().str();
+
+    file.close();
+
 }

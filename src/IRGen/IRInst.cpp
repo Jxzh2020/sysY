@@ -392,3 +392,43 @@ RetInst::RetInst(IRBase *val): ret_val(val) {
 }
 
 
+Inst *GEPInst::Create(unsigned int &st, Type *aggragate_type, IRBase *arrayalloc, IRBase *base, IRBase *offset) {
+    auto tmp = new GEPInst(st, aggragate_type, arrayalloc, base, offset);
+    Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
+    return tmp;
+}
+
+GEPInst::GEPInst(unsigned int &st, Type *aggragate_type, IRBase *arrayalloc, IRBase *base, IRBase *offset)
+    : array_type(aggragate_type), alloca_array_ptr(nullptr), gl_array_ptr(nullptr), base_index(base), offset_index(offset), isAlloca(true) {
+
+    auto alloca = arrayalloc->dyn_cast<Alloca*>();
+    auto gl = arrayalloc->dyn_cast<GlobalVariable*>();
+
+    this->v_reg = st++;
+    this->output = '%'+std::to_string(this->v_reg);
+
+    if(alloca && alloca->get_type()->isArrayType()) {
+        this->isAlloca = true;
+        this->alloca_array_ptr = alloca;
+    }
+    else if(gl && gl->get_type()->isArrayType()) {
+        this->isAlloca = false;
+        this->gl_array_ptr = gl;
+    }
+    else{
+        this->isAlloca = false;
+        assert(0 && "Not Array Type or Even not Ptr Type");
+    }
+
+}
+
+std::string GEPInst::get_value() const {
+    return '%'+std::to_string(this->v_reg);
+}
+
+Type *GEPInst::get_type() const {
+    return this->array_type->get_element_type();
+}
+
+
+

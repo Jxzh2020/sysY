@@ -20,13 +20,22 @@ std::stringstream Module::print() {
 
 
 std::string Type::print() const {
-    switch(this->type){
-        case INT32:
-            return "i32";
-        case INT1:
-            return "i1";
-        case VOID:
-            return "void";
+    if(this->isArray){
+        return '[' + std::to_string(this->arraysize) + " x " + Type::allocated[this->ele_type]->print() + ']';
+    }
+    else{
+        switch(this->type){
+            case INT32:
+                return "i32";
+            case INT1:
+                return "i1";
+            case VOID:
+                return "void";
+            case PTR:
+                return "ptr";
+            default:
+                assert(0 && "unhandled switch case");
+        }
     }
 }
 
@@ -305,6 +314,22 @@ Type *RetInst::get_type() const {
 }
 
 std::string RetInst::get_value() const {
-    assert(false);
+    assert(false && "Getting Value from RetInst");
     return "";
+}
+
+
+std::string GEPInst::print() {
+    std::string out;
+    out+= (this->output + " = getelementptr inbounnds (" + this->array_type->print()+", ");
+    if(this->isAlloca){
+        out+=(this->alloca_array_ptr->get_type()->print()+' '+this->alloca_array_ptr->get_value());
+    }
+    else{
+        out+=(this->gl_array_ptr->get_type()->print()+' '+this->gl_array_ptr->get_value());
+    }
+    out+=(", "+this->base_index->get_type()->print()+' '+this->base_index->get_value());
+    out+=(", "+this->offset_index->get_type()->print()+' '+this->offset_index->get_value());
+
+    return out;
 }

@@ -40,6 +40,15 @@ namespace IRGen {
      *  For v reg and operation mapping
      */
     class Inst;
+    class BranchInst;
+    class ArithInst;
+    class AllocaInst;
+    class CmpInst;
+    class LogicInst;
+    class RetInst;
+    class CastInst;
+    class GEPInst;
+
 
     /** The namespace Linkage is only set to follow LLVM code style.
      *
@@ -140,13 +149,15 @@ namespace IRGen {
          *  kind of complicated here, builder has to check name repetition,
          *  if there is, rename the alloca.
          */
-        IRBase* CreateAlloca( Type* ty, const std::string& name, bool isConstant);
+        IRBase* CreateAlloca( Type* ty, const std::string& name, bool isConstant = false);
         IRBase* CreateStore( IRBase* val, IRBase* ptr);
         IRBase* CreateStore( Arg* val, IRBase* ptr);
 
         // arg load is not supported. Since arg is first translated to alloca implicitly,
         // arg is only stored into alloca
         IRBase* CreateLoad( IRBase* ptr);
+
+        IRBase* CreateGEP(Type* aggragate_type, IRBase* arrayalloc, std::pair<IRBase*, IRBase*> indices);
 
         /**
          *
@@ -195,6 +206,7 @@ namespace IRGen {
         static Type* getInt1();
         static Type* getVoid();
         static Type* getPtr();
+        static Type* getArray(Type* ty, unsigned int arraysize);
 
         static bool isInt32(Type* ty);
         static bool isInt1(Type* ty);
@@ -202,8 +214,15 @@ namespace IRGen {
         static bool isPtr(Type* ty);
         bool isArrayType() const;
 
+        Type* get_element_type() const;
+
         // need modification when add self-defined type
         P_TYPE get_type();
+
+        /**
+         * Even ArrayType will only return "ptr"
+         * @return
+         */
         std::string print() const;
         /**
          * if the type is the same, do not print anything, but record the v_reg
@@ -220,9 +239,11 @@ namespace IRGen {
          * @param ele_type if is array type, this is the element type, if not, it's the same as type
          * @param _arraysize if > 0, this is array type
          */
-        explicit Type(P_TYPE ele_type, unsigned int _arraysize);
+        explicit Type(Type* ele_type, unsigned int _arraysize);
+        explicit Type(P_TYPE);
         static void gen_all_instances();
         static std::vector<std::unique_ptr<Type> > allocated;
+        static std::vector<std::unique_ptr<Type> > compound;
         P_TYPE type;
         bool isArray;
         unsigned int arraysize;
@@ -531,6 +552,7 @@ namespace IRGen {
         static Alloca* Create(Type* ty, const std::string& name, bool isConstant);
         static void Kill(Alloca* ptr);
         Type* get_type() const;
+        Type* get_element_type() const;
         /**
          *
          * @return the type in string form
@@ -678,6 +700,22 @@ namespace IRGen {
         std::string get_value() const override;
         std::string print() override;
         Type* get_type() const override;
+    };
+
+    class GEPInst: public Inst {
+    public:
+        static Inst* Create(unsigned int &st, Type* aggragate_type, IRBase* arrayalloc, IRBase* base, IRBase* offset);
+        std::string get_value() const override;
+        std::string print() override;
+        Type* get_type() const override;
+    private:
+        explicit GEPInst(unsigned int &st, Type* aggragate_type, IRBase* arrayalloc, IRBase* base, IRBase* offset);
+        Type* array_type;
+        Alloca* alloca_array_ptr;
+        GlobalVariable* gl_array_ptr;
+        IRBase* base_index;
+        IRBase* offset_index;
+        bool isAlloca;
     };
 
 

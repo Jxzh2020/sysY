@@ -66,14 +66,26 @@ Type *IRGen::Type::getVoid() {
     return Type::allocated[VOID].get();
 }
 
-Type *Type::getPtr() {
+Type *IRGen::Type::getPtr() {
     if( Type::allocated.empty()){
         Type::gen_all_instances();
     }
     return Type::allocated[PTR].get();
 }
 
-Type::Type(P_TYPE _type, unsigned int _arraysize) : type(_arraysize != 0 ? PTR : _type), isArray(_arraysize!=0), arraysize(_arraysize), ele_type(_type) {
+
+Type *IRGen::Type::getArray(Type *ty, unsigned int arraysize) {
+    auto res = new Type(ty, arraysize);
+    Type::compound.push_back(std::unique_ptr<Type>(res));
+
+    return res;
+}
+
+Type::Type(P_TYPE _type): type(_type), isArray(false), arraysize(0), ele_type(_type) {
+    // complete
+}
+
+Type::Type(Type* _type, unsigned int _arraysize) : type(_arraysize != 0 ? PTR : _type->get_type()), isArray(_arraysize!=0), arraysize(_arraysize), ele_type(_type->get_type()) {
     // complete
 }
 
@@ -82,13 +94,13 @@ Type::Type(P_TYPE _type, unsigned int _arraysize) : type(_arraysize != 0 ? PTR :
  *  be the same as P_TYPE order.
  */
 void Type::gen_all_instances() {
-    auto gen = new Type(INT32, 0);
+    auto gen = new Type(INT32);
     Type::allocated.push_back(std::unique_ptr<Type>(gen));
-    gen = new Type(INT1, 0);
+    gen = new Type(INT1);
     Type::allocated.push_back(std::unique_ptr<Type>(gen));
-    gen = new Type(VOID, 0);
+    gen = new Type(VOID);
     Type::allocated.push_back(std::unique_ptr<Type>(gen));
-    gen = new Type(PTR, 0);
+    gen = new Type(PTR);
     Type::allocated.push_back(std::unique_ptr<Type>(gen));
 }
 
@@ -130,6 +142,16 @@ Inst *Type::Cast(IRBase *from, Type *to) {
 bool Type::isArrayType() const {
     return this->isArray;
 }
+
+Type *Type::get_element_type() const {
+    assert(this->isArray && "Getting ElementType from Non-Array Type");
+    if( Type::allocated.empty()){
+        Type::gen_all_instances();
+    }
+    return Type::allocated[this->ele_type].get();
+}
+
+
 
 
 std::vector<std::unique_ptr<Constant> > Constant::const_list;
@@ -505,6 +527,11 @@ Type *Alloca::get_type() const {
     return type;
 }
 
+
+Type *Alloca::get_element_type() const {
+    return type->get_element_type();
+}
+
 const std::string &Alloca::get_name() const {
     return name;
 }
@@ -529,6 +556,7 @@ void Alloca::Initialize() {
 std::string Alloca::print_type() const {
     return Type::isPtr(this->type) ? this->type->print() : this->type->print()+'*';
 }
+
 
 
 // TODO: only consider type of int and bool

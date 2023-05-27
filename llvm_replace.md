@@ -188,3 +188,43 @@ Intended to print type properly for newly added type `ptr`, the type print of al
 Well, it's the same simply use `ptr` for all allocas, since our project don't check type.
 
 It's better to wrap the ArrayType in Type, for general purpose.
+
+```cpp
+auto index = ConstExp->codegen();
+llvm::LLVMContext* c = IR::get()->getContext().get();
+llvm::LLVMContext& context = *c;
+llvm::ConstantInt* arraySize = llvm::dyn_cast<llvm::ConstantInt>(index);
+llvm::ArrayType* arrayType = llvm::ArrayType::get(down->getType(), arraySize->getLimitedValue());
+llvm::AllocaInst* res = builder->CreateAlloca(arrayType, nullptr, ident);
+// Create a constant integer with value 0
+llvm::ConstantInt* zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0);
+for(int j = 0; j < arraySize->getLimitedValue(); j++)
+{
+    // Get a pointer to the j-th element of the array
+    llvm::Value* indices[] = { zero, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), j) };
+    llvm::Value* elemPtr = builder->CreateGEP(res->getAllocatedType(),res, indices);
+    // Create a constant for the initial value of the j-th element
+    auto initValRawPtr = ConstInitVal.get();
+    auto initValPtr = dynamic_cast<ConstInitValAST*>(initValRawPtr);
+    
+    // Store the initial value into the j-th element
+    builder->CreateStore(initValPtr->vals[j]->codegen(), elemPtr);
+}
+// builder->CreateStore(res, res);
+```
+
+
+Note that GEPInst has two forms:
+1. as a separated instruction in llvm ir, a virtual register is allcoated to store the elemenntptr
+2. as an operand, directly replace the `ptr %xx`
+
+To change between these two forms, GEPInst::get_value() and GEPInst::print() need modification.
+
+Let's use form 2.
+
+```llvm
+store i32 11, ptr getelementptr inbounds ([5 x i32], ptr @array, i32 0, i32 1), align 4
+; or
+%7 = getelementptr inbounds [5 x i32], ptr %4, i32 0, i32 0
+store i32 %6, ptr %7, align 4
+```

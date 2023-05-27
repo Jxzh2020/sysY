@@ -301,3 +301,14 @@ IRBase *Builder::CreateGlobalVariable(Module *_module, Type *ty, bool isConstant
     return res;
 }
 
+IRBase *Builder::CreateGEP(Type *aggragate_type, IRBase *arrayalloc, std::pair<IRBase *, IRBase *> indices) {
+    Inst* res;
+    auto& st = this->current_at_bb->get_func_reg();
+    current_at_bb->set_v_reg_range(st);
+
+    res = GEPInst::Create(st, aggragate_type, arrayalloc, indices.first, indices.second);
+
+    current_at_bb->insert(res);
+    return IRBase::CreateIRBase(IR_INST, res);
+}
+
