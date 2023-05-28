@@ -120,8 +120,8 @@ IRBase *Builder::CreateStore(IRBase *val, IRBase *ptr) {
     if( ptr->dyn_cast<Alloca*>() == nullptr){
         if( dynamic_cast<AllocaInst*>(ptr->dyn_cast<Inst*>()) == nullptr){
             if(ptr->dyn_cast<GlobalVariable*>() == nullptr){
-                std::cout << "IRGen::Builder::CreateStore argument error! Not Alloca, AllocaInst or GlobalVariable." << std::endl;
-                assert(0);
+                    std::cout << "IRGen::Builder::CreateStore argument error! Not Alloca, AllocaInst, GEPInst or GlobalVariable." << std::endl;
+                    assert(0);
             }
             else{
                 res = AllocaInst::Store(st, val,ptr->dyn_cast<GlobalVariable*>());

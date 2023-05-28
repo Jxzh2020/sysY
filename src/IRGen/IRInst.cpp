@@ -399,23 +399,29 @@ Inst *GEPInst::Create(unsigned int &st, Type *aggragate_type, IRBase *arrayalloc
 }
 
 GEPInst::GEPInst(unsigned int &st, Type *aggragate_type, IRBase *arrayalloc, IRBase *base, IRBase *offset)
-    : array_type(aggragate_type), alloca_array_ptr(nullptr), gl_array_ptr(nullptr), base_index(base), offset_index(offset), isAlloca(true) {
+    : array_type(aggragate_type), alloca_array_ptr(nullptr), gl_array_ptr(nullptr), base_index(base), offset_index(offset), isAlloca(true), isInst(false), alloca_load(nullptr) {
 
     auto alloca = arrayalloc->dyn_cast<Alloca*>();
     auto gl = arrayalloc->dyn_cast<GlobalVariable*>();
 
+
     this->v_reg = st++;
     this->output = '%'+std::to_string(this->v_reg);
 
-    if(alloca && alloca->get_type()->isArrayType()) {
+    if(!alloca && arrayalloc->dyn_cast<Inst*>()){
+        this->isInst = true;
+        this->alloca_load = arrayalloc->dyn_cast<Inst*>();
+    }
+
+    else if(alloca && Type::isPtr(alloca->get_type())) {
         this->isAlloca = true;
         this->alloca_array_ptr = alloca;
     }
-    else if(gl && gl->get_type()->isArrayType()) {
+    else if(gl && Type::isPtr(gl->get_type())) {
         this->isAlloca = false;
         this->gl_array_ptr = gl;
     }
-    else{
+    else {
         this->isAlloca = false;
         assert(0 && "Not Array Type or Even not Ptr Type");
     }
@@ -427,7 +433,14 @@ std::string GEPInst::get_value() const {
 }
 
 Type *GEPInst::get_type() const {
-    return this->array_type->get_element_type();
+    return Type::getPtr();
+    //return this->array_type->get_element_type();
+}
+
+Alloca *GEPInst::get_alloca() {
+    auto alloca = Alloca::Create(this->array_type->get_element_type(), std::to_string(this->v_reg), false);
+    alloca->Initialize();
+    return alloca;
 }
 
 

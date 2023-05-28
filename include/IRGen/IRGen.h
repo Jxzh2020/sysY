@@ -533,6 +533,7 @@ namespace IRGen {
         bool isConstant() const;
         bool isInitialized() const;
         void Initialize();
+        std::string print_type() const;
         std::string get_value();
         std::string get_initial_value();
     private:
@@ -548,6 +549,7 @@ namespace IRGen {
 
 
     class Alloca {
+        friend class GEPInst;
     public:
         static Alloca* Create(Type* ty, const std::string& name, bool isConstant);
         static void Kill(Alloca* ptr);
@@ -645,7 +647,9 @@ namespace IRGen {
         static Inst* Store(unsigned int &st, Arg* val, Alloca* ptr);
         static Inst* Load(unsigned int &st, Alloca* ptr);
         static Inst* Load(unsigned int &st, GlobalVariable* ptr);
-        Alloca* get_alloca();
+        virtual Alloca* get_alloca();
+    protected:
+        AllocaInst(): ptr(nullptr), gl_ptr(nullptr), op(ALLOCA_CREATE), val(nullptr) {}
     private:
         AllocaInst(unsigned int &st ,ALLOCA_TYPE op, Alloca* ptr, IRBase* val);
         AllocaInst(unsigned int &st ,ALLOCA_TYPE op, GlobalVariable* ptr, IRBase* val);
@@ -702,12 +706,13 @@ namespace IRGen {
         Type* get_type() const override;
     };
 
-    class GEPInst: public Inst {
+    class GEPInst: public AllocaInst {
     public:
         static Inst* Create(unsigned int &st, Type* aggragate_type, IRBase* arrayalloc, IRBase* base, IRBase* offset);
         std::string get_value() const override;
         std::string print() override;
         Type* get_type() const override;
+        Alloca* get_alloca() override;
     private:
         explicit GEPInst(unsigned int &st, Type* aggragate_type, IRBase* arrayalloc, IRBase* base, IRBase* offset);
         Type* array_type;
@@ -716,6 +721,8 @@ namespace IRGen {
         IRBase* base_index;
         IRBase* offset_index;
         bool isAlloca;
+        bool isInst;
+        Inst* alloca_load;
     };
 
 

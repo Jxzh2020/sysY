@@ -192,11 +192,44 @@ void gep_test(){
     auto builder = IR::get()->getBuilder().get();
     auto F = IRGen::Function::Create(IRGen::FunctionType::get(IRGen::Type::getInt32()),IRGen::Function::ExternalLinkage,"main",IR::get()->getModule().get());
     IR::get()->EnterFunc(F);
+    F = IRGen::Function::Create(IRGen::FunctionType::get(IRGen::Type::getInt32(),{ IRGen::Type::getPtr()}),IRGen::Function::ExternalLinkage,"test",IR::get()->getModule().get());
+
     IR::get()->NewLogicalBlockStart();
     auto inst = builder->CreateAlloca(IRGen::Type::getArray(IRGen::Type::getInt32(),5),"array");
+    IR::get()->AddAlloca(inst,"array");
+
+    inst = builder->CreateGEP(IRGen::Type::getArray(IRGen::Type::getInt32(),5),IR::get()->GetAlloca("array"),{IRGen::Constant::get(IRGen::Type::getInt32(),0),IRGen::Constant::get(IRGen::Type::getInt32(),0)});
+    builder->CreateStore(IRGen::Constant::get(IRGen::Type::getInt32(),2233),inst);
+    builder->CreateCall( IR::get()->getModule()->get_function("test"), {inst});
+    builder->CreateStore(IRGen::Constant::get(IRGen::Type::getInt32(),3322),inst);
+    inst = builder->CreateLoad(inst);
+    builder->CreateCall( IR::get()->getModule()->get_function("putint"), {inst});
 
     builder->CreateRet(IRGen::Constant::get(IRGen::Type::getInt32(),1));
     IR::get()->IR::NewLogicalBlockEnd();
+
+    auto argIter = F->arg_begin();
+    argIter->get()->set_name("array");
+    IR::get()->EnterFunc(F);
+    IR::get()->NewLogicalBlockStart();
+    {
+        auto arg = builder->CreateAlloca(argIter->get()->get_type(),argIter->get()->get_name(), false);
+        IR::get()->AddAlloca(arg,argIter->get()->get_name());
+        builder->CreateStore(argIter->get(),arg);
+    }
+    {
+
+        auto temp = IR::get()->GetAlloca("array");
+        inst = builder->CreateGEP(IRGen::Type::getArray(IRGen::Type::getInt32(),5),builder->CreateLoad(temp),{IRGen::Constant::get(IRGen::Type::getInt32(),0),IRGen::Constant::get(IRGen::Type::getInt32(),0)});
+
+        inst = builder->CreateLoad(inst);
+        builder->CreateCall( IR::get()->getModule()->get_function("putint"), {inst});
+
+        builder->CreateRet(IRGen::Constant::get(IRGen::Type::getInt32(),1));
+
+        IR::get()->IR::NewLogicalBlockEnd();
+    }
+
 
     std::ofstream file("demo.ll");
     file << IR::get()->getModule()->print().str();

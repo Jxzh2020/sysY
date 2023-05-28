@@ -121,7 +121,8 @@ bool Type::isVoid(Type *ty) {
 }
 
 bool Type::isPtr(Type *ty) {
-    return ty == allocated[PTR].get();
+    //return ty == allocated[PTR].get();
+    return ty->type == PTR;
 }
 
 Inst *Type::Cast(Constant *from, Type *to_type) {
@@ -554,7 +555,7 @@ void Alloca::Initialize() {
 }
 
 std::string Alloca::print_type() const {
-    return Type::isPtr(this->type) ? this->type->print() : this->type->print()+'*';
+    return Type::isPtr(this->type) ? this->type->print()+(this->type->isArrayType() ? "*" : "") : this->type->print()+'*';
 }
 
 
@@ -679,6 +680,11 @@ std::string GlobalVariable::get_value() {
 
 std::string GlobalVariable::get_initial_value() {
     return this->val->get_value();
+}
+
+std::string GlobalVariable::print_type() const {
+    assert(0 && "GlobalVariable::print_type() undefined!" );
+    return "";
 }
 
 

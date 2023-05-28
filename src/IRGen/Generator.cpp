@@ -321,12 +321,15 @@ std::string RetInst::get_value() const {
 
 std::string GEPInst::print() {
     std::string out;
-    out+= (this->output + " = getelementptr inbounnds (" + this->array_type->print()+", ");
-    if(this->isAlloca){
-        out+=(this->alloca_array_ptr->get_type()->print()+' '+this->alloca_array_ptr->get_value());
+    out+= (this->output + " = getelementptr inbounds " + this->array_type->print()+", ");
+    if(this->isInst){
+        out+=(this->alloca_load->get_type()->print()+" "+this->alloca_load->get_value());
+    }
+    else if(this->isAlloca){
+        out+=(this->alloca_array_ptr->print_type()+" "+this->alloca_array_ptr->get_value());
     }
     else{
-        out+=(this->gl_array_ptr->get_type()->print()+' '+this->gl_array_ptr->get_value());
+        out+=(this->gl_array_ptr->print_type()+" "+this->gl_array_ptr->get_value());
     }
     out+=(", "+this->base_index->get_type()->print()+' '+this->base_index->get_value());
     out+=(", "+this->offset_index->get_type()->print()+' '+this->offset_index->get_value());
