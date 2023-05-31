@@ -3,9 +3,11 @@
 //
 
 #include "Ast/NumberAST.h"
+#include "Ast/BaseAST.h"
 
-void NumberAST::Dump() const {
-    std::cout << value;
+std::string NumberAST::astJson(int size) {
+    // int value;
+    return Json("Number",{Escape(std::to_string(value))}, size);
 }
 
 IRGen::IRBase *NumberAST::codegen() {

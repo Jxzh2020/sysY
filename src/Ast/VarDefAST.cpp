@@ -3,9 +3,29 @@
 //
 
 #include "Ast/VarDefAST.h"
+#include "Ast/BaseAST.h"
+#include <string>
+#include <vector>
 
-void VarDefAST::Dump() const {
-
+std::string VarDefAST::astJson(int size) {
+    // std::string ident;
+    // std::unique_ptr<BaseAST> ConstExp;
+    // std::unique_ptr<BaseAST> InitVal;
+    std::vector<std::string> children;
+    children.push_back(Json("Variable", {Escape(ident)}, sizeplus(size)));
+    if (InitVal != nullptr)
+    {
+        if(ConstExp!=nullptr)
+        {
+            children.push_back(Json("Array Index", {ConstExp->astJson(sizeplus(size))}, sizeplus(size)));
+        }
+        children.push_back(Json("Init Value", {InitVal->astJson(sizeplus(size))}, sizeplus(size)));
+    }
+    else if(ConstExp!=nullptr)
+    {
+        children.push_back(Json("Array Index", {ConstExp->astJson(sizeplus(size))}, sizeplus(size)));
+    }
+    return Json("Variable Define", children, size);
 }
 
 IRGen::IRBase *VarDefAST::codegen() {
@@ -30,4 +50,5 @@ std::pair<const std::string &, IRGen::IRBase *> VarDefAST::get_defs() const {
     else {
         return std::pair<const std::string &, IRGen::IRBase *>{ident, InitVal->codegen()};
     }
+    
 }

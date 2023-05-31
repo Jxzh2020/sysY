@@ -4,13 +4,18 @@
 
 #include "Ast/DeclAST.h"
 
-void DeclAST::Dump() const {
-    std::cout << "DeclAST { ";
-    if (VarDecl == nullptr)
-        ConstDecl->Dump();
+std::string DeclAST::astJson(int size)
+{
+    // std::unique_ptr<BaseAST> ConstDecl;
+    // std::unique_ptr<BaseAST> VarDecl;
+    std::vector<std::string> children;
+
+    if (ConstDecl != nullptr)
+        children.push_back(Json("Const Declaration", { ConstDecl->astJson(sizeplus(size)) }, sizeplus(size)));
     else
-        VarDecl->Dump();
-    std::cout << " }";
+        children.push_back(Json("Variable Declaration", { VarDecl->astJson(sizeplus(size)) }, sizeplus(size)));
+
+    return Json("Declaration", children, size);
 }
 
 IRGen::IRBase *DeclAST::codegen() {

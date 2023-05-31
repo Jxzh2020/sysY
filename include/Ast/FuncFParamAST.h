@@ -17,7 +17,7 @@ public:
 
     IRGen::Type *getType() const;
 
-    void Dump() const override {}
+    std::string astJson(int size) override;
 
     [[nodiscard]] IRGen::IRBase *codegen() override { return nullptr; }
 };

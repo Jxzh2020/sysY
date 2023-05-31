@@ -15,7 +15,7 @@ public:
     std::unique_ptr<BaseAST> PrimitiveType;
     std::vector<std::unique_ptr<BaseAST>> VarDefs;
 
-    void Dump() const override;
+    std::string astJson(int size) override;
 
     [[nodiscard]] IRGen::IRBase *codegen() override;
 };

@@ -96,6 +96,9 @@ set(SOURCES ${C_SOURCES} ${CXX_SOURCES} ${CC_SOURCES}
 
 # *********************
 
+execute_process(COMMAND llvm-config --libs all OUTPUT_VARIABLE llvm_libs)
+string(STRIP ${llvm_libs} llvm_libs)
+	string(REPLACE " " ";" llvm_libs ${llvm_libs})
 set(CMAKE_BUILD_TYPE "Debug")
 add_executable(sysY ${SOURCES} ${INCLUDE_FILES})
 set_target_properties(sysY PROPERTIES C_STANDARD 11 CXX_STANDARD 17)

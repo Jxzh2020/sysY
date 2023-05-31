@@ -3,11 +3,97 @@
 //
 
 #include "Ast/StmtAST.h"
+#include "Ast/BaseAST.h"
 
-void StmtAST::Dump() const {
-    std::cout << "StmtAST { ";
-    Exp->Dump();
-    std::cout << " }";
+std::string StmtAST::astJson(int size)
+{
+    // enum {
+    //     ASSIGN,
+    //     EXP,
+    //     BLOCK,
+    //     RET,
+    //     IF,
+    //     WHILE,
+    //     BREAK,
+    //     CONTINUE
+    // } type;
+    // std::unique_ptr<BaseAST> LVal;
+    // std::unique_ptr<BaseAST> Exp;
+    // std::unique_ptr<BaseAST> Block;
+    // std::unique_ptr<BaseAST> if_stmt;   // or while_stmt in WHILE case
+    // std::unique_ptr<BaseAST> else_stmt;
+    std::vector<std::string> children;
+    std::string op = "";
+    switch (type) {
+        case ASSIGN:
+            op = "Assign";
+            children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
+            children.push_back(Json("Expression", {Exp->astJson(sizeplus(size))}, sizeplus(size)));
+            children.push_back(Json("Load Value",{LVal->astJson(sizeplus(size))}, sizeplus(size)));
+            break;
+        case EXP:
+            if (Exp != nullptr)
+            {
+                op = "Expression";
+                children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
+                children.push_back(Json("Expression", {Exp->astJson(sizeplus(size))}, sizeplus(size)));
+            }
+            break;
+        case BLOCK:
+            op = "Block";
+            children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
+            children.push_back(Json("Block", {Block->astJson(sizeplus(size))}, sizeplus(size)));
+            break;
+        case RET:
+            op = "Return";
+            children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
+            // return ; void
+            if (Exp == nullptr)
+            {
+                children.push_back(Json("Expression", {Escape("void")}, sizeplus(size)));
+            }
+            else
+            {
+                children.push_back(Json("Expression", {Exp->astJson(sizeplus(size))}, sizeplus(size)));
+            }
+            break;
+        case IF:
+            op = "If";
+            children.push_back(Json("Operation", {Escape(op)},sizeplus(size)));
+            // has only if stmt, false_bb is the next bb.
+            children.push_back(Json("If Statement", {if_stmt->astJson(sizeplus(size))}, sizeplus(size)));
+            if (else_stmt != nullptr)
+            {
+                children.push_back(Json("Else Statement", {else_stmt->astJson(sizeplus(size))}, sizeplus(size)));
+            }
+            break;
+        case WHILE:
+            op = "While";
+            children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
+            children.push_back(Json("If Statement", {if_stmt->astJson(sizeplus(size))}, sizeplus(size)));
+            break;
+        case BREAK:
+            op = "Break";
+            children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
+            if(!IR::get()->isInWhile()){
+                children.push_back(Json("Break Condition", {Escape("break not in loop")}, sizeplus(size)));
+            }
+            else{
+                children.push_back(Json("Break Condition", {Escape("break in loop")}, sizeplus(size)));
+            }
+            break;
+        case CONTINUE:
+            op = "Continue";
+            children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
+            if(!IR::get()->isInWhile()){
+                children.push_back(Json("Continue Condition", {Escape("continue not in loop")}, sizeplus(size)));
+            }
+            else{
+                children.push_back(Json("Continue Condition", {Escape("continue in loop")}, sizeplus(size)));
+            }
+            break;
+    }
+    return Json("Statement", children, size);
 }
 
 IRGen::IRBase *StmtAST::codegen() {

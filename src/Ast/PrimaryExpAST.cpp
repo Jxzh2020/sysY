@@ -3,34 +3,35 @@
 //
 
 #include "Ast/PrimaryExpAST.h"
+#include <string>
+#include <vector>
 
-void PrimaryExpAST::Dump() const {
-    std::cout << "PrimaryExpAST { ";
-    if (Exp != nullptr) {
-        std::cout << "( ";
-        Exp->Dump();
-        std::cout << " )";
-    } else if (LVal == nullptr) {
-        Number->Dump();
-    } else {
-        LVal->Dump();
-    }
-    std::cout << " }";
+std::string PrimaryExpAST::astJson(int size) {
+  // std::unique_ptr<BaseAST> Exp;
+  // std::unique_ptr<BaseAST> LVal;
+  // std::unique_ptr<BaseAST> Number;
+  if (Number != nullptr) {
+    return Json("Number", {Number->astJson(sizeplus(size))}, size);
+  }
+  // ( Exp ) form
+  else if (LVal == nullptr) {
+    return Json("Expression", {Exp->astJson(sizeplus(size))}, size);
+  } else {
+    return Json("Load Value", {LVal->astJson(sizeplus(size))}, size);
+  }
 }
 
 IRGen::IRBase *PrimaryExpAST::codegen() {
-    IRGen::IRBase *res;
-    // Number form
-    if (Number != nullptr) {
-        res = Number->codegen();
-    }
-        // ( Exp ) form
-    else if (LVal == nullptr) {
-        res = Exp->codegen();
-    } else {
-        res = LVal->codegen();
-        res = IR::get()->getBuilder()->CreateLoad(res);
-
-    }
-    return res;
+  IRGen::IRBase *res;
+  // Number form
+  if (Number != nullptr) {
+    res = Number->codegen();
+  } else if (LVal == nullptr) // ( Exp ) form
+  {
+    res = Exp->codegen();
+  } else {
+    res = LVal->codegen();
+    res = IR::get()->getBuilder()->CreateLoad(res);
+  }
+  return res;
 }

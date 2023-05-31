@@ -4,8 +4,17 @@
 
 #include "Ast/BlockItemAST.h"
 
-void BlockItemAST::Dump() const {
+std::string BlockItemAST::astJson(int size) {
+    // std::unique_ptr<BaseAST> Decl;
+    // std::unique_ptr<BaseAST> Stmt;
+    std::vector<std::string> children;
 
+    if (Decl != nullptr)
+        children.push_back(Json("Declaration", { Decl->astJson(sizeplus(size)) }, sizeplus(size)));
+    else
+        children.push_back(Json("Statement", { Stmt->astJson(sizeplus(size)) }, sizeplus(size)));
+
+    return Json("Block Item", children, size);
 }
 
 IRGen::IRBase *BlockItemAST::codegen() {

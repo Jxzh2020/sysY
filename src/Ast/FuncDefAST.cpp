@@ -4,12 +4,27 @@
 
 #include "Ast/FuncDefAST.h"
 
-void FuncDefAST::Dump() const {
-    std::cout << "FuncDefAST { ";
-    func_type->Dump();
-    std::cout << ", " << ident << ", ";
-    block->Dump();
-    std::cout << " }";
+std::string FuncDefAST::astJson(int size) {
+    // std::unique_ptr<BaseAST> func_type;
+    // std::string ident;
+    // std::unique_ptr<BaseAST> block;
+    // std::vector<std::unique_ptr<BaseAST>> params;
+    std::vector<std::string> children;
+    std::vector<std::string> paras;
+
+    children.push_back(Json("Function Type", {func_type->astJson(sizeplus(size))}, sizeplus(size)));
+
+    children.push_back(Json("Function Name", {Escape(ident)}, sizeplus(size)));
+
+    for (auto &p : params)
+    {
+        paras.push_back(p->astJson(sizeplus(size)));
+    }
+    children.push_back(Json("Parameters", paras, sizeplus(size)));
+
+    children.push_back(Json("Function Block", {block->astJson(sizeplus(size))}, sizeplus(size)));
+
+    return Json("Function Definition", children, size);
 }
 
 IRGen::IRBase *FuncDefAST::codegen() {

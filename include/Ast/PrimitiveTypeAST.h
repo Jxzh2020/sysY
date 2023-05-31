@@ -16,7 +16,7 @@ public:
 
     [[nodiscard]] IRGen::FunctionType *get_type(const std::vector<std::unique_ptr<BaseAST>> &) const;
 
-    void Dump() const override {}
+    std::string astJson(int size) override;
 
     [[nodiscard]] IRGen::IRBase *codegen() override { return nullptr; }
 

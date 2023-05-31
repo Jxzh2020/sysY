@@ -10,14 +10,12 @@
 
 class BlockAST : public BaseAST {
 public:
-    std::vector<std::unique_ptr<BaseAST>> BlockItems;
+  std::vector<std::unique_ptr<BaseAST>> BlockItems;
 
-    void Dump() const override;
+  std::string astJson(int size) override;
+  [[nodiscard]] bool isBranch() const;
 
-    [[nodiscard]] bool isBranch() const;
-
-    [[nodiscard]] IRGen::IRBase *codegen() override;
+  [[nodiscard]] IRGen::IRBase *codegen() override;
 };
 
-
-#endif //SYSY_BLOCKAST_H
+#endif // SYSY_BLOCKAST_H

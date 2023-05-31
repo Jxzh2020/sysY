@@ -12,7 +12,7 @@ public:
     // 用智能指针管理对象
     std::vector<std::unique_ptr<BaseAST>> globe;
 
-    void Dump() const override;
+    std::string astJson(int size) override;
 
     [[nodiscard]] IRGen::IRBase *codegen() override;
 };

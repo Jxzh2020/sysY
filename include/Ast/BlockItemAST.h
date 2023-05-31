@@ -13,7 +13,7 @@ public:
     std::unique_ptr<BaseAST> Decl;
     std::unique_ptr<BaseAST> Stmt;
 
-    void Dump() const override;
+    std::string astJson(int size) override;
 
     [[nodiscard]] IRGen::IRBase *codegen() override;
 

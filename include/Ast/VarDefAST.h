@@ -5,14 +5,17 @@
 #ifndef SYSY_VARDEFAST_H
 #define SYSY_VARDEFAST_H
 
+#include "Ast/PrimitiveTypeAST.h"
 #include "BaseAST.h"
 
 class VarDefAST : public BaseAST {
 public:
     std::string ident;
+    llvm::Type* type;
+    std::unique_ptr<BaseAST> ConstExp;
     std::unique_ptr<BaseAST> InitVal;
 
-    void Dump() const override;
+    std::string astJson(int size) override;
 
     [[nodiscard]] IRGen::IRBase *codegen() override;
 

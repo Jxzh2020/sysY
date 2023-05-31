@@ -10,8 +10,9 @@
 class ExpAST : public BaseAST {
 public:
     std::unique_ptr<BaseAST> LgExp;
+    std::vector<std::unique_ptr<BaseAST>> vals;
 
-    void Dump() const override;
+    std::string astJson(int size) override;
 
     [[nodiscard]] IRGen::IRBase *codegen() override;
 };
