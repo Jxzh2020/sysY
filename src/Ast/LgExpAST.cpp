@@ -37,15 +37,16 @@ llvm::Value *LgExpAST::codegen() {
     auto &builder = IR::get()->getBuilder();
     if (RHS == nullptr) {
         res = LHS->codegen();
-        return res;
     }
-    switch (type) {
-        case OR:
-            res = builder->CreateLogicalOr(LHS->codegen(), RHS->codegen());
-            break;
-        case AND:
-            res = builder->CreateLogicalAnd(LHS->codegen(), RHS->codegen());
-            break;
+    else{
+        switch (type) {
+            case OR:
+                res = builder->CreateLogicalOr(LHS->codegen(), RHS->codegen());
+                break;
+            case AND:
+                res = builder->CreateLogicalAnd(LHS->codegen(), RHS->codegen());
+                break;
+        }
     }
     return res;
 }

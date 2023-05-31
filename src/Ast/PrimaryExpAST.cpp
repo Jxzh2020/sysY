@@ -23,29 +23,39 @@ std::string PrimaryExpAST::astJson(int size) {
 
 llvm::Value *PrimaryExpAST::codegen() {
     llvm::Value *res;
-    // Number form
-    if (Number != nullptr) {
+    
+    if (Number != nullptr)// Number form
+    {
         res = Number->codegen();
     }
-        // ( Exp ) form
-    else if (LVal == nullptr) {
+    else if (LVal == nullptr)// ( Exp ) form
+    {
         res = Exp->codegen();
-    } else {
-        auto ret = LVal->codegen();
-        auto local = llvm::dyn_cast<llvm::AllocaInst>(ret);
-        // LVal is of local variable
-        if (local != nullptr)
+    }
+    else//LVal form
+    {
+        auto res = LVal->codegen();
+
+        auto local = llvm::dyn_cast<llvm::AllocaInst>(res);
+
+        if (local != nullptr)// LVal is of local variable
+        {
             res = IR::get()->getBuilder()->CreateLoad(local->getAllocatedType(), local);
-        else {
-            auto arg = llvm::dyn_cast<llvm::Argument>(ret);
-            if (arg != nullptr)
+        }
+        else// LVal is of global variable
+        {
+            auto arg = llvm::dyn_cast<llvm::Argument>(res);
+            if (arg != nullptr)//function argument
+            {
                 res = arg;
-            else {
-                auto global = llvm::dyn_cast<llvm::GlobalVariable>(ret);
+            }// global variable
+            else
+            {
+                auto global = llvm::dyn_cast<llvm::GlobalVariable>(res);
                 if (global != nullptr)
                     res = IR::get()->getBuilder()->CreateLoad(global->getType(), global);
-                else    // should exit already in LValAST
-                    res = nullptr;
+                else    // should exit already in LValAST, now modified to array CreateGEP
+                    res = IR::get()->getBuilder()->CreateLoad(, res);
             }
         }
     }

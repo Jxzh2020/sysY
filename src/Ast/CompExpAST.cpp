@@ -34,7 +34,7 @@ std::string CompExpAST::astJson(int size) {
                 op = ">=";
                 break;
             case EQ:
-                op = "+=";
+                op = "==";
                 break;
             case NEQ:
                 op = "!=";

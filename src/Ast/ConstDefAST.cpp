@@ -12,6 +12,7 @@
 #include <llvm-14/llvm/IR/GlobalVariable.h>
 #include <llvm-14/llvm/IR/Instructions.h>
 #include <llvm-14/llvm/IR/LLVMContext.h>
+#include <llvm-14/llvm/IR/Type.h>
 #include <llvm-14/llvm/IR/Value.h>
 #include <llvm-14/llvm/Support/Casting.h>
 #include <string>
@@ -41,7 +42,6 @@ llvm::Value *ConstDefAST::codegen() {
     auto &builder = IR::get()->getBuilder();
     auto down = ConstInitVal->codegen();
 
-
     //************
     if (!IR::get()->isGlobeBlock())//local
     {
@@ -58,8 +58,10 @@ llvm::Value *ConstDefAST::codegen() {
             llvm::LLVMContext* c = IR::get()->getContext().get();
             llvm::LLVMContext& context = *c;
             llvm::ConstantInt* arraySize = llvm::dyn_cast<llvm::ConstantInt>(index);
-            llvm::ArrayType* arrayType = llvm::ArrayType::get(down->getType(), arraySize->getLimitedValue());
+            llvm::ArrayType* arrayType = llvm::ArrayType::get(/*down->getType()*/llvm::Type::getInt32Ty(context), arraySize->getLimitedValue());
             llvm::AllocaInst* res = builder->CreateAlloca(arrayType, nullptr, ident);
+            IR::get()->AddAlloca(res,ident);
+            
             // Create a constant integer with value 0
             llvm::ConstantInt* zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0);
             for(int j = 0; j < arraySize->getLimitedValue(); j++)
@@ -83,20 +85,22 @@ llvm::Value *ConstDefAST::codegen() {
         if(ConstExp.get() == nullptr)//global variable
         {
             // TODO: unknown_usage
-            auto gl = new llvm::GlobalVariable(
+            auto GlobalArray = new llvm::GlobalVariable(
                                                 *IR::get()->getModule(),
                                                down->getType(),
                                                true,
                                                llvm::GlobalValue::ExternalLinkage,
                                                llvm::dyn_cast<llvm::Constant>(down),
                                                ident);
-            IR::get()->AddGlobe(gl);
+            // IR::get()->AddGlobe(GlobalArray);
         }
         else//global array
         {
             auto index = ConstExp->codegen();
+            llvm::LLVMContext* c = IR::get()->getContext().get();
+            llvm::LLVMContext& context = *c;
             llvm::ConstantInt* arraySize = llvm::dyn_cast<llvm::ConstantInt>(index);
-            llvm::ArrayType* arrayType = llvm::ArrayType::get(down->getType(), arraySize->getLimitedValue());
+            llvm::ArrayType* arrayType = llvm::ArrayType::get(/*down->getType()*/llvm::Type::getInt32Ty(context), arraySize->getLimitedValue());
             std::vector<llvm::Constant*> arrayValue;
             for(int j = 0; j < arraySize->getLimitedValue(); j++)
             {
@@ -111,7 +115,7 @@ llvm::Value *ConstDefAST::codegen() {
                                                llvm::GlobalValue::ExternalLinkage,
                                                initValue,
                                                ident);
-            IR::get()->AddGlobe(GlobalArray);
+            // IR::get()->AddGlobe(GlobalArray);
         }
         return nullptr;
     }

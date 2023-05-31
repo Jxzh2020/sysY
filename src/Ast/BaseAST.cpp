@@ -175,7 +175,7 @@ std::string Escape(std::string input)
 			std::string code = stream.str();
 			ret += std::string("\\x") + (code.size() < 2 ? "0" : "") + code;
 			// alternatively for URL encodings:
-			//s += std::string("%")+(code.size()<2?"0":"")+code;
+			// ret += std::string("%")+(code.size()<2?"0":"")+code;
 		}
 	}
 	return ret + "\"";
