@@ -4,6 +4,8 @@
 
 #include "Ast/ConstDeclAST.h"
 #include "Ast/BaseAST.h"
+#include "Ast/ConstDefAST.h"
+#include "Ast/PrimitiveTypeAST.h"
 #include <string>
 #include <vector>
 
@@ -32,6 +34,8 @@ IRGen::IRBase *ConstDeclAST::codegen() {
   // IR::get()->getBuilder();
   // TODO too sloppy
   for (auto &const_def : ConstDefs) {
+    dynamic_cast<ConstDefAST *>(const_def.get())
+        ->set_type(dynamic_cast<PrimitiveTypeAST *>(this->PrimitiveType.get()));
     const_def->codegen();
     //***************************
     // auto pairs = dynamic_cast<ConstDefAST *>(const_def.get())->get_defs();

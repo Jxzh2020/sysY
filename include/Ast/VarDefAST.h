@@ -11,7 +11,7 @@
 class VarDefAST : public BaseAST {
 public:
     std::string ident;
-    llvm::Type* type;
+
     std::unique_ptr<BaseAST> ConstExp;
     std::unique_ptr<BaseAST> InitVal;
 

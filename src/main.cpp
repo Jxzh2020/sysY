@@ -141,7 +141,7 @@ level influence ?
 #include <memory>
 #include <string>
 
-#define GEP_TEST
+// #define GEP_TEST
 using namespace std;
 
 // 声明 lexer 的输入, 以及 parser 函数
@@ -153,123 +153,133 @@ using namespace std;
 extern FILE *yyin;
 
 extern int yyparse(unique_ptr<BaseAST> &ast);
+void gep_test();
 
-void printhelp() {
-  cout << "How to use MySysY compiler:" << endl;
-  cout << "-help: print this message" << endl;
-  cout << "-i: A MUST ARGUMENT, source code .c file." << endl;
-  cout << "-o: generate output file, which is a .o file. If you ignore this "
-          "argument, the output file will be named a.o"
-       << endl;
-  cout << "-l: generate llvm ir code file, which is a .ll file. If you ignore "
-          "this argument, llvm ir will be print in the console"
-       << endl;
-  cout << "-v: generate a HTML visualization file, which is a .html file, in "
-          "which the syntax tree structure are shown. If you ignore this "
-          "argument, the HTML file will not generate"
-       << endl;
-  cout << "-O: the level of optimization, supported levels: -O0, -O1, -O2, "
-          "-O3, -Oz, -Os. If you ignore this argument, it will not optimize"
-       << endl;
-  cout << "For a instance: " << endl;
-  cout << "If you want to compile source file test.c, get the output file "
-          "out.o, get the llvm ir code file ir.ll, get the visualization file "
-          "visual.html and optimize program in level O2"
-       << endl;
-  cout << "You should use command line: MySysY -i test.c -o out.o -l -v -O2"
-       << endl;
-  return;
-}
+    // void printhelp() {
+    //   cout << "How to use MySysY compiler:" << endl;
+    //   cout << "-help: print this message" << endl;
+    //   cout << "-i: A MUST ARGUMENT, source code .c file." << endl;
+    //   cout << "-o: generate output file, which is a .o file. If you ignore
+    //   this "
+    //           "argument, the output file will be named a.o"
+    //        << endl;
+    //   cout << "-l: generate llvm ir code file, which is a .ll file. If you
+    //   ignore "
+    //           "this argument, llvm ir will be print in the console"
+    //        << endl;
+    //   cout << "-v: generate a HTML visualization file, which is a .html file,
+    //   in "
+    //           "which the syntax tree structure are shown. If you ignore this
+    //           " "argument, the HTML file will not generate"
+    //        << endl;
+    //   cout << "-O: the level of optimization, supported levels: -O0, -O1,
+    //   -O2, "
+    //           "-O3, -Oz, -Os. If you ignore this argument, it will not
+    //           optimize"
+    //        << endl;
+    //   cout << "For a instance: " << endl;
+    //   cout << "If you want to compile source file test.c, get the output file
+    //   "
+    //           "out.o, get the llvm ir code file ir.ll, get the visualization
+    //           file " "visual.html and optimize program in level O2"
+    //        << endl;
+    //   cout << "You should use command line: MySysY -i test.c -o out.o -l -v
+    //   -O2"
+    //        << endl;
+    //   return;
+    // }
 
-void GenerateVisualization(unique_ptr<BaseAST> &ast, string VisualizationFile) {
-  // visualization test
-  extern const char *Html;
-  std::string OutputString = Html;
-  std::string Json = ast->astJson(1000);
-  // std::cout << Json;
-  std::string Target = "${ASTJson}";
-  auto Pos = OutputString.find(Target);
-  OutputString.replace(Pos, Target.length(), Json.c_str());
-  std::ofstream HTMLFile(VisualizationFile);
-  HTMLFile << OutputString;
-  HTMLFile.close();
-}
+    // void GenerateVisualization(unique_ptr<BaseAST> &ast, string
+    // VisualizationFile) {
+    //   // visualization test
+    //   extern const char *Html;
+    //   std::string OutputString = Html;
+    //   std::string Json = ast->astJson(1000);
+    //   // std::cout << Json;
+    //   std::string Target = "${ASTJson}";
+    //   auto Pos = OutputString.find(Target);
+    //   OutputString.replace(Pos, Target.length(), Json.c_str());
+    //   std::ofstream HTMLFile(VisualizationFile);
+    //   HTMLFile << OutputString;
+    //   HTMLFile.close();
+    // }
 
-void GenerateObject(string OutputFile) {
-  auto TargetTriple = llvm::sys::getDefaultTargetTriple();
-  llvm::InitializeAllTargetInfos();
-  llvm::InitializeAllTargets();
-  llvm::InitializeAllTargetMCs();
-  llvm::InitializeAllAsmParsers();
-  llvm::InitializeAllAsmPrinters();
-  std::string Error;
-  auto Target = llvm::TargetRegistry::lookupTarget(TargetTriple, Error);
-  if (!Target) {
-    throw runtime_error(Error);
-    return;
-  }
-  auto CPU = "generic";
-  auto Features = "";
-  llvm::TargetOptions opt;
-  auto RM = llvm::Optional<llvm::Reloc::Model>();
-  auto TargetMachine =
-      Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
-  IR::get()->getModule()->setDataLayout(TargetMachine->createDataLayout());
-  IR::get()->getModule()->setTargetTriple(TargetTriple);
-  std::error_code EC;
-  llvm::raw_fd_ostream Dest(OutputFile, EC, llvm::sys::fs::OF_None);
-  if (EC) {
-    throw std::runtime_error("Could not open file: " + EC.message());
-    return;
-  }
-  auto FileType = llvm::CGFT_ObjectFile;
-  llvm::legacy::PassManager PM;
-  if (TargetMachine->addPassesToEmitFile(PM, Dest, nullptr, FileType)) {
-    throw std::runtime_error("TargetMachine can't emit a file of this type");
-    return;
-  }
-  PM.run(*IR::get()->getModule());
-  Dest.flush();
-}
+    // void GenerateObject(string OutputFile) {
+    //   auto TargetTriple = llvm::sys::getDefaultTargetTriple();
+    //   llvm::InitializeAllTargetInfos();
+    //   llvm::InitializeAllTargets();
+    //   llvm::InitializeAllTargetMCs();
+    //   llvm::InitializeAllAsmParsers();
+    //   llvm::InitializeAllAsmPrinters();
+    //   std::string Error;
+    //   auto Target = llvm::TargetRegistry::lookupTarget(TargetTriple, Error);
+    //   if (!Target) {
+    //     throw runtime_error(Error);
+    //     return;
+    //   }
+    //   auto CPU = "generic";
+    //   auto Features = "";
+    //   llvm::TargetOptions opt;
+    //   auto RM = llvm::Optional<llvm::Reloc::Model>();
+    //   auto TargetMachine =
+    //       Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
+    //   IR::get()->getModule()->setDataLayout(TargetMachine->createDataLayout());
+    //   IR::get()->getModule()->setTargetTriple(TargetTriple);
+    //   std::error_code EC;
+    //   llvm::raw_fd_ostream Dest(OutputFile, EC, llvm::sys::fs::OF_None);
+    //   if (EC) {
+    //     throw std::runtime_error("Could not open file: " + EC.message());
+    //     return;
+    //   }
+    //   auto FileType = llvm::CGFT_ObjectFile;
+    //   llvm::legacy::PassManager PM;
+    //   if (TargetMachine->addPassesToEmitFile(PM, Dest, nullptr, FileType)) {
+    //     throw std::runtime_error("TargetMachine can't emit a file of this
+    //     type"); return;
+    //   }
+    //   PM.run(*IR::get()->getModule());
+    //   Dest.flush();
+    // }
 
-void IROptimize(string OptimizeLevel) {
-  llvm::LoopAnalysisManager LAM;
-  llvm::FunctionAnalysisManager FAM;
-  llvm::CGSCCAnalysisManager CGAM;
-  llvm::ModuleAnalysisManager MAM;
-  // Create the new pass manager builder.
-  llvm::PassBuilder PB;
-  // Register all the basic analyses with the managers.
-  PB.registerModuleAnalyses(MAM);
-  PB.registerCGSCCAnalyses(CGAM);
-  PB.registerFunctionAnalyses(FAM);
-  PB.registerLoopAnalyses(LAM);
-  PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
-  const llvm::OptimizationLevel *OptLevel;
-  if (OptimizeLevel == "") {
-    OptLevel = &llvm::OptimizationLevel::O0;
-  }
-  if (OptimizeLevel != "") {
-    if (OptimizeLevel == "O0")
-      OptLevel = &llvm::OptimizationLevel::O0;
-    else if (OptimizeLevel == "O1")
-      OptLevel = &llvm::OptimizationLevel::O1;
-    else if (OptimizeLevel == "O2")
-      OptLevel = &llvm::OptimizationLevel::O2;
-    else if (OptimizeLevel == "O3")
-      OptLevel = &llvm::OptimizationLevel::O3;
-    else if (OptimizeLevel == "Os")
-      OptLevel = &llvm::OptimizationLevel::Os;
-    else if (OptimizeLevel == "Oz")
-      OptLevel = &llvm::OptimizationLevel::Oz;
-  }
-  llvm::ModulePassManager MPM = PB.buildPerModuleDefaultPipeline(*OptLevel);
-  // Optimize the IR
-  MPM.run(*IR::get()->getModule(), MAM);
-  return;
-}
+    // void IROptimize(string OptimizeLevel) {
+    //   llvm::LoopAnalysisManager LAM;
+    //   llvm::FunctionAnalysisManager FAM;
+    //   llvm::CGSCCAnalysisManager CGAM;
+    //   llvm::ModuleAnalysisManager MAM;
+    //   // Create the new pass manager builder.
+    //   llvm::PassBuilder PB;
+    //   // Register all the basic analyses with the managers.
+    //   PB.registerModuleAnalyses(MAM);
+    //   PB.registerCGSCCAnalyses(CGAM);
+    //   PB.registerFunctionAnalyses(FAM);
+    //   PB.registerLoopAnalyses(LAM);
+    //   PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
+    //   const llvm::OptimizationLevel *OptLevel;
+    //   if (OptimizeLevel == "") {
+    //     OptLevel = &llvm::OptimizationLevel::O0;
+    //   }
+    //   if (OptimizeLevel != "") {
+    //     if (OptimizeLevel == "O0")
+    //       OptLevel = &llvm::OptimizationLevel::O0;
+    //     else if (OptimizeLevel == "O1")
+    //       OptLevel = &llvm::OptimizationLevel::O1;
+    //     else if (OptimizeLevel == "O2")
+    //       OptLevel = &llvm::OptimizationLevel::O2;
+    //     else if (OptimizeLevel == "O3")
+    //       OptLevel = &llvm::OptimizationLevel::O3;
+    //     else if (OptimizeLevel == "Os")
+    //       OptLevel = &llvm::OptimizationLevel::Os;
+    //     else if (OptimizeLevel == "Oz")
+    //       OptLevel = &llvm::OptimizationLevel::Oz;
+    //   }
+    //   llvm::ModulePassManager MPM =
+    //   PB.buildPerModuleDefaultPipeline(*OptLevel);
+    //   // Optimize the IR
+    //   MPM.run(*IR::get()->getModule(), MAM);
+    //   return;
+    // }
 
-int main(int argc, const char *argv[]) {
+    int main(int argc, const char *argv[]) {
 #ifdef GEP_TEST
   gep_test();
   return 0;
@@ -482,6 +492,7 @@ int main(int argc, const char *argv[]) {
 
   std::ofstream file("demo.ll");
   file << IR::get()->getModule()->print().str();
+  file.close();
 
   cout << endl;
   // visualization test

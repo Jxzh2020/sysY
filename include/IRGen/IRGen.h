@@ -5,6 +5,7 @@
 #ifndef SYSY_IRGEN_H
 #define SYSY_IRGEN_H
 
+#include <cassert>
 #include <iostream>
 #include <sstream>
 #include <string>

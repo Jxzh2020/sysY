@@ -5,16 +5,15 @@
 #ifndef SYSY_BASEAST_H
 #define SYSY_BASEAST_H
 
+#include "IRGen/IRGen.h"
+#include <cassert>
 #include <iostream>
-#include <sstream>
+#include <map>
 #include <memory>
+#include <sstream>
 #include <stack>
 #include <string>
-#include <map>
 #include <unordered_map>
-
-#include "IRGen/IRGen.h"
-
 
 enum UnaryOp {
     PLUS,
@@ -212,7 +211,7 @@ std::string Escape(std::string input);
 
 // string Json_with_children(string name, std::vector<std::string> children);
 
-std::string Json(std::string name, std::vector<std::string> children, int size);
+std::string Json(std::string name, std::vector<std::string> children, int size = 10);
 std::string Json(std::string name, int size);
 int sizeplus(int size);
 

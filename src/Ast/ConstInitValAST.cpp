@@ -4,6 +4,7 @@
 
 #include "Ast/ConstInitValAST.h"
 #include "Ast/BaseAST.h"
+#include "IRGen/IRGen.h"
 #include <string>
 #include <vector>
 
@@ -22,7 +23,7 @@ std::string ConstInitValAST::astJson(int size) {
   }
 }
 
-llvm::Value *ConstInitValAST::codegen() {
+IRGen::IRBase *ConstInitValAST::codegen() {
   if (vals.empty()) {
     return ConstExp->codegen();
   }

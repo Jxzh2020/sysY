@@ -10,7 +10,7 @@ std::string PrimitiveTypeAST::astJson(int size) {
   return Json("Type", {Escape(type)}, size);
 }
 
-llvm::Type *PrimitiveTypeAST::get_type() const {
+IRGen::Type *PrimitiveTypeAST::get_type() const {
   if (type == "int")
     return IRGen::Type::getInt32();
   else if (type == "void")
