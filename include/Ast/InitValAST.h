@@ -10,6 +10,7 @@
 class InitValAST : public BaseAST {
 public:
     std::unique_ptr<BaseAST> Exp;
+    std::vector<std::unique_ptr<BaseAST>> vals;
 
     std::string astJson(int size) override;
 

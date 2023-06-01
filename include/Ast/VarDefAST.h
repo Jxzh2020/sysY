@@ -11,7 +11,7 @@
 class VarDefAST : public BaseAST {
 public:
     std::string ident;
-
+    PrimitiveTypeAST *typeast;
     std::unique_ptr<BaseAST> ConstExp;
     std::unique_ptr<BaseAST> InitVal;
 
@@ -21,6 +21,7 @@ public:
 
     [[nodiscard]] std::pair<const std::string &, IRGen::IRBase *> get_defs() const;
 
+    void set_type(PrimitiveTypeAST *src);
 };
 
 

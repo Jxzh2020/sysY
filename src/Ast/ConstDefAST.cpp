@@ -39,10 +39,11 @@ IRGen::IRBase *ConstDefAST::codegen() {
   //************
   if (!IR::get()->isGlobeBlock()) // local
   {
-    if (ConstExp.get() == nullptr) // local variable
+    if (ConstExp == nullptr) // local variable
     {
       // TODO: unknown_usage
       auto res = builder->CreateAlloca(down->get_type(), ident, true);
+      IR::get()->AddAlloca(res, ident);
       builder->CreateStore(down, res);
       return res;
     } else // local array
@@ -52,7 +53,7 @@ IRGen::IRBase *ConstDefAST::codegen() {
 
       auto arraySize = index;
 
-      auto arrayType = IRGen::Type::getArray(this->typeast->codegen()->dyn_cast<IRGen::Type*>(), size);
+      auto arrayType = IRGen::Type::getArray(this->typeast->get_type(), size);
 
       auto res = builder->CreateAlloca(arrayType, ident, true);
       IR::get()->AddAlloca(res, ident);

@@ -18,7 +18,7 @@ public:
 
     std::string astJson(int size) override;
 
-    [[nodiscard]] IRGen::IRBase *codegen() override { return nullptr; }
+    [[nodiscard]] IRGen::IRBase *codegen() override { assert(0 && "PrimitiveTypeAST::codegen() Not implemented"); return nullptr; }
 
 };
 

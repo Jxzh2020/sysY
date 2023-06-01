@@ -20,8 +20,7 @@ public:
 
   [[nodiscard]] IRGen::IRBase *codegen() override;
 
-  [[nodiscard]] std::pair<const std::string &, IRGen::IRBase *>
-  get_defs() const;
+  [[nodiscard]] std::pair<const std::string &, IRGen::IRBase *> get_defs() const;
   void set_type(PrimitiveTypeAST *src);
 };
 

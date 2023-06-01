@@ -12,6 +12,7 @@ std::string InitValAST::astJson(int size) {
 }
 
 IRGen::IRBase *InitValAST::codegen() {
-    return Exp->codegen();
-    
+    if(Exp)
+        return Exp->codegen();
+    return nullptr;
 }

@@ -19,8 +19,7 @@ IRGen::Type *PrimitiveTypeAST::get_type() const {
     return nullptr;
 }
 
-IRGen::FunctionType *PrimitiveTypeAST::get_type(
-    const std::vector<std::unique_ptr<BaseAST>> &params) const {
+IRGen::FunctionType *PrimitiveTypeAST::get_type( const std::vector<std::unique_ptr<BaseAST>> &params) const {
   // TODO FuncFParam AST push_back inside loop, fixed
   std::vector<IRGen::Type *> types;
   types.reserve(params.size());

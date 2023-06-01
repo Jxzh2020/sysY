@@ -204,8 +204,9 @@ AllocaInst::AllocaInst(unsigned int &st, ALLOCA_TYPE _op, Alloca *_ptr): ptr(_pt
 }
 
 std::string AllocaInst::get_value() const {
-    if(this->isConst)
-        return this->con_ptr->get_value();
+    if(this->op == ALLOCA_CREATE){
+        return this->ptr->get_value();
+    }
     else
         return this->output;
 }
@@ -438,7 +439,8 @@ Type *GEPInst::get_type() const {
 }
 
 Alloca *GEPInst::get_alloca() {
-    auto alloca = Alloca::Create(this->array_type->get_element_type(), std::to_string(this->v_reg), false);
+    auto isConstant = this->isInst ? dynamic_cast<AllocaInst*>(alloca_load)->get_alloca()->isConstant() : this->isAlloca ? this->alloca_array_ptr->isConstant() : this->gl_array_ptr->isConstant();
+    auto alloca = Alloca::Create(this->array_type->get_element_type(), std::to_string(this->v_reg), isConstant);
     alloca->Initialize();
     return alloca;
 }
