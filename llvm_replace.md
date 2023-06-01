@@ -2,11 +2,12 @@
 
 branch *dev* is meant to implement all the LLVM reference in original project *sysY*
 
-- Class `IRGen` or Namespace `IRGen`? 
+- Class `IRGen` or Namespace `IRGen`?
 
-    Maybe namespace first.
+  Maybe namespace first.
 
 ## structure
+
 reviewing arc/Ast
 
 - how is global decl of const implemented
@@ -100,11 +101,10 @@ IRGen:
 IRGen::APInt  ? // what this is ?
 ```
 
-
 ***NOTE: there may be some error in AllocaInst, which should all return Alloca->IRBase***
 
-
 **Funny thing!**
+
 ```cpp
 class Inst {
     public:
@@ -124,11 +124,11 @@ class Inst {
 ## Refactor
 
 1. Virtual register allocation now seems conflict with the building phase of IR.
-Now planning to refactor Builder::CreateXXXX to let virtual register distributed at building IR phase.
+   Now planning to refactor Builder::CreateXXXX to let virtual register distributed at building IR phase.
 
 2. Separating static Node and dynamic Node clearly.
-There are some overlaps between AllocaInst and Alloca, since building tree phase need only the snapshot 
-of Alloca, which is provided by both AllocaInst and Alloca itself.**So now planing to remove Alloca class** :)
+   There are some overlaps between AllocaInst and Alloca, since building tree phase need only the snapshot
+   of Alloca, which is provided by both AllocaInst and Alloca itself.**So now planing to remove Alloca class** :)
 
 Virtual register is assigned to Inst in constructor. Constant value Inst node is not assigned. Use isConst to verify.
 
@@ -143,8 +143,8 @@ Of course, if we don't consider any optimization, all the inst are output to IR 
 The syncing of v_reg and value, in me opinion, is unnecessary. Inst first check if it's constant exp
 then return std::string according to v_reg. Inst::value is dumped.
 
-
 Now,
+
 1. Adding v_reg support on Create and constructors, modifying Inst::print() --done
 2. there maybe type cast? So this part should move to constructor -- leave unsolved
 3. remove Inst::val --done
@@ -166,6 +166,7 @@ void h(int input[]){
 ```
 
 It seems that `store ptr %0, ptr %2` simply assign `%2` with `%0`, which makes current arg system possible.
+
 ```llvm
 define void @h(ptr %0) {
   %2 = alloca ptr
@@ -182,9 +183,11 @@ define void @h(ptr %0) {
 
 **Maybe** the arg system need no modification. Just add support a new type `ptr` and a New Inst `getelementptr`
 
-Now alloca type `i32*` is hard-coded in the AllocaInst::print(), which outputs string like `%a = alloca i32`, `store i32 %1, i32* %a`.
+Now alloca type `i32*` is hard-coded in the AllocaInst::print(), which outputs string
+like `%a = alloca i32`, `store i32 %1, i32* %a`.
 
-Intended to print type properly for newly added type `ptr`, the type print of alloca need an upper level of abstraction to type print.
+Intended to print type properly for newly added type `ptr`, the type print of alloca need an upper level of abstraction
+to type print.
 Well, it's the same simply use `ptr` for all allocas, since our project don't check type.
 
 It's better to wrap the ArrayType in Type, for general purpose.
@@ -213,8 +216,8 @@ for(int j = 0; j < arraySize->getLimitedValue(); j++)
 // builder->CreateStore(res, res);
 ```
 
-
 Note that GEPInst has two forms:
+
 1. as a separated instruction in llvm ir, a virtual register is allcoated to store the elemenntptr
 2. as an operand, directly replace the `ptr %xx`
 

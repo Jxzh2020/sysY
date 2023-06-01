@@ -16,8 +16,7 @@ std::string FuncDefAST::astJson(int size) {
 
     children.push_back(Json("Function Name", {Escape(ident)}, sizeplus(size)));
 
-    for (auto &p : params)
-    {
+    for (auto &p: params) {
         paras.push_back(p->astJson(sizeplus(size)));
     }
     children.push_back(Json("Parameters", paras, sizeplus(size)));
@@ -80,11 +79,11 @@ void FuncDefAST::SetArgAlloca(IRGen::Function *F) {
 
     auto argIter = F->arg_begin();
     auto argEnd = F->arg_end();
-    IRGen::IRBase* arg;
+    IRGen::IRBase *arg;
 
     for (; argIter != argEnd; argIter++) {
-        arg = builder->CreateAlloca(argIter->get()->get_type(),argIter->get()->get_name(), false);
-        IR::get()->AddAlloca(arg,argIter->get()->get_name());
-        builder->CreateStore(argIter->get(),arg);
+        arg = builder->CreateAlloca(argIter->get()->get_type(), argIter->get()->get_name(), false);
+        IR::get()->AddAlloca(arg, argIter->get()->get_name());
+        builder->CreateStore(argIter->get(), arg);
     }
 }

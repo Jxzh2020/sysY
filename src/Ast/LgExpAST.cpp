@@ -12,12 +12,9 @@ std::string LgExpAST::astJson(int size) {
     std::vector<std::string> children;
     if (RHS == nullptr) {
         children.push_back(Json("Logical Left-Hand-Side", {LHS->astJson(sizeplus(size))}, sizeplus(size)));
-    }
-    else
-    {
+    } else {
         std::string op;
-        switch (type)
-        {
+        switch (type) {
             case OR:
                 op = "||";
                 break;
@@ -37,8 +34,7 @@ IRGen::IRBase *LgExpAST::codegen() {
     auto &builder = IR::get()->getBuilder();
     if (RHS == nullptr) {
         res = LHS->codegen();
-    }
-    else{
+    } else {
         switch (type) {
             case OR:
                 res = builder->CreateLogicalOr(LHS->codegen(), RHS->codegen());

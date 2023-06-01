@@ -14,9 +14,7 @@ std::string AddExpAST::astJson(int size) {
     std::vector<std::string> children;
     if (AddExp == nullptr) {
         children.push_back(Json("Mul Expression", {MulExp->astJson(sizeplus(size))}, sizeplus(size)));
-    }
-    else
-    {
+    } else {
         std::string op = "";
         switch (type) {
             case PLUS:

@@ -2,17 +2,20 @@
 // Created by Hao Zhong on 5/18/23.
 //
 #include "IRGen/IRGen.h"
+
 using namespace IRGen;
 
 std::stringstream Module::print() {
     std::stringstream code;
-    for( auto& gl: global_var_list){
-        if(!gl.second->isConstant())
-            code << gl.second->get_value() + " = global " + gl.second->get_type()->print() + ' ' + gl.second->get_initial_value()+'\n';
+    for (auto &gl: global_var_list) {
+        if (!gl.second->isConstant())
+            code << gl.second->get_value() + " = global " + gl.second->get_type()->print() + ' ' +
+                    gl.second->get_initial_value() + '\n';
         else
-            code << gl.second->get_value() + " = constant " + gl.second->get_type()->print() + ' ' + gl.second->get_initial_value()+'\n';
+            code << gl.second->get_value() + " = constant " + gl.second->get_type()->print() + ' ' +
+                    gl.second->get_initial_value() + '\n';
     }
-    for( auto& func: func_list){
+    for (auto &func: func_list) {
         code << func->print() << '\n';
     }
     return code;
@@ -20,11 +23,10 @@ std::stringstream Module::print() {
 
 
 std::string Type::print() const {
-    if(this->isArray){
+    if (this->isArray) {
         return '[' + std::to_string(this->arraysize) + " x " + Type::allocated[this->ele_type]->print() + ']';
-    }
-    else{
-        switch(this->type){
+    } else {
+        switch (this->type) {
             case INT32:
                 return "i32";
             case INT1:
@@ -51,27 +53,27 @@ std::string Arg::print_name() const {
 
 std::string Function::arg_print_all() const {
     std::string code;
-    code+='(';
-    if(!this->arg_empty()){
-        for( auto& i : this->arg_list){
-            code+=(i->print_type()+" %"+i->print_name()+", ");
+    code += '(';
+    if (!this->arg_empty()) {
+        for (auto &i: this->arg_list) {
+            code += (i->print_type() + " %" + i->print_name() + ", ");
         }
-        code = code.substr(0,code.length()-2);
+        code = code.substr(0, code.length() - 2);
     }
-    code+=')';
+    code += ')';
     return code;
 }
 
 std::string Function::arg_print_type() const {
     std::string code;
-    code+='(';
-    if(!this->arg_empty()){
-        for( auto& i : this->arg_list){
-            code+=(i->print_type()+", ");
+    code += '(';
+    if (!this->arg_empty()) {
+        for (auto &i: this->arg_list) {
+            code += (i->print_type() + ", ");
         }
-        code = code.substr(0,code.length()-2);
+        code = code.substr(0, code.length() - 2);
     }
-    code+=')';
+    code += ')';
     return code;
 }
 
@@ -88,7 +90,7 @@ std::string Function::print_declare() const {
     return code;
 }
 
-bool mySort(std::unique_ptr<BasicBlock>& a, std::unique_ptr<BasicBlock>& b) {
+bool mySort(std::unique_ptr<BasicBlock> &a, std::unique_ptr<BasicBlock> &b) {
     auto a_r = a->get_v_reg_range();
     auto b_r = b->get_v_reg_range();
     //return a_r[0] < b_r[0] ? true : a_r[0] > b_r[0] ? false : a_r[1] < b_r[1] ? true : false;
@@ -100,19 +102,19 @@ std::string Function::print() {
 
     std::stringstream code;
     // declare
-    if(this->b_list.empty()){
+    if (this->b_list.empty()) {
         // should print : declare void @putch(i32)
         code << this->print_declare();
     }
-    // define
-    else{
+        // define
+    else {
         // should print : define i32 @test(i32 %a, i32 %b)
         code << this->print_define() << " {";
-        auto head  = this->b_list.begin()->get();
+        auto head = this->b_list.begin()->get();
         this->b_list.sort(mySort);
         code << '\n' << head->get_name() << ":\n" << head->print();
-        for( auto& block : this->b_list){
-            if(!block->isEmpty() && block.get() != head)
+        for (auto &block: this->b_list) {
+            if (!block->isEmpty() && block.get() != head)
                 code << '\n' << block->get_name() << ":\n" << block->print();
         }
         code << "}";
@@ -123,7 +125,7 @@ std::string Function::print() {
 
 std::string BasicBlock::print() {
     std::stringstream code;
-    for( auto& inst: this->inst_list){
+    for (auto &inst: this->inst_list) {
         code << "  " << inst->print() << '\n';
     }
     return code.str();
@@ -133,17 +135,17 @@ std::string BasicBlock::print() {
 
 std::string BranchInst::print() {
     std::string inst;
-    Inst* cast;
-    if(!this->isConBr){
-        inst+=("br label %" + this->t_des->get_name());
+    Inst *cast;
+    if (!this->isConBr) {
+        inst += ("br label %" + this->t_des->get_name());
         return inst;
-    }
-    else{
+    } else {
         // TODO: this could raise error, a pointer comparison here
 //        cast = Type::Cast(this->con, Type::getInt1());
 //        if(cast)
 //            inst+=(cast->print() + "\n  ");
-        inst+=(std::string("br i1 ") + this->con->get_value() + ", label %" + this->t_des->get_name() + ", label %" + this->f_des->get_name());
+        inst += (std::string("br i1 ") + this->con->get_value() + ", label %" + this->t_des->get_name() + ", label %" +
+                 this->f_des->get_name());
         return inst;
     }
 }
@@ -151,22 +153,22 @@ std::string BranchInst::print() {
 
 std::string CallInst::print() {
     std::string out;
-    if(!Type::isVoid(this->ret_type)){
-        out+=(this->output+" = ");    //call "+this->ret_type->print()+" @"+this->func->get_name()
+    if (!Type::isVoid(this->ret_type)) {
+        out += (this->output + " = ");    //call "+this->ret_type->print()+" @"+this->func->get_name()
     }
-    out+=("call " + this->ret_type->print() + " @" + this->func->get_name());
-    out+='(';
-    if(!this->args.empty()){
+    out += ("call " + this->ret_type->print() + " @" + this->func->get_name());
+    out += '(';
+    if (!this->args.empty()) {
         auto iter = *this->args.begin();
-        out+=(iter->get_type()->print()+' '+iter->get_value());
-        for( auto &arg : this->args){
-            if( arg == iter)
+        out += (iter->get_type()->print() + ' ' + iter->get_value());
+        for (auto &arg: this->args) {
+            if (arg == iter)
                 continue;
-            out+=(", "+arg->get_type()->print()+' '+arg->get_value());
+            out += (", " + arg->get_type()->print() + ' ' + arg->get_value());
 
         }
     }
-    out+=')';
+    out += ')';
     return out;
 }
 
@@ -177,17 +179,16 @@ std::string ArithInst::print() {
     std::string opcode = list[this->op];
     std::string out;
 
-    if(this->isConst){
+    if (this->isConst) {
         return out;
         //
         // return this->con_ptr->get_value();
-    }
-    else{
+    } else {
         // imcomplete!
         assert(this->lhs != nullptr && this->rhs != nullptr);
-        out = (std::string("%")+std::to_string(this->v_reg)+" = "+opcode+" ");
-        out+=(this->lhs->get_type()->print()+" ");
-        out+=(this->lhs->get_value()+", "+this->rhs->get_value());
+        out = (std::string("%") + std::to_string(this->v_reg) + " = " + opcode + " ");
+        out += (this->lhs->get_type()->print() + " ");
+        out += (this->lhs->get_value() + ", " + this->rhs->get_value());
         return out;
     }
 }
@@ -196,33 +197,37 @@ std::string ArithInst::print() {
 std::string AllocaInst::print() {
     std::string out;
 
-    if(ptr){
-        switch(this->op){
+    if (ptr) {
+        switch (this->op) {
             case ALLOCA_CREATE:
-                out = '%'+this->ptr->get_name()+" = alloca "+this->ptr->get_type()->print();
+                out = '%' + this->ptr->get_name() + " = alloca " + this->ptr->get_type()->print();
                 break;
             case ALLOCA_STORE:
                 //this->ptr->set_value(this->val);
-                out = "store "+this->val->get_type()->print()+' '+ this->val->get_value() +", "+this->ptr->print_type()+" "+this->ptr->get_value();
+                out = "store " + this->val->get_type()->print() + ' ' + this->val->get_value() + ", " +
+                      this->ptr->print_type() + " " + this->ptr->get_value();
                 break;
             case ALLOCA_LOAD:
-                out = this->output + " = load "+this->ptr->get_type()->print()+", "+this->ptr->print_type()+" "+this->ptr->get_value();
+                out = this->output + " = load " + this->ptr->get_type()->print() + ", " + this->ptr->print_type() +
+                      " " + this->ptr->get_value();
                 //out += this->val->get_value();
                 break;
         }
     }
-    // global variable
-    else{
-        switch(this->op){
+        // global variable
+    else {
+        switch (this->op) {
             case ALLOCA_CREATE:
                 std::cout << "Alloca Create on GlobalVariable" << std::endl;
                 assert(0);
                 break;
             case ALLOCA_STORE:
-                out = "store "+this->val->get_type()->print()+' '+ this->val->get_value() +", "+this->gl_ptr->get_type()->print()+"* @"+this->gl_ptr->get_name();
+                out = "store " + this->val->get_type()->print() + ' ' + this->val->get_value() + ", " +
+                      this->gl_ptr->get_type()->print() + "* @" + this->gl_ptr->get_name();
                 break;
             case ALLOCA_LOAD:
-                out = this->output + " = load "+this->gl_ptr->get_type()->print()+", "+this->gl_ptr->get_type()->print()+"* @"+this->gl_ptr->get_name();
+                out = this->output + " = load " + this->gl_ptr->get_type()->print() + ", " +
+                      this->gl_ptr->get_type()->print() + "* @" + this->gl_ptr->get_name();
                 //out += this->val->get_value();
                 break;
         }
@@ -233,11 +238,11 @@ std::string AllocaInst::print() {
 std::string CmpInst::print() {
     static const std::string list[] = {"slt", "sle", "sgt", "sge", "ne", "eq"};
     std::string out;
-    if( this->isConst)
+    if (this->isConst)
         return out;
     out = "%" + std::to_string(this->v_reg) + " = icmp ";
-    out+=list[this->op];
-    out+=(" " + lhs->get_type()->print() + " " + lhs->get_value()+ ", " + rhs->get_value());
+    out += list[this->op];
+    out += (" " + lhs->get_type()->print() + " " + lhs->get_value() + ", " + rhs->get_value());
 
     return out;
 }
@@ -245,23 +250,24 @@ std::string CmpInst::print() {
 std::string LogicInst::print() {
     static const std::string list[] = {""};
     std::string out;
-    Inst* cast_l = nullptr, *cast_r = nullptr;
+    Inst *cast_l = nullptr, *cast_r = nullptr;
 
-    if(true){//!Type::isInt1(this->lhs->get_type())){
-        cast_l = this->lhs->dyn_cast<Inst*>() ? Type::Cast(this->lhs->dyn_cast<Inst*>(),Type::getInt1()) : Type::Cast(this->lhs->dyn_cast<Constant*>(), Type::getInt1());
-        out+=(cast_l->print() + "\n  ");
+    if (true) {//!Type::isInt1(this->lhs->get_type())){
+        cast_l = this->lhs->dyn_cast<Inst *>() ? Type::Cast(this->lhs->dyn_cast<Inst *>(), Type::getInt1())
+                                               : Type::Cast(this->lhs->dyn_cast<Constant *>(), Type::getInt1());
+        out += (cast_l->print() + "\n  ");
     }
-    if(true){//!Type::isInt1(this->rhs->get_type())){
-        cast_r = this->rhs->dyn_cast<Inst*>() ? Type::Cast(this->rhs->dyn_cast<Inst*>(),Type::getInt1()) : Type::Cast(this->rhs->dyn_cast<Constant*>(), Type::getInt1());
-        out+=(cast_r->print() + "\n  ");
+    if (true) {//!Type::isInt1(this->rhs->get_type())){
+        cast_r = this->rhs->dyn_cast<Inst *>() ? Type::Cast(this->rhs->dyn_cast<Inst *>(), Type::getInt1())
+                                               : Type::Cast(this->rhs->dyn_cast<Constant *>(), Type::getInt1());
+        out += (cast_r->print() + "\n  ");
     }
 
-    out+=("%"+std::to_string(this->v_reg) + " = select i1 ");
-    if(this->op == LG_OR){
-        out+=(cast_l->get_value()+", i1 true, i1 "+cast_r->get_value());
-    }
-    else{
-        out+=(cast_l->get_value()+", i1 "+cast_r->get_value()+", i1 false");
+    out += ("%" + std::to_string(this->v_reg) + " = select i1 ");
+    if (this->op == LG_OR) {
+        out += (cast_l->get_value() + ", i1 true, i1 " + cast_r->get_value());
+    } else {
+        out += (cast_l->get_value() + ", i1 " + cast_r->get_value() + ", i1 false");
     }
     return out;
 }
@@ -280,33 +286,31 @@ std::string LogicInst::print() {
  */
 std::string RetInst::print() {
     std::string code("ret ");
-    Inst* ins;
-    Alloca* alloca;
-    Constant* cons;
-    if(!ret_val){
-        code+="void";
+    Inst *ins;
+    Alloca *alloca;
+    Constant *cons;
+    if (!ret_val) {
+        code += "void";
         return code;
-    }
-    else{
-        ins = this->ret_val->dyn_cast<Inst*>();
-        cons = this->ret_val->dyn_cast<Constant*>();
-        alloca = this->ret_val->dyn_cast<Alloca*>();
+    } else {
+        ins = this->ret_val->dyn_cast<Inst *>();
+        cons = this->ret_val->dyn_cast<Constant *>();
+        alloca = this->ret_val->dyn_cast<Alloca *>();
 
-        if(ins)
-            code+=(ins->get_type()->print()+" "+ins->get_value());
-        else if(cons){
-            code+=(cons->get_type()->print()+" "+cons->get_value());
-        }
-        else if(alloca){
-            code+=(alloca->get_type()->print()+ " " +alloca->get_value());
-        }
-        else{
+        if (ins)
+            code += (ins->get_type()->print() + " " + ins->get_value());
+        else if (cons) {
+            code += (cons->get_type()->print() + " " + cons->get_value());
+        } else if (alloca) {
+            code += (alloca->get_type()->print() + " " + alloca->get_value());
+        } else {
             std::cout << "RetInst::ret_val of unknown type!" << std::endl;
             exit(1);
         }
         return code;
     }
 }
+
 // TODO: unhandled RetInst::get_type()
 Type *RetInst::get_type() const {
     //assert(false);
@@ -321,19 +325,17 @@ std::string RetInst::get_value() const {
 
 std::string GEPInst::print() {
     std::string out;
-    out+= (this->output + " = getelementptr inbounds " + this->array_type->print()+", ");
-    if(this->isInst){
-        out+=("ptr "+this->alloca_load->get_value());
+    out += (this->output + " = getelementptr inbounds " + this->array_type->print() + ", ");
+    if (this->isInst) {
+        out += ("ptr " + this->alloca_load->get_value());
         //out+=(this->alloca_load->get_type()->print()+" "+this->alloca_load->get_value());
+    } else if (this->isAlloca) {
+        out += (this->alloca_array_ptr->print_type() + " " + this->alloca_array_ptr->get_value());
+    } else {
+        out += (this->gl_array_ptr->print_type() + " " + this->gl_array_ptr->get_value());
     }
-    else if(this->isAlloca){
-        out+=(this->alloca_array_ptr->print_type()+" "+this->alloca_array_ptr->get_value());
-    }
-    else{
-        out+=(this->gl_array_ptr->print_type()+" "+this->gl_array_ptr->get_value());
-    }
-    out+=(", "+this->base_index->get_type()->print()+' '+this->base_index->get_value());
-    out+=(", "+this->offset_index->get_type()->print()+' '+this->offset_index->get_value());
+    out += (", " + this->base_index->get_type()->print() + ' ' + this->base_index->get_value());
+    out += (", " + this->offset_index->get_type()->print() + ' ' + this->offset_index->get_value());
 
     return out;
 }

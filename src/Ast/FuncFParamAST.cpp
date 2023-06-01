@@ -4,8 +4,7 @@
 
 #include "Ast/FuncFParamAST.h"
 
-std::string FuncFParamAST::astJson(int size) 
-{
+std::string FuncFParamAST::astJson(int size) {
     // std::string ident;
     // std::unique_ptr<BaseAST> PrimitiveType;
     std::vector<std::string> children;

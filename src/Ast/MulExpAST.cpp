@@ -15,8 +15,7 @@ std::string MulExpAST::astJson(int size) {
     std::string op = "";
     if (MulExp == nullptr) {
         children.push_back(Json("Unary Expression", {UnaryExp->astJson(sizeplus(size))}, sizeplus(size)));
-    }
-    else {
+    } else {
         switch (type) {
             case MUL:
                 op = "*";

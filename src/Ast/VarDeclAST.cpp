@@ -5,20 +5,20 @@
 #include "Ast/VarDeclAST.h"
 
 std::string VarDeclAST::astJson(int size) {
-  // std::unique_ptr<BaseAST> PrimitiveType;
-  // std::vector<std::unique_ptr<BaseAST>> VarDefs;
-  std::vector<std::string> children;
-  std::vector<std::string> defs;
+    // std::unique_ptr<BaseAST> PrimitiveType;
+    // std::vector<std::unique_ptr<BaseAST>> VarDefs;
+    std::vector<std::string> children;
+    std::vector<std::string> defs;
 
-  children.push_back(Json("Variable Type",
-                          {PrimitiveType->astJson(sizeplus(size))},
-                          sizeplus(size)));
+    children.push_back(Json("Variable Type",
+                            {PrimitiveType->astJson(sizeplus(size))},
+                            sizeplus(size)));
 
-  for (auto &v : VarDefs) {
-    defs.push_back(v->astJson(sizeplus(size)));
-  }
-  children.push_back(Json("Variable Definitions", defs, sizeplus(size)));
-  return Json("Variable Declaration", children, size);
+    for (auto &v: VarDefs) {
+        defs.push_back(v->astJson(sizeplus(size)));
+    }
+    children.push_back(Json("Variable Definitions", defs, sizeplus(size)));
+    return Json("Variable Declaration", children, size);
 }
 
 IRGen::IRBase *VarDeclAST::codegen() {
@@ -26,7 +26,7 @@ IRGen::IRBase *VarDeclAST::codegen() {
     // *>(PrimitiveType.get())->get_type(); auto builder =
     // IR::get()->getBuilder();
     // TODO too sloppy
-    for (auto &var_def : VarDefs) {
+    for (auto &var_def: VarDefs) {
         dynamic_cast<VarDefAST *>(var_def.get())
                 ->set_type(dynamic_cast<PrimitiveTypeAST *>(this->PrimitiveType.get()));
         var_def->codegen();

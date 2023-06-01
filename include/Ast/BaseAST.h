@@ -48,7 +48,7 @@ struct FuncContext {
     // current BB
     IRGen::BasicBlock *curblock;
     // to fully support variable shadowing, a local variable list is maintained
-    std::unordered_map<IRGen::BasicBlock *, std::unique_ptr<std::unordered_map<std::string, IRGen::Alloca*>>> name_map;
+    std::unordered_map<IRGen::BasicBlock *, std::unique_ptr<std::unordered_map<std::string, IRGen::Alloca *>>> name_map;
     // logical first BB ---> logical block (or scope) alloca inst
     std::unordered_map<IRGen::BasicBlock *, std::vector<IRGen::Alloca *>> alloca;
     // logical block first BB ----> real LLVM BasicBlocks
@@ -212,7 +212,9 @@ std::string Escape(std::string input);
 // string Json_with_children(string name, std::vector<std::string> children);
 
 std::string Json(std::string name, std::vector<std::string> children, int size = 10);
+
 std::string Json(std::string name, int size);
+
 int sizeplus(int size);
 
 #endif //SYSY_BASEAST_H

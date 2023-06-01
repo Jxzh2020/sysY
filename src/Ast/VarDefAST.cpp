@@ -14,16 +14,12 @@ std::string VarDefAST::astJson(int size) {
     // std::unique_ptr<BaseAST> InitVal;
     std::vector<std::string> children;
     children.push_back(Json("Variable", {Escape(ident)}, sizeplus(size)));
-    if (InitVal != nullptr)
-    {
-        if(ConstExp!=nullptr)
-        {
+    if (InitVal != nullptr) {
+        if (ConstExp != nullptr) {
             children.push_back(Json("Array Index", {ConstExp->astJson(sizeplus(size))}, sizeplus(size)));
         }
         children.push_back(Json("Init Value", {InitVal->astJson(sizeplus(size))}, sizeplus(size)));
-    }
-    else if(ConstExp!=nullptr)
-    {
+    } else if (ConstExp != nullptr) {
         children.push_back(Json("Array Index", {ConstExp->astJson(sizeplus(size))}, sizeplus(size)));
     }
     return Json("Variable Define", children, size);
@@ -42,7 +38,7 @@ IRGen::IRBase *VarDefAST::codegen() {
             // TODO: unknown_usage
             auto res = builder->CreateAlloca(this->typeast->get_type(), ident, false);
             IR::get()->AddAlloca(res, ident);
-            if(down)
+            if (down)
                 builder->CreateStore(down, res);
             return res;
         } else // local array
@@ -57,7 +53,7 @@ IRGen::IRBase *VarDefAST::codegen() {
             auto res = builder->CreateAlloca(arrayType, ident, false);
             IR::get()->AddAlloca(res, ident);
 
-            if(InitVal){
+            if (InitVal) {
                 // Create a constant integer with value 0
                 auto zero = IRGen::Constant::get(IRGen::Type::getInt32(), 0);
 
@@ -130,7 +126,7 @@ std::pair<const std::string &, IRGen::IRBase *> VarDefAST::get_defs() const {
     else {
         return std::pair<const std::string &, IRGen::IRBase *>{ident, InitVal->codegen()};
     }
-    
+
 }
 
 void VarDefAST::set_type(PrimitiveTypeAST *src) { this->typeast = src; }

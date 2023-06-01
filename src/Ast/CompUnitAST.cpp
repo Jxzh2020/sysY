@@ -10,8 +10,7 @@ std::string CompUnitAST::astJson(int size) {
     //     func_def->astJson();
     // std::cout << " }" << std::endl;
     std::vector<std::string> globes;
-    for (auto &g: globe)
-    {
+    for (auto &g: globe) {
         globes.push_back(g->astJson(sizeplus(size)));
     }
     return Json("CompUnit", globes, size);

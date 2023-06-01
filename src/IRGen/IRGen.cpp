@@ -3,39 +3,40 @@
 //
 
 #include "IRGen/IRGen.h"
+
 using namespace IRGen;
 
 
 IRBase *Module::getGlobalVariable(const std::string &name) const {
     auto res = this->global_var_list.find(name);
-    if( res == this->global_var_list.end())
+    if (res == this->global_var_list.end())
         return nullptr;
     else
         return IRBase::CreateIRBase(IR_GLOBAL_VAR, res->second.get());
 }
 
-void Module::add_func(const std::string& name, Function *F) {
-    for( auto& func : this->func_list)
-        if(func->get_name() == name){
+void Module::add_func(const std::string &name, Function *F) {
+    for (auto &func: this->func_list)
+        if (func->get_name() == name) {
             std::cout << "Function already exists!" << std::endl;
             exit(1);
         }
     this->func_list.insert(this->func_list.end(), std::unique_ptr<Function>(std::unique_ptr<Function>(F)));
 }
 
-Module::Module(const std::string& name): module_name(name) {
+Module::Module(const std::string &name) : module_name(name) {
     // complete
 }
 
 Function *Module::get_function(const std::string &name) {
-    for( auto& func : this->func_list)
-        if(func->get_name() == name)
+    for (auto &func: this->func_list)
+        if (func->get_name() == name)
             return func.get();
     return nullptr;
 }
 
 void Module::add_variable(GlobalVariable *var) {
-    if(this->global_var_list.find(var->get_name()) != this->global_var_list.end()){
+    if (this->global_var_list.find(var->get_name()) != this->global_var_list.end()) {
         std::cout << "GlobalVariable name repetition!" << std::endl;
         exit(1);
     }
@@ -43,31 +44,29 @@ void Module::add_variable(GlobalVariable *var) {
 }
 
 
-
-
 Type *IRGen::Type::getInt32() {
-    if( Type::allocated.empty()){
+    if (Type::allocated.empty()) {
         Type::gen_all_instances();
     }
     return Type::allocated[INT32].get();
 }
 
 Type *IRGen::Type::getInt1() {
-    if( Type::allocated.empty()){
+    if (Type::allocated.empty()) {
         Type::gen_all_instances();
     }
     return Type::allocated[INT1].get();
 }
 
 Type *IRGen::Type::getVoid() {
-    if( Type::allocated.empty()){
+    if (Type::allocated.empty()) {
         Type::gen_all_instances();
     }
     return Type::allocated[VOID].get();
 }
 
 Type *IRGen::Type::getPtr() {
-    if( Type::allocated.empty()){
+    if (Type::allocated.empty()) {
         Type::gen_all_instances();
     }
     return Type::allocated[PTR].get();
@@ -81,11 +80,13 @@ Type *IRGen::Type::getArray(Type *ty, unsigned int arraysize) {
     return res;
 }
 
-Type::Type(P_TYPE _type): type(_type), isArray(false), arraysize(0), ele_type(_type) {
+Type::Type(P_TYPE _type) : type(_type), isArray(false), arraysize(0), ele_type(_type) {
     // complete
 }
 
-Type::Type(Type* _type, unsigned int _arraysize) : type(_arraysize != 0 ? PTR : _type->get_type()), isArray(_arraysize!=0), arraysize(_arraysize), ele_type(_type->get_type()) {
+Type::Type(Type *_type, unsigned int _arraysize) : type(_arraysize != 0 ? PTR : _type->get_type()),
+                                                   isArray(_arraysize != 0), arraysize(_arraysize),
+                                                   ele_type(_type->get_type()) {
     // complete
 }
 
@@ -146,16 +147,15 @@ bool Type::isArrayType() const {
 
 Type *Type::get_element_type() const {
     assert(this->isArray && "Getting ElementType from Non-Array Type");
-    if( Type::allocated.empty()){
+    if (Type::allocated.empty()) {
         Type::gen_all_instances();
     }
     return Type::allocated[this->ele_type].get();
 }
 
 
-
-
 std::vector<std::unique_ptr<Constant> > Constant::const_list;
+
 Constant::Constant(Type *ty) {
     type = ty;
 }
@@ -172,7 +172,7 @@ template<class T>
 IRBase *Constant::get(Type *ty, T val) {
     auto tmp = new Constant(ty);
     Constant::const_list.push_back(std::unique_ptr<Constant>(tmp));
-    switch(ty->get_type()){
+    switch (ty->get_type()) {
         case INT32:
             tmp->value.int_val = val;
             break;
@@ -191,35 +191,40 @@ IRBase *Constant::get(Type *ty, T val) {
 
 std::vector<std::unique_ptr<IRBase> > IRBase::base_list;
 
-IRBase::IRBase(IR_TYPE type, Inst *val): inst(nullptr), constant(nullptr), allo(nullptr), arg(nullptr), global(nullptr), type(nullptr) {
+IRBase::IRBase(IR_TYPE type, Inst *val) : inst(nullptr), constant(nullptr), allo(nullptr), arg(nullptr),
+                                          global(nullptr), type(nullptr) {
     ir_type = type;
     inst = val;
 
     this->type = val->get_type();
 }
 
-IRBase::IRBase(IR_TYPE type, Constant *val): inst(nullptr), constant(nullptr), allo(nullptr), arg(nullptr), global(nullptr), type(nullptr) {
+IRBase::IRBase(IR_TYPE type, Constant *val) : inst(nullptr), constant(nullptr), allo(nullptr), arg(nullptr),
+                                              global(nullptr), type(nullptr) {
     ir_type = IR_VALUE;
     constant = val;
 
     this->type = val->get_type();
 }
 
-IRBase::IRBase(IR_TYPE type, Alloca *val): inst(nullptr), constant(nullptr), allo(nullptr), arg(nullptr), global(nullptr), type(nullptr) {
+IRBase::IRBase(IR_TYPE type, Alloca *val) : inst(nullptr), constant(nullptr), allo(nullptr), arg(nullptr),
+                                            global(nullptr), type(nullptr) {
     ir_type = IR_ALLOCA;
     allo = val;
 
     this->type = val->get_type();
 }
 
-IRBase::IRBase(IR_TYPE type, Arg *val): inst(nullptr), constant(nullptr), allo(nullptr), arg(nullptr), global(nullptr), type(nullptr) {
+IRBase::IRBase(IR_TYPE type, Arg *val) : inst(nullptr), constant(nullptr), allo(nullptr), arg(nullptr), global(nullptr),
+                                         type(nullptr) {
     ir_type = IR_ARG;
     arg = val;
 
     this->type = val->get_type();
 }
 
-IRBase::IRBase(IR_TYPE type, GlobalVariable *val): inst(nullptr), constant(nullptr), allo(nullptr), arg(nullptr), global(nullptr), type(nullptr) {
+IRBase::IRBase(IR_TYPE type, GlobalVariable *val) : inst(nullptr), constant(nullptr), allo(nullptr), arg(nullptr),
+                                                    global(nullptr), type(nullptr) {
     ir_type = IR_GLOBAL_VAR;
 
     global = val;
@@ -239,31 +244,31 @@ IRBase *IRBase::CreateIRBase(IR_TYPE type, Constant *val) {
 }
 
 Inst *IRBase::get_inst() const {
-    if(ir_type != IR_INST){
-        std::cout << "non-Inst IR Node interpreted as Inst IR Node!" <<std::endl;
+    if (ir_type != IR_INST) {
+        std::cout << "non-Inst IR Node interpreted as Inst IR Node!" << std::endl;
         exit(1);
     }
     return inst;
 }
 
 Alloca *IRBase::get_alloca() const {
-    if(ir_type != IR_ALLOCA){
-        std::cout << "non-Alloca IR Node interpreted as Alloca IR Node!" <<std::endl;
+    if (ir_type != IR_ALLOCA) {
+        std::cout << "non-Alloca IR Node interpreted as Alloca IR Node!" << std::endl;
         exit(1);
     }
     return allo;
 }
 
 Constant *IRBase::get_constant() const {
-    if(ir_type != IR_VALUE){
-        std::cout << "non-Value IR Node interpreted as Value IR Node!" <<std::endl;
+    if (ir_type != IR_VALUE) {
+        std::cout << "non-Value IR Node interpreted as Value IR Node!" << std::endl;
         exit(1);
     }
     return constant;
 }
 
 const std::string &IRBase::get_name() const {
-    switch(this->ir_type){
+    switch (this->ir_type) {
         case IR_VALUE:
             return constant->get_name();
             break;
@@ -294,7 +299,7 @@ IRBase *IRBase::CreateIRBase(IR_TYPE type, Alloca *val) {
 }
 
 std::string IRBase::get_value() const {
-    switch(this->ir_type){
+    switch (this->ir_type) {
         case IR_VALUE:
             return this->constant->get_value();
         case IR_INST:
@@ -326,8 +331,6 @@ IRBase *IRBase::CreateIRBase(IR_TYPE type, GlobalVariable *val) {
 }
 
 
-
-
 std::vector<std::unique_ptr<FunctionType>> FunctionType::list;
 
 std::vector<Type *> &FunctionType::get_params() {
@@ -354,7 +357,7 @@ FunctionType::FunctionType(Type *ret_ty, std::vector<Type *> &params) : params(p
     // complete
 }
 
-FunctionType::FunctionType(Type *ret_ty): ret(ret_ty) {
+FunctionType::FunctionType(Type *ret_ty) : ret(ret_ty) {
     // complete
 }
 
@@ -383,9 +386,9 @@ std::vector<std::unique_ptr<Arg> >::iterator Function::arg_end() {
 }
 
 
-void Function::add_block(BasicBlock * b) {
-    for( auto& bl : this->b_list)
-        if(bl->get_name() == name){
+void Function::add_block(BasicBlock *b) {
+    for (auto &bl: this->b_list)
+        if (bl->get_name() == name) {
             std::cout << "BasicBlocks name repetition." << std::endl;
             exit(1);
         }
@@ -395,9 +398,9 @@ void Function::add_block(BasicBlock * b) {
 Linkage Function::ExternalLinkage = ExternalLinkage;
 Linkage Function::InternalLinkage = InternalLinkage;
 
-Function::Function(FunctionType *ty, const std::string &_name, Linkage _link):
-    link(_link), v_reg_assigned(0), type(ty), name(_name) {
-    for( auto &i: ty->get_params()){
+Function::Function(FunctionType *ty, const std::string &_name, Linkage _link) :
+        link(_link), v_reg_assigned(0), type(ty), name(_name) {
+    for (auto &i: ty->get_params()) {
         arg_list.push_back(std::make_unique<Arg>(i));
     }
 }
@@ -407,7 +410,7 @@ unsigned int &Function::get_reg() {
 }
 
 Alloca *Function::get_alloca(const std::string &name) {
-    if(this->alloca_list.find(name) == this->alloca_list.end())
+    if (this->alloca_list.find(name) == this->alloca_list.end())
         return nullptr;
     else
         return this->alloca_list.find(name)->second;
@@ -415,16 +418,15 @@ Alloca *Function::get_alloca(const std::string &name) {
 
 void Function::add_alloca(Alloca *ptr) {
     auto name = ptr->get_name();
-    if(this->alloca_list.find(name) != this->alloca_list.end()){
+    if (this->alloca_list.find(name) != this->alloca_list.end()) {
         std::cout << "Internal Alloca name repetition" << std::endl;
         assert(0);
         exit(1);
-    }
-    else
+    } else
         this->alloca_list[name] = ptr;
 }
 
-FunctionType *Function::get_func_type() const{
+FunctionType *Function::get_func_type() const {
     return this->type;
 }
 
@@ -433,7 +435,7 @@ const std::string &Arg::get_name() {
     return this->name;
 }
 
-void Arg::set_name(const std::string& n) {
+void Arg::set_name(const std::string &n) {
     this->name = n;
 }
 
@@ -446,7 +448,7 @@ Type *Arg::get_type() const {
 }
 
 std::string Arg::get_value() {
-    return '%'+this->name;
+    return '%' + this->name;
 }
 
 
@@ -456,6 +458,7 @@ BasicBlock::BasicBlock(const std::string &_name, Function *func) : name(_name), 
     this->range[1] = 0;
     // complete
 }
+
 BasicBlock *BasicBlock::Create(const std::string &name, Function *function) {
     auto tmp = new BasicBlock(name, function);
     function->add_block(tmp);
@@ -488,7 +491,7 @@ const unsigned int *BasicBlock::get_v_reg_range() const {
 }
 
 void BasicBlock::set_v_reg_range(unsigned int v) {
-    if( this->range[0] == this->range[1])
+    if (this->range[0] == this->range[1])
         this->range[0] = v;
     else
         this->range[1] = v;
@@ -497,7 +500,8 @@ void BasicBlock::set_v_reg_range(unsigned int v) {
 
 std::list<std::unique_ptr<Alloca>> Alloca::alloca_list;
 
-Alloca::Alloca(Type *ty, const std::string &_name, bool isConstant): isConst(isConstant),initialized(false), type(ty), name(_name), v_reg(0) {}
+Alloca::Alloca(Type *ty, const std::string &_name, bool isConstant) : isConst(isConstant), initialized(false), type(ty),
+                                                                      name(_name), v_reg(0) {}
 
 Alloca *Alloca::Create(Type *ty, const std::string &name, bool isConstant) {
     auto res = new Alloca(ty, name, isConstant);
@@ -506,7 +510,7 @@ Alloca *Alloca::Create(Type *ty, const std::string &name, bool isConstant) {
 }
 
 
-Alloca::Alloca(Type *ty, const std::string &_name, IRBase *_val): isConst(true), type(ty), name(_name), v_reg(0)  {
+Alloca::Alloca(Type *ty, const std::string &_name, IRBase *_val) : isConst(true), type(ty), name(_name), v_reg(0) {
     // complete
 }
 
@@ -516,8 +520,8 @@ Alloca::Alloca(Type *ty, const std::string &_name, IRBase *_val): isConst(true),
  */
 void Alloca::Kill(Alloca *ptr) {
     auto iter = Alloca::alloca_list.begin();
-    for( ; iter!= Alloca::alloca_list.end(); iter++){
-        if( iter->get() == ptr){
+    for (; iter != Alloca::alloca_list.end(); iter++) {
+        if (iter->get() == ptr) {
             Alloca::alloca_list.erase(iter);
             break;
         }
@@ -539,7 +543,7 @@ const std::string &Alloca::get_name() const {
 
 
 std::string Alloca::get_value() {
-    return '%'+this->name;
+    return '%' + this->name;
 }
 
 bool Alloca::isConstant() const {
@@ -549,15 +553,16 @@ bool Alloca::isConstant() const {
 bool Alloca::isInitialized() const {
     return this->initialized;
 }
+
 void Alloca::Initialize() {
     assert(!this->initialized);
     this->initialized = true;
 }
 
 std::string Alloca::print_type() const {
-    return Type::isPtr(this->type) ? this->type->print()+(this->type->isArrayType() ? "*" : "") : this->type->print()+'*';
+    return Type::isPtr(this->type) ? this->type->print() + (this->type->isArrayType() ? "*" : "") :
+           this->type->print() + '*';
 }
-
 
 
 // TODO: only consider type of int and bool
@@ -565,7 +570,7 @@ Constant *Constant::Create(ARITH_TYPE op, Constant *lhs, Constant *rhs) {
     int res = Type::isInt32(lhs->get_type()) ? lhs->value.int_val : lhs->value.bool_val;
     int operand = rhs != nullptr ? Type::isInt32(rhs->get_type()) ? rhs->value.int_val : rhs->value.bool_val : 0;
     bool resb;
-    switch(op){
+    switch (op) {
         case IR_ADD:
             res = res + operand;
             break;
@@ -583,17 +588,17 @@ Constant *Constant::Create(ARITH_TYPE op, Constant *lhs, Constant *rhs) {
             break;
         case IR_NEG:
             resb = (res == 0);
-            return Constant::get(Type::getInt1(), resb)->dyn_cast<Constant*>();
+            return Constant::get(Type::getInt1(), resb)->dyn_cast<Constant *>();
             break;
     }
-    return Constant::get(Type::getInt32(), res)->dyn_cast<Constant*>();
+    return Constant::get(Type::getInt32(), res)->dyn_cast<Constant *>();
 }
 
 Constant *Constant::Create(CMP_TYPE op, Constant *lhs, Constant *rhs) {
     int l = Type::isInt32(lhs->get_type()) ? lhs->value.int_val : lhs->value.bool_val;
     int operand = rhs != nullptr ? Type::isInt32(rhs->get_type()) ? rhs->value.int_val : rhs->value.bool_val : 0;
     bool res;
-    switch(op){
+    switch (op) {
         case CMP_EQ:
             res = l == operand;
             break;
@@ -613,14 +618,14 @@ Constant *Constant::Create(CMP_TYPE op, Constant *lhs, Constant *rhs) {
             res = l >= operand;
             break;
     }
-    return Constant::get(Type::getInt1(), res)->dyn_cast<Constant*>();
+    return Constant::get(Type::getInt1(), res)->dyn_cast<Constant *>();
 }
 
 Constant *Constant::Create(LG_TYPE op, Constant *lhs, Constant *rhs) {
     auto l = Type::isInt32(lhs->get_type()) ? lhs->value.int_val : lhs->value.bool_val;
     auto operand = rhs != nullptr ? Type::isInt32(rhs->get_type()) ? rhs->value.int_val : rhs->value.bool_val : 0;
     bool res;
-    switch(op){
+    switch (op) {
         case LG_AND:
             res = l && operand;
             break;
@@ -628,11 +633,11 @@ Constant *Constant::Create(LG_TYPE op, Constant *lhs, Constant *rhs) {
             res = l || operand;
             break;
     }
-    return Constant::get(Type::getInt1(), res)->dyn_cast<Constant*>();
+    return Constant::get(Type::getInt1(), res)->dyn_cast<Constant *>();
 }
 
 std::string Constant::get_value() {
-    switch(this->type->get_type()){
+    switch (this->type->get_type()) {
         case INT32:
             return std::to_string(this->value.int_val);
         case INT1:
@@ -661,7 +666,11 @@ bool GlobalVariable::isConstant() const {
     return this->isConst;
 }
 
-GlobalVariable::GlobalVariable(Type *ty, bool constant, IRBase *_val, const std::string &ident): type(ty), isConst(constant), initialized(true), val(_val), name(ident) {
+GlobalVariable::GlobalVariable(Type *ty, bool constant, IRBase *_val, const std::string &ident) : type(ty),
+                                                                                                  isConst(constant),
+                                                                                                  initialized(true),
+                                                                                                  val(_val),
+                                                                                                  name(ident) {
     // complete
 }
 
@@ -675,7 +684,7 @@ void GlobalVariable::Initialize() {
 }
 
 std::string GlobalVariable::get_value() {
-    return '@'+this->name;
+    return '@' + this->name;
 }
 
 std::string GlobalVariable::get_initial_value() {
@@ -683,7 +692,7 @@ std::string GlobalVariable::get_initial_value() {
 }
 
 std::string GlobalVariable::print_type() const {
-    assert(0 && "GlobalVariable::print_type() undefined!" );
+    assert(0 && "GlobalVariable::print_type() undefined!");
     return "";
 }
 

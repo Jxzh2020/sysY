@@ -43,8 +43,7 @@ std::string UnaryExpAST::astJson(int size) {
         children.push_back(Json("Function Name", {Escape(ident)}, sizeplus(size)));
         if (!params.empty()) { // no parameters
             std::vector<std::string> paras;
-            for (auto &p : params)
-            {
+            for (auto &p: params) {
                 paras.push_back(p->astJson(sizeplus(size)));
             }
             children.push_back(Json("Parameters", paras, sizeplus(size)));

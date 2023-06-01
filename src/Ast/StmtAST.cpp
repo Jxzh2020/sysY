@@ -5,8 +5,7 @@
 #include "Ast/StmtAST.h"
 #include "Ast/BaseAST.h"
 
-std::string StmtAST::astJson(int size)
-{
+std::string StmtAST::astJson(int size) {
     // enum {
     //     ASSIGN,
     //     EXP,
@@ -29,11 +28,10 @@ std::string StmtAST::astJson(int size)
             op = "Assign";
             children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
             children.push_back(Json("Expression", {Exp->astJson(sizeplus(size))}, sizeplus(size)));
-            children.push_back(Json("Load Value",{LVal->astJson(sizeplus(size))}, sizeplus(size)));
+            children.push_back(Json("Load Value", {LVal->astJson(sizeplus(size))}, sizeplus(size)));
             break;
         case EXP:
-            if (Exp != nullptr)
-            {
+            if (Exp != nullptr) {
                 op = "Expression";
                 children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
                 children.push_back(Json("Expression", {Exp->astJson(sizeplus(size))}, sizeplus(size)));
@@ -48,22 +46,18 @@ std::string StmtAST::astJson(int size)
             op = "Return";
             children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
             // return ; void
-            if (Exp == nullptr)
-            {
+            if (Exp == nullptr) {
                 children.push_back(Json("Expression", {Escape("void")}, sizeplus(size)));
-            }
-            else
-            {
+            } else {
                 children.push_back(Json("Expression", {Exp->astJson(sizeplus(size))}, sizeplus(size)));
             }
             break;
         case IF:
             op = "If";
-            children.push_back(Json("Operation", {Escape(op)},sizeplus(size)));
+            children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
             // has only if stmt, false_bb is the next bb.
             children.push_back(Json("If Statement", {if_stmt->astJson(sizeplus(size))}, sizeplus(size)));
-            if (else_stmt != nullptr)
-            {
+            if (else_stmt != nullptr) {
                 children.push_back(Json("Else Statement", {else_stmt->astJson(sizeplus(size))}, sizeplus(size)));
             }
             break;
@@ -75,20 +69,18 @@ std::string StmtAST::astJson(int size)
         case BREAK:
             op = "Break";
             children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
-            if(!IR::get()->isInWhile()){
+            if (!IR::get()->isInWhile()) {
                 children.push_back(Json("Break Condition", {Escape("break not in loop")}, sizeplus(size)));
-            }
-            else{
+            } else {
                 children.push_back(Json("Break Condition", {Escape("break in loop")}, sizeplus(size)));
             }
             break;
         case CONTINUE:
             op = "Continue";
             children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
-            if(!IR::get()->isInWhile()){
+            if (!IR::get()->isInWhile()) {
                 children.push_back(Json("Continue Condition", {Escape("continue not in loop")}, sizeplus(size)));
-            }
-            else{
+            } else {
                 children.push_back(Json("Continue Condition", {Escape("continue in loop")}, sizeplus(size)));
             }
             break;
@@ -177,7 +169,7 @@ IRGen::IRBase *StmtAST::codegen() {
                 else_stmt->codegen();
                 if (IR::get()->hasBranchAtEnd()) {
                     // false_bb 已经结束了， 取消末尾branch标识
-                    if(!isEndBranch)
+                    if (!isEndBranch)
                         IR::get()->ClearBranch();
                 }
                     // 只有在末尾不是 break 或者 continue 的时候，才设置 false_bb 的默认跳转
@@ -252,7 +244,7 @@ IRGen::IRBase *StmtAST::bool_convert() const {
     }
         // not a boolean type
     else {
-        return IR::get()->getBuilder()->CreateICmpNE(res, IRGen::Constant::get(IRGen::Type::getInt32(),0));
+        return IR::get()->getBuilder()->CreateICmpNE(res, IRGen::Constant::get(IRGen::Type::getInt32(), 0));
     }
 }
 

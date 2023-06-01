@@ -110,7 +110,8 @@ M->print(OS, nullptr); // print LLVM IR to output stream
 
 ### how to lookup an alloca value safely in llvm ir using c++ api?
 
-To lookup an alloca value safely in llvm ir using c++ api, you need to cast the IRGen::Value* to IRGen::AllocaInst* using
+To lookup an alloca value safely in llvm ir using c++ api, you need to cast the IRGen::Value* to IRGen::AllocaInst*
+using
 the LLVM RTTI system1. For example:
 
 ```cpp

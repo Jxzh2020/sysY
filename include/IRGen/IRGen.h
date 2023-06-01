@@ -23,31 +23,48 @@ namespace IRGen {
 
     // declare classes
     class Module;
+
     class Builder;
+
     class IRBase;
+
     class Type;
 
     class Constant;
 
     class BasicBlock;
+
     class AllocaInst;
+
     class FunctionType;
+
     class Function;
+
     class Arg;
+
     class GlobalVariable;
+
     class Alloca;
 
     /**
      *  For v reg and operation mapping
      */
     class Inst;
+
     class BranchInst;
+
     class ArithInst;
+
     class AllocaInst;
+
     class CmpInst;
+
     class LogicInst;
+
     class RetInst;
+
     class CastInst;
+
     class GEPInst;
 
 
@@ -114,12 +131,18 @@ namespace IRGen {
 
     class Module {
     public:
-        Module(const std::string& name);
-        [[nodiscard]] IRBase* getGlobalVariable(const std::string& name) const;
-        void add_func(const std::string&, Function*);
-        void add_variable(GlobalVariable* var);
-        Function* get_function(const std::string& name);
+        Module(const std::string &name);
+
+        [[nodiscard]] IRBase *getGlobalVariable(const std::string &name) const;
+
+        void add_func(const std::string &, Function *);
+
+        void add_variable(GlobalVariable *var);
+
+        Function *get_function(const std::string &name);
+
         std::stringstream print();
+
     private:
         std::string module_name;
         std::list<std::unique_ptr<Function>> func_list;
@@ -135,30 +158,38 @@ namespace IRGen {
     class Builder {
     public:
         Builder();
-        IRBase* CreateBr( BasicBlock* Des);
-        IRBase* CreateConBr( IRBase* condition, BasicBlock* true_b, BasicBlock* false_b);
 
-        IRBase* CreateAdd( IRBase* LHS, IRBase* RHS);
-        IRBase* CreateSub( IRBase* LHS, IRBase* RHS);
-        IRBase* CreateNeg( IRBase* LHS);
+        IRBase *CreateBr(BasicBlock *Des);
 
-        IRBase* CreateMul( IRBase* LHS, IRBase* RHS);
-        IRBase* CreateSDiv( IRBase* LHS, IRBase* RHS);
-        IRBase* CreateSRem( IRBase* LHS, IRBase* RHS);
+        IRBase *CreateConBr(IRBase *condition, BasicBlock *true_b, BasicBlock *false_b);
+
+        IRBase *CreateAdd(IRBase *LHS, IRBase *RHS);
+
+        IRBase *CreateSub(IRBase *LHS, IRBase *RHS);
+
+        IRBase *CreateNeg(IRBase *LHS);
+
+        IRBase *CreateMul(IRBase *LHS, IRBase *RHS);
+
+        IRBase *CreateSDiv(IRBase *LHS, IRBase *RHS);
+
+        IRBase *CreateSRem(IRBase *LHS, IRBase *RHS);
 
         /**
          *  kind of complicated here, builder has to check name repetition,
          *  if there is, rename the alloca.
          */
-        IRBase* CreateAlloca( Type* ty, const std::string& name, bool isConstant = false);
-        IRBase* CreateStore( IRBase* val, IRBase* ptr);
-        IRBase* CreateStore( Arg* val, IRBase* ptr);
+        IRBase *CreateAlloca(Type *ty, const std::string &name, bool isConstant = false);
+
+        IRBase *CreateStore(IRBase *val, IRBase *ptr);
+
+        IRBase *CreateStore(Arg *val, IRBase *ptr);
 
         // arg load is not supported. Since arg is first translated to alloca implicitly,
         // arg is only stored into alloca
-        IRBase* CreateLoad( IRBase* ptr);
+        IRBase *CreateLoad(IRBase *ptr);
 
-        IRBase* CreateGEP(Type* aggragate_type, IRBase* arrayalloc, std::pair<IRBase*, IRBase*> indices);
+        IRBase *CreateGEP(Type *aggragate_type, IRBase *arrayalloc, std::pair<IRBase *, IRBase *> indices);
 
         /**
          *
@@ -169,31 +200,41 @@ namespace IRGen {
          * @param name the gl name
          * @return the GlobalVariable wrapped in IRBase
          */
-        IRBase* CreateGlobalVariable(Module* _module, Type* ty, bool isConstant, IRBase* Initializer, const std::string& name );
+        IRBase *
+        CreateGlobalVariable(Module *_module, Type *ty, bool isConstant, IRBase *Initializer, const std::string &name);
 
-        IRBase* CreateICmpSLT( IRBase* LHS, IRBase* RHS);
-        IRBase* CreateICmpSGT( IRBase* LHS, IRBase* RHS);
-        IRBase* CreateICmpSLE( IRBase* LHS, IRBase* RHS);
-        IRBase* CreateICmpSGE( IRBase* LHS, IRBase* RHS);
-        IRBase* CreateICmpEQ( IRBase* LHS, IRBase* RHS);
-        IRBase* CreateICmpNE( IRBase* LHS, IRBase* RHS);
+        IRBase *CreateICmpSLT(IRBase *LHS, IRBase *RHS);
 
-        IRBase* CreateLogicalOr( IRBase* LHS, IRBase* RHS);
-        IRBase* CreateLogicalAnd( IRBase* LHS, IRBase* RHS);
+        IRBase *CreateICmpSGT(IRBase *LHS, IRBase *RHS);
 
-        IRBase* CreateRetVoid();
-        IRBase* CreateRet( IRBase* val);
+        IRBase *CreateICmpSLE(IRBase *LHS, IRBase *RHS);
 
-        IRBase* CreateCall( Function* fun);
-        IRBase* CreateCall( Function* fun , std::vector<IRBase*> args);
+        IRBase *CreateICmpSGE(IRBase *LHS, IRBase *RHS);
 
-        BasicBlock* SetInsertPoint( BasicBlock* basicblock);
+        IRBase *CreateICmpEQ(IRBase *LHS, IRBase *RHS);
 
-        IRBase* CreateLifetimeStart( Alloca* );
-        IRBase* CreateLifetimeEnd( Alloca*);
+        IRBase *CreateICmpNE(IRBase *LHS, IRBase *RHS);
+
+        IRBase *CreateLogicalOr(IRBase *LHS, IRBase *RHS);
+
+        IRBase *CreateLogicalAnd(IRBase *LHS, IRBase *RHS);
+
+        IRBase *CreateRetVoid();
+
+        IRBase *CreateRet(IRBase *val);
+
+        IRBase *CreateCall(Function *fun);
+
+        IRBase *CreateCall(Function *fun, std::vector<IRBase *> args);
+
+        BasicBlock *SetInsertPoint(BasicBlock *basicblock);
+
+        IRBase *CreateLifetimeStart(Alloca *);
+
+        IRBase *CreateLifetimeEnd(Alloca *);
 
     private:
-        BasicBlock* current_at_bb;
+        BasicBlock *current_at_bb;
 
     };
 
@@ -203,19 +244,27 @@ namespace IRGen {
      */
     class Type {
     public:
-        static Type* getInt32();
-        static Type* getInt1();
-        static Type* getVoid();
-        static Type* getPtr();
-        static Type* getArray(Type* ty, unsigned int arraysize);
+        static Type *getInt32();
 
-        static bool isInt32(Type* ty);
-        static bool isInt1(Type* ty);
-        static bool isVoid(Type* ty);
-        static bool isPtr(Type* ty);
+        static Type *getInt1();
+
+        static Type *getVoid();
+
+        static Type *getPtr();
+
+        static Type *getArray(Type *ty, unsigned int arraysize);
+
+        static bool isInt32(Type *ty);
+
+        static bool isInt1(Type *ty);
+
+        static bool isVoid(Type *ty);
+
+        static bool isPtr(Type *ty);
+
         bool isArrayType() const;
 
-        Type* get_element_type() const;
+        Type *get_element_type() const;
 
         // need modification when add self-defined type
         P_TYPE get_type();
@@ -225,24 +274,31 @@ namespace IRGen {
          * @return
          */
         std::string print() const;
+
         /**
          * if the type is the same, do not print anything, but record the v_reg
          * @param from_inst the value to cast from
          * @param to_type the type cast to
          * @return cast instruction
          */
-        static Inst* Cast(Constant* from, Type* to_type);
-        static Inst* Cast(Inst* from_inst, Type* to_type);
-        static Inst* Cast(IRBase* from, Type* to);
+        static Inst *Cast(Constant *from, Type *to_type);
+
+        static Inst *Cast(Inst *from_inst, Type *to_type);
+
+        static Inst *Cast(IRBase *from, Type *to);
+
     private:
         /**
          * Array Type's Type representation is: P_TYPE = PTR, and arraysize > 0;
          * @param ele_type if is array type, this is the element type, if not, it's the same as type
          * @param _arraysize if > 0, this is array type
          */
-        explicit Type(Type* ele_type, unsigned int _arraysize);
+        explicit Type(Type *ele_type, unsigned int _arraysize);
+
         explicit Type(P_TYPE);
+
         static void gen_all_instances();
+
         static std::vector<std::unique_ptr<Type> > allocated;
         static std::vector<std::unique_ptr<Type> > compound;
         P_TYPE type;
@@ -254,15 +310,21 @@ namespace IRGen {
     class Inst {
     public:
         Inst();
+
         /**
          *  Really funny thing!
          */
         virtual ~Inst() {}
+
         virtual std::string print() = 0;
-        virtual Type* get_type() const = 0;
+
+        virtual Type *get_type() const = 0;
+
         unsigned int getVReg() const;
+
         bool isConstant() const;
-        Constant* get_con_ptr() const;
+
+        Constant *get_con_ptr() const;
 
         /**
          * get the internal representation output, v_reg or constant
@@ -278,7 +340,7 @@ namespace IRGen {
         static std::vector<std::unique_ptr<Inst> > inst_list;
         unsigned int v_reg;
         bool isConst;
-        Constant* con_ptr;
+        Constant *con_ptr;
         std::string output;
     };
 
@@ -291,16 +353,22 @@ namespace IRGen {
      */
     class IRBase {
     public:
-        [[nodiscard]] const std::string& get_name() const;
-        [[nodiscard]] Type* get_type();
+        [[nodiscard]] const std::string &get_name() const;
+
+        [[nodiscard]] Type *get_type();
+
         std::string get_value() const;
 
 
-        static IRBase* CreateIRBase(IR_TYPE type, Inst* val);
-        static IRBase* CreateIRBase(IR_TYPE type, Constant* val);
-        static IRBase* CreateIRBase(IR_TYPE type, Alloca* val);
-        static IRBase* CreateIRBase(IR_TYPE type, Arg* val);
-        static IRBase* CreateIRBase(IR_TYPE type, GlobalVariable* val);
+        static IRBase *CreateIRBase(IR_TYPE type, Inst *val);
+
+        static IRBase *CreateIRBase(IR_TYPE type, Constant *val);
+
+        static IRBase *CreateIRBase(IR_TYPE type, Alloca *val);
+
+        static IRBase *CreateIRBase(IR_TYPE type, Arg *val);
+
+        static IRBase *CreateIRBase(IR_TYPE type, GlobalVariable *val);
 
         /**
          *  An interesting dyn_cast based on composition
@@ -308,73 +376,75 @@ namespace IRGen {
          * @tparam U the des-type
          * @return
          */
-        template <class U>
+        template<class U>
         U dyn_cast() {
-            switch(this->ir_type){
+            switch (this->ir_type) {
                 case IR_VALUE:
-                    if(typeid(U) != typeid(Constant*))
+                    if (typeid(U) != typeid(Constant *))
                         return nullptr;
                     else
-                        return (U)constant;
+                        return (U) constant;
                     break;
                 case IR_ALLOCA:
-                    if(typeid(U) != typeid(Alloca*))
+                    if (typeid(U) != typeid(Alloca *))
                         return nullptr;
                     else
-                        return (U)(allo);
+                        return (U) (allo);
                     break;
                 case IR_INST:
-                    if(typeid(U) != typeid(Inst*)){
-                        if(typeid(U) == typeid(Constant*)){
-                            return (U)this->inst->get_con_ptr();
-                        }
-                        else
+                    if (typeid(U) != typeid(Inst *)) {
+                        if (typeid(U) == typeid(Constant *)) {
+                            return (U) this->inst->get_con_ptr();
+                        } else
                             return nullptr;
-                    }
-                    else
-                        return (U)inst;
+                    } else
+                        return (U) inst;
                     break;
                 case IR_ARG:
-                    if(typeid(U) != typeid(Arg*))
+                    if (typeid(U) != typeid(Arg *))
                         return nullptr;
                     else
-                        return (U)(arg);
+                        return (U) (arg);
                     break;
                 case IR_GLOBAL_VAR:
-                    if(typeid(U) != typeid(GlobalVariable*))
+                    if (typeid(U) != typeid(GlobalVariable *))
                         return nullptr;
                     else
-                        return (U)(global);
+                        return (U) (global);
                     break;
             }
             std::cout << "IRBase::dyn_cast encounters unexpected error!" << std::endl;
             exit(1);
         }
+
         IR_TYPE get_ir_type() const;
+
     private:
-        [[nodiscard]] Inst* get_inst() const;
-        [[nodiscard]] Alloca* get_alloca() const;
-        [[nodiscard]] Constant* get_constant() const;
+        [[nodiscard]] Inst *get_inst() const;
 
-        explicit IRBase(IR_TYPE type, Inst* val);
+        [[nodiscard]] Alloca *get_alloca() const;
 
-        explicit IRBase(IR_TYPE type, Constant* val);
+        [[nodiscard]] Constant *get_constant() const;
 
-        explicit  IRBase(IR_TYPE type, Alloca* val);
+        explicit IRBase(IR_TYPE type, Inst *val);
 
-        explicit  IRBase(IR_TYPE type, Arg* val);
+        explicit IRBase(IR_TYPE type, Constant *val);
 
-        explicit  IRBase(IR_TYPE type, GlobalVariable* val);
+        explicit IRBase(IR_TYPE type, Alloca *val);
+
+        explicit IRBase(IR_TYPE type, Arg *val);
+
+        explicit IRBase(IR_TYPE type, GlobalVariable *val);
 
         static std::vector<std::unique_ptr<IRBase> > base_list;
 
-        Inst* inst;
-        Constant* constant;
-        Alloca* allo;
-        Arg* arg;
-        GlobalVariable* global;
+        Inst *inst;
+        Constant *constant;
+        Alloca *allo;
+        Arg *arg;
+        GlobalVariable *global;
 
-        Type* type;
+        Type *type;
         IR_TYPE ir_type;
     };
 
@@ -385,23 +455,29 @@ namespace IRGen {
     class Constant {
     public:
         template<class T>
-        static IRBase* get(Type* ty, T val);
+        static IRBase *get(Type *ty, T val);
 
-        static Constant* Create(ARITH_TYPE op, Constant* lhs, Constant* rhs);
-        static Constant* Create(CMP_TYPE op, Constant* lhs, Constant* rhs);
-        static Constant* Create(LG_TYPE op, Constant* lhs, Constant* rhs);
+        static Constant *Create(ARITH_TYPE op, Constant *lhs, Constant *rhs);
 
-        Type* get_type() const;
-        const std::string& get_name() const;
+        static Constant *Create(CMP_TYPE op, Constant *lhs, Constant *rhs);
+
+        static Constant *Create(LG_TYPE op, Constant *lhs, Constant *rhs);
+
+        Type *get_type() const;
+
+        const std::string &get_name() const;
+
         /**
          *
          * @return the literal value of Constant
          */
         std::string get_value();
+
     private:
-        explicit Constant(Type* ty);
+        explicit Constant(Type *ty);
+
         static std::vector<std::unique_ptr<Constant> > const_list;
-        Type* type;
+        Type *type;
         /**
          *  Usually name is empty, except const variable
          */
@@ -416,16 +492,22 @@ namespace IRGen {
 
     class FunctionType {
     public:
-        static FunctionType* get(Type* ret_ty, std::vector<Type*> params);
-        static FunctionType* get(Type* ret_ty);
-        std::vector<Type*>& get_params();
-        Type* get_ret_type();
+        static FunctionType *get(Type *ret_ty, std::vector<Type *> params);
+
+        static FunctionType *get(Type *ret_ty);
+
+        std::vector<Type *> &get_params();
+
+        Type *get_ret_type();
+
     private:
-        FunctionType(Type* ret_ty, std::vector<Type*>& params);
-        FunctionType(Type* ret_ty);
+        FunctionType(Type *ret_ty, std::vector<Type *> &params);
+
+        FunctionType(Type *ret_ty);
+
         static std::vector<std::unique_ptr<FunctionType>> list;
-        std::vector<Type*> params;
-        Type* ret;
+        std::vector<Type *> params;
+        Type *ret;
     };
 
     /**
@@ -441,77 +523,105 @@ namespace IRGen {
      */
     class BasicBlock {
     public:
-        static BasicBlock* Create( const std::string& name, Function* function);
+        static BasicBlock *Create(const std::string &name, Function *function);
+
         std::string print();
-        [[nodiscard]] const std::string& get_name() const;
-        void insert(Inst* );
-        Function* get_func();
-        unsigned int & get_func_reg();
+
+        [[nodiscard]] const std::string &get_name() const;
+
+        void insert(Inst *);
+
+        Function *get_func();
+
+        unsigned int &get_func_reg();
+
         bool isEmpty() const;
+
         void set_v_reg_range(unsigned int v);
-        const unsigned int* get_v_reg_range() const;
+
+        const unsigned int *get_v_reg_range() const;
+
     private:
         explicit BasicBlock(const std::string &name, Function *func);
+
         // TODO: not sure if Inst memory should be managed by BasicBlock
-        std::list<Inst* > inst_list;
-        std::list<Inst* >::iterator insert_point;
+        std::list<Inst *> inst_list;
+        std::list<Inst *>::iterator insert_point;
         std::string name;
-        Function* function;
+        Function *function;
         unsigned int range[2];
     };
 
     class Arg {
     public:
-        explicit Arg(Type*);
-        const std::string& get_name();
+        explicit Arg(Type *);
+
+        const std::string &get_name();
+
         std::string get_value();
+
         std::string print_type() const;
+
         std::string print_name() const;
-        void set_name(const std::string&);
-        Type* get_type() const;
+
+        void set_name(const std::string &);
+
+        Type *get_type() const;
+
     private:
         std::string name;
-        Type* type;
+        Type *type;
     };
 
     class Function {
     public:
 
     private:
-        explicit Function(FunctionType* ty, const std::string& name, Linkage link);
+        explicit Function(FunctionType *ty, const std::string &name, Linkage link);
 
         std::string print_define() const;
+
         std::string print_declare() const;
+
     public:
         std::string print();
+
         /**
          * @return (i32 %a, ...) or ()
          */
         std::string arg_print_all() const;
+
         /**
          *
          * @return (i32, ...) or ()
          */
         std::string arg_print_type() const;
-        static Function* Create(FunctionType* ty, Linkage link, const std::string& name, Module* module);
 
-        [[nodiscard]] const std::string& get_name() const;
+        static Function *Create(FunctionType *ty, Linkage link, const std::string &name, Module *module);
+
+        [[nodiscard]] const std::string &get_name() const;
 
         [[nodiscard]] bool arg_empty() const;
+
         std::vector<std::unique_ptr<Arg> >::iterator arg_begin();
+
         std::vector<std::unique_ptr<Arg> >::iterator arg_end();
-        unsigned int& get_reg();
+
+        unsigned int &get_reg();
         /**
          * TODO: Remember to define these two static member
          */
     public:
         static Linkage ExternalLinkage;
         static Linkage InternalLinkage;
-        void add_block(BasicBlock*);
 
-        Alloca* get_alloca(const std::string& name);
-        void add_alloca(Alloca* ptr);
-        FunctionType* get_func_type() const;
+        void add_block(BasicBlock *);
+
+        Alloca *get_alloca(const std::string &name);
+
+        void add_alloca(Alloca *ptr);
+
+        FunctionType *get_func_type() const;
 
     private:
         Linkage link;
@@ -520,30 +630,40 @@ namespace IRGen {
         std::list<std::unique_ptr<BasicBlock> > b_list;
 
         // mem2reg prepared here :>
-        std::unordered_map<std::string, Alloca* > alloca_list;
+        std::unordered_map<std::string, Alloca *> alloca_list;
 
-        FunctionType* type;
+        FunctionType *type;
         std::string name;
 
     };
+
     class GlobalVariable {
     public:
-        static IRBase* Create(Module* module, Type* ty, bool constant, IRBase* val, const std::string& name);
-        Type* get_type();
-        const std::string& get_name() const;
-        bool isConstant() const;
-        bool isInitialized() const;
-        void Initialize();
-        std::string print_type() const;
-        std::string get_value();
-        std::string get_initial_value();
-    private:
-        explicit GlobalVariable(Type* ty, bool constant, IRBase* val, const std::string& ident);
+        static IRBase *Create(Module *module, Type *ty, bool constant, IRBase *val, const std::string &name);
 
-        Type* type;
+        Type *get_type();
+
+        const std::string &get_name() const;
+
+        bool isConstant() const;
+
+        bool isInitialized() const;
+
+        void Initialize();
+
+        std::string print_type() const;
+
+        std::string get_value();
+
+        std::string get_initial_value();
+
+    private:
+        explicit GlobalVariable(Type *ty, bool constant, IRBase *val, const std::string &ident);
+
+        Type *type;
         bool isConst;
         bool initialized;
-        IRBase* val;
+        IRBase *val;
         std::string name;
 
     };
@@ -551,31 +671,45 @@ namespace IRGen {
 
     class Alloca {
         friend class GEPInst;
+
     public:
-        static Alloca* Create(Type* ty, const std::string& name, bool isConstant);
-        static void Kill(Alloca* ptr);
-        Type* get_type() const;
-        Type* get_element_type() const;
+        static Alloca *Create(Type *ty, const std::string &name, bool isConstant);
+
+        static void Kill(Alloca *ptr);
+
+        Type *get_type() const;
+
+        Type *get_element_type() const;
+
         /**
          *
          * @return the type in string form
          */
         std::string print_type() const;
-        const std::string& get_name() const;
+
+        const std::string &get_name() const;
+
         bool isConstant() const;
+
         bool isInitialized() const;
+
         void Initialize();
+
         /**
          *
          * @return the virtual register in string form.
          */
         std::string get_value();
+
     private:
         bool isConst;
         bool initialized;
-        Alloca(Type* ty, const std::string& name, bool isConstant);
-        Alloca(Type* ty, const std::string& name, IRBase* _val);
-        Type* type;
+
+        Alloca(Type *ty, const std::string &name, bool isConstant);
+
+        Alloca(Type *ty, const std::string &name, IRBase *_val);
+
+        Type *type;
         std::string name;
         unsigned int v_reg;
         static std::list<std::unique_ptr<Alloca>> alloca_list;
@@ -591,139 +725,194 @@ namespace IRGen {
 
 
 
-    class BranchInst: public Inst {
+    class BranchInst : public Inst {
     public:
         std::string print() override;
-        Type* get_type() const override;
+
+        Type *get_type() const override;
+
         std::string get_value() const override;
-        static Inst* Create(BasicBlock* Des);
-        static Inst* Create(IRBase* con, BasicBlock* t_des, BasicBlock* f_des);
+
+        static Inst *Create(BasicBlock *Des);
+
+        static Inst *Create(IRBase *con, BasicBlock *t_des, BasicBlock *f_des);
+
     private:
-        explicit BranchInst(BasicBlock* Des);
-        explicit BranchInst( IRBase* con, BasicBlock* t_des, BasicBlock* f_des);
+        explicit BranchInst(BasicBlock *Des);
+
+        explicit BranchInst(IRBase *con, BasicBlock *t_des, BasicBlock *f_des);
+
         bool isConBr;
-        BasicBlock* t_des;
-        BasicBlock* f_des;
-        IRBase* con;
+        BasicBlock *t_des;
+        BasicBlock *f_des;
+        IRBase *con;
     };
 
-    class CallInst: public Inst {
+    class CallInst : public Inst {
     public:
         std::string print() override;
-        Type* get_type() const override;
+
+        Type *get_type() const override;
+
         std::string get_value() const override;
-        static Inst* Create(unsigned int &st, Function* func, std::vector<IRBase *>& args);
+
+        static Inst *Create(unsigned int &st, Function *func, std::vector<IRBase *> &args);
+
     private:
-        explicit CallInst(unsigned int &st, Function* func, std::vector<IRBase *>& _args);
-        std::vector<IRBase*> args;
-        Function* func;
-        Type* ret_type;
+        explicit CallInst(unsigned int &st, Function *func, std::vector<IRBase *> &_args);
+
+        std::vector<IRBase *> args;
+        Function *func;
+        Type *ret_type;
     };
 
     /**
      *  lhs and rhs remain IRBase*, because maybe the operands are constant.
      */
-    class ArithInst: public Inst {
+    class ArithInst : public Inst {
     public:
         std::string get_value() const override;
+
         std::string print() override;
-        Type* get_type() const override;
+
+        Type *get_type() const override;
+
         static Inst *Create(unsigned int &st, ARITH_TYPE, IRBase *, IRBase *);
+
     private:
-        ArithInst(unsigned int &st, ARITH_TYPE, IRBase*, IRBase* );
+        ArithInst(unsigned int &st, ARITH_TYPE, IRBase *, IRBase *);
+
         ARITH_TYPE op;
-        IRBase* lhs;
-        IRBase* rhs;
+        IRBase *lhs;
+        IRBase *rhs;
     };
 
-    class AllocaInst: public Inst {
+    class AllocaInst : public Inst {
     public:
         std::string get_value() const override;
+
         std::string print() override;
-        Type* get_type() const override;
-        static Inst* Create(unsigned int &st, Type* ty, const std::string& name, bool isConstant);
-        static Inst* Store(unsigned int &st, IRBase* val, Alloca* ptr);
-        static Inst* Store(unsigned int &st, IRBase* val, GlobalVariable* ptr);
-        static Inst* Store(unsigned int &st, Arg* val, GlobalVariable* ptr);
-        static Inst* Store(unsigned int &st, Arg* val, Alloca* ptr);
-        static Inst* Load(unsigned int &st, Alloca* ptr);
-        static Inst* Load(unsigned int &st, GlobalVariable* ptr);
-        virtual Alloca* get_alloca();
+
+        Type *get_type() const override;
+
+        static Inst *Create(unsigned int &st, Type *ty, const std::string &name, bool isConstant);
+
+        static Inst *Store(unsigned int &st, IRBase *val, Alloca *ptr);
+
+        static Inst *Store(unsigned int &st, IRBase *val, GlobalVariable *ptr);
+
+        static Inst *Store(unsigned int &st, Arg *val, GlobalVariable *ptr);
+
+        static Inst *Store(unsigned int &st, Arg *val, Alloca *ptr);
+
+        static Inst *Load(unsigned int &st, Alloca *ptr);
+
+        static Inst *Load(unsigned int &st, GlobalVariable *ptr);
+
+        virtual Alloca *get_alloca();
+
     protected:
-        AllocaInst(): ptr(nullptr), gl_ptr(nullptr), op(ALLOCA_CREATE), val(nullptr) {}
+        AllocaInst() : ptr(nullptr), gl_ptr(nullptr), op(ALLOCA_CREATE), val(nullptr) {}
+
     private:
-        AllocaInst(unsigned int &st ,ALLOCA_TYPE op, Alloca* ptr, IRBase* val);
-        AllocaInst(unsigned int &st ,ALLOCA_TYPE op, GlobalVariable* ptr, IRBase* val);
-        AllocaInst(unsigned int &st ,ALLOCA_TYPE op, Alloca* ptr);
-        Alloca* ptr;
-        GlobalVariable* gl_ptr;
+        AllocaInst(unsigned int &st, ALLOCA_TYPE op, Alloca *ptr, IRBase *val);
+
+        AllocaInst(unsigned int &st, ALLOCA_TYPE op, GlobalVariable *ptr, IRBase *val);
+
+        AllocaInst(unsigned int &st, ALLOCA_TYPE op, Alloca *ptr);
+
+        Alloca *ptr;
+        GlobalVariable *gl_ptr;
         ALLOCA_TYPE op;
-        IRBase* val;
+        IRBase *val;
     };
 
-    class CmpInst: public Inst {
+    class CmpInst : public Inst {
     public:
         std::string get_value() const override;
+
         std::string print() override;
-        Type* get_type() const override;
-        static Inst* Create(unsigned int& st, CMP_TYPE _op, IRBase* lhs, IRBase* rhs);
+
+        Type *get_type() const override;
+
+        static Inst *Create(unsigned int &st, CMP_TYPE _op, IRBase *lhs, IRBase *rhs);
+
     private:
-        CmpInst(unsigned int& st, CMP_TYPE _op, IRBase* LHS, IRBase* RHS);
+        CmpInst(unsigned int &st, CMP_TYPE _op, IRBase *LHS, IRBase *RHS);
+
         CMP_TYPE op;
-        IRBase* lhs;
-        IRBase* rhs;
+        IRBase *lhs;
+        IRBase *rhs;
 
     };
 
-    class LogicInst: public Inst {
+    class LogicInst : public Inst {
     public:
         std::string get_value() const override;
+
         std::string print() override;
-        Type* get_type() const override;
-        static Inst* Create(unsigned int& st, LG_TYPE _op, IRBase* lhs, IRBase* rhs);
+
+        Type *get_type() const override;
+
+        static Inst *Create(unsigned int &st, LG_TYPE _op, IRBase *lhs, IRBase *rhs);
+
     private:
-        LogicInst(unsigned int& st, LG_TYPE _op, IRBase* lhs, IRBase* rhs);
+        LogicInst(unsigned int &st, LG_TYPE _op, IRBase *lhs, IRBase *rhs);
+
         LG_TYPE op;
-        IRBase* lhs;
-        IRBase* rhs;
+        IRBase *lhs;
+        IRBase *rhs;
 
     };
 
-    class RetInst: public Inst {
+    class RetInst : public Inst {
     public:
         std::string print() override;
-        Type* get_type() const override;
+
+        Type *get_type() const override;
+
         std::string get_value() const override;
-        static Inst* Create(IRBase* val = nullptr);
+
+        static Inst *Create(IRBase *val = nullptr);
+
     private:
-        explicit RetInst(IRBase* val);
-        IRBase* ret_val;
+        explicit RetInst(IRBase *val);
+
+        IRBase *ret_val;
     };
 
-    class CastInst: public Inst {
+    class CastInst : public Inst {
     public:
         std::string get_value() const override;
+
         std::string print() override;
-        Type* get_type() const override;
+
+        Type *get_type() const override;
     };
 
-    class GEPInst: public AllocaInst {
+    class GEPInst : public AllocaInst {
     public:
-        static Inst* Create(unsigned int &st, Type* aggragate_type, IRBase* arrayalloc, IRBase* base, IRBase* offset);
+        static Inst *Create(unsigned int &st, Type *aggragate_type, IRBase *arrayalloc, IRBase *base, IRBase *offset);
+
         std::string get_value() const override;
+
         std::string print() override;
-        Type* get_type() const override;
-        Alloca* get_alloca() override;
+
+        Type *get_type() const override;
+
+        Alloca *get_alloca() override;
+
     private:
-        explicit GEPInst(unsigned int &st, Type* aggragate_type, IRBase* arrayalloc, IRBase* base, IRBase* offset);
-        Type* array_type;
-        Alloca* alloca_array_ptr;
-        GlobalVariable* gl_array_ptr;
-        IRBase* base_index;
-        IRBase* offset_index;
+        explicit GEPInst(unsigned int &st, Type *aggragate_type, IRBase *arrayalloc, IRBase *base, IRBase *offset);
+
+        Type *array_type;
+        Alloca *alloca_array_ptr;
+        GlobalVariable *gl_array_ptr;
+        IRBase *base_index;
+        IRBase *offset_index;
         bool isAlloca;
         bool isInst;
-        Inst* alloca_load;
+        Inst *alloca_load;
     };
 
 

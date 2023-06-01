@@ -15,7 +15,7 @@ std::string ExpAST::astJson(int size) {
 
 IRGen::IRBase *ExpAST::codegen() {
     // only one candidate, skip this node
-    if(LgExp == nullptr)
+    if (LgExp == nullptr)
         return nullptr;
     return LgExp->codegen();
 
