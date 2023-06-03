@@ -114,7 +114,7 @@ IRBase *Builder::CreateAlloca(Type *ty, const std::string &name, bool isConstant
 }
 
 // type checking
-IRBase *Builder::CreateStore(IRBase *val, IRBase *ptr) {
+IRBase *Builder::CreateStore(IRBase *val, IRBase *ptr, bool force) {
     Inst *res;
     auto &st = this->current_at_bb->get_func_reg();
     current_at_bb->set_v_reg_range(st);
@@ -126,20 +126,20 @@ IRBase *Builder::CreateStore(IRBase *val, IRBase *ptr) {
                         << std::endl;
                 assert(0);
             } else {
-                res = AllocaInst::Store(st, val, ptr->dyn_cast<GlobalVariable *>());
+                res = AllocaInst::Store(st, val, ptr->dyn_cast<GlobalVariable *>(),force);
             }
 
         } else {
-            res = AllocaInst::Store(st, val, dynamic_cast<AllocaInst *>(ptr->dyn_cast<Inst *>())->get_alloca());
+            res = AllocaInst::Store(st, val, dynamic_cast<AllocaInst *>(ptr->dyn_cast<Inst *>())->get_alloca(),force);
         }
     } else {
-        res = AllocaInst::Store(st, val, ptr->dyn_cast<Alloca *>());
+        res = AllocaInst::Store(st, val, ptr->dyn_cast<Alloca *>(),force);
     }
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST, res);
 }
 
-IRBase *Builder::CreateStore(Arg *val, IRBase *ptr) {
+IRBase *Builder::CreateStore(Arg *val, IRBase *ptr, bool force) {
     Inst *res;
     auto &st = this->current_at_bb->get_func_reg();
     current_at_bb->set_v_reg_range(st);
@@ -149,10 +149,10 @@ IRBase *Builder::CreateStore(Arg *val, IRBase *ptr) {
                       << std::endl;
             exit(1);
         } else {
-            res = AllocaInst::Store(st, val, dynamic_cast<AllocaInst *>(ptr->dyn_cast<Inst *>())->get_alloca());
+            res = AllocaInst::Store(st, val, dynamic_cast<AllocaInst *>(ptr->dyn_cast<Inst *>())->get_alloca(),force);
         }
     } else {
-        res = AllocaInst::Store(st, val, ptr->dyn_cast<Alloca *>());
+        res = AllocaInst::Store(st, val, ptr->dyn_cast<Alloca *>(),force);
     }
     current_at_bb->insert(res);
     return IRBase::CreateIRBase(IR_INST, res);

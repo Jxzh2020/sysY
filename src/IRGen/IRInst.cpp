@@ -147,22 +147,22 @@ Inst *AllocaInst::Create(unsigned int &st, Type *ty, const std::string &name, bo
     return tmp;
 }
 
-Inst *AllocaInst::Store(unsigned int &st, IRBase *val, Alloca *ptr) {
-    auto tmp = new AllocaInst(st, ALLOCA_STORE, ptr, val);
+Inst *AllocaInst::Store(unsigned int &st, IRBase *val, Alloca *ptr, bool force) {
+    auto tmp = new AllocaInst(st, ALLOCA_STORE, ptr, val, force);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
 
     return tmp;
 }
 
-Inst *AllocaInst::Store(unsigned int &st, Arg *val, Alloca *ptr) {
-    auto tmp = new AllocaInst(st, ALLOCA_STORE, ptr, IRBase::CreateIRBase(IR_ARG, val));
+Inst *AllocaInst::Store(unsigned int &st, Arg *val, Alloca *ptr, bool force) {
+    auto tmp = new AllocaInst(st, ALLOCA_STORE, ptr, IRBase::CreateIRBase(IR_ARG, val), force);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
 
     return tmp;
 }
 
 Inst *AllocaInst::Load(unsigned int &st, Alloca *ptr) {
-    auto tmp = new AllocaInst(st, ALLOCA_LOAD, ptr, nullptr);
+    auto tmp = new AllocaInst(st, ALLOCA_LOAD, ptr, nullptr,false);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
     return tmp;
 }
@@ -171,7 +171,7 @@ Alloca *AllocaInst::get_alloca() {
     return ptr;
 }
 
-AllocaInst::AllocaInst(unsigned int &st, ALLOCA_TYPE _op, Alloca *_ptr, IRBase *_val) : ptr(_ptr), gl_ptr(nullptr),
+AllocaInst::AllocaInst(unsigned int &st, ALLOCA_TYPE _op, Alloca *_ptr, IRBase *_val, bool force) : ptr(_ptr), gl_ptr(nullptr),
                                                                                         op(_op), val(_val) {
 
     // alloca load store
@@ -187,7 +187,7 @@ AllocaInst::AllocaInst(unsigned int &st, ALLOCA_TYPE _op, Alloca *_ptr, IRBase *
     }
         // store
     else {
-        if (_ptr->isInitialized() && _ptr->isConstant()) {
+        if (!force && _ptr->isInitialized() && _ptr->isConstant()) {
             std::cout << " Const Alloca Store!" << std::endl;
             assert(0);
         }
@@ -218,15 +218,15 @@ Type *AllocaInst::get_type() const {
     }
 }
 
-Inst *AllocaInst::Store(unsigned int &st, IRBase *val, GlobalVariable *ptr) {
-    auto tmp = new AllocaInst(st, ALLOCA_STORE, ptr, val);
+Inst *AllocaInst::Store(unsigned int &st, IRBase *val, GlobalVariable *ptr, bool force) {
+    auto tmp = new AllocaInst(st, ALLOCA_STORE, ptr, val, force);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
 
     return tmp;
 }
 
-Inst *AllocaInst::Store(unsigned int &st, Arg *val, GlobalVariable *ptr) {
-    auto tmp = new AllocaInst(st, ALLOCA_STORE, ptr, IRBase::CreateIRBase(IR_ARG, val));
+Inst *AllocaInst::Store(unsigned int &st, Arg *val, GlobalVariable *ptr, bool force) {
+    auto tmp = new AllocaInst(st, ALLOCA_STORE, ptr, IRBase::CreateIRBase(IR_ARG, val), force);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
 
     return tmp;
@@ -234,13 +234,13 @@ Inst *AllocaInst::Store(unsigned int &st, Arg *val, GlobalVariable *ptr) {
 
 
 Inst *AllocaInst::Load(unsigned int &st, GlobalVariable *ptr) {
-    auto tmp = new AllocaInst(st, ALLOCA_LOAD, ptr, nullptr);
+    auto tmp = new AllocaInst(st, ALLOCA_LOAD, ptr, nullptr, false);
     Inst::inst_list.push_back(std::unique_ptr<Inst>(tmp));
 
     return tmp;
 }
 
-AllocaInst::AllocaInst(unsigned int &st, ALLOCA_TYPE _op, GlobalVariable *_ptr, IRBase *_val) : ptr(nullptr),
+AllocaInst::AllocaInst(unsigned int &st, ALLOCA_TYPE _op, GlobalVariable *_ptr, IRBase *_val, bool force) : ptr(nullptr),
                                                                                                 gl_ptr(_ptr), op(_op),
                                                                                                 val(_val) {
 
@@ -262,7 +262,7 @@ AllocaInst::AllocaInst(unsigned int &st, ALLOCA_TYPE _op, GlobalVariable *_ptr, 
     }
         // store
     else {
-        if (_ptr->isInitialized() && _ptr->isConstant()) {
+        if (!force && _ptr->isInitialized() && _ptr->isConstant()) {
             std::cout << " Const GlobalVariable Store!" << std::endl;
             assert(0);
         }

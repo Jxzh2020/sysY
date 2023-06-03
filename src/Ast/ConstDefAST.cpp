@@ -72,7 +72,7 @@ IRGen::IRBase *ConstDefAST::codegen() {
                 auto initValPtr = dynamic_cast<ConstInitValAST *>(initValRawPtr);
 
                 // Store the initial value into the j-th element
-                builder->CreateStore(initValPtr->vals[j]->codegen(), elemPtr);
+                builder->CreateStore(initValPtr->vals[j]->codegen(), elemPtr, true);
             }
             // builder->CreateStore(res, res);
             return res;

@@ -181,9 +181,9 @@ namespace IRGen {
          */
         IRBase *CreateAlloca(Type *ty, const std::string &name, bool isConstant = false);
 
-        IRBase *CreateStore(IRBase *val, IRBase *ptr);
+        IRBase *CreateStore(IRBase *val, IRBase *ptr, bool force = false);
 
-        IRBase *CreateStore(Arg *val, IRBase *ptr);
+        IRBase *CreateStore(Arg *val, IRBase *ptr, bool force = false);
 
         // arg load is not supported. Since arg is first translated to alloca implicitly,
         // arg is only stored into alloca
@@ -797,13 +797,13 @@ namespace IRGen {
 
         static Inst *Create(unsigned int &st, Type *ty, const std::string &name, bool isConstant);
 
-        static Inst *Store(unsigned int &st, IRBase *val, Alloca *ptr);
+        static Inst *Store(unsigned int &st, IRBase *val, Alloca *ptr, bool force);
 
-        static Inst *Store(unsigned int &st, IRBase *val, GlobalVariable *ptr);
+        static Inst *Store(unsigned int &st, IRBase *val, GlobalVariable *ptr, bool force);
 
-        static Inst *Store(unsigned int &st, Arg *val, GlobalVariable *ptr);
+        static Inst *Store(unsigned int &st, Arg *val, GlobalVariable *ptr, bool force);
 
-        static Inst *Store(unsigned int &st, Arg *val, Alloca *ptr);
+        static Inst *Store(unsigned int &st, Arg *val, Alloca *ptr, bool force);
 
         static Inst *Load(unsigned int &st, Alloca *ptr);
 
@@ -815,9 +815,9 @@ namespace IRGen {
         AllocaInst() : ptr(nullptr), gl_ptr(nullptr), op(ALLOCA_CREATE), val(nullptr) {}
 
     private:
-        AllocaInst(unsigned int &st, ALLOCA_TYPE op, Alloca *ptr, IRBase *val);
+        AllocaInst(unsigned int &st, ALLOCA_TYPE op, Alloca *ptr, IRBase *val, bool force);
 
-        AllocaInst(unsigned int &st, ALLOCA_TYPE op, GlobalVariable *ptr, IRBase *val);
+        AllocaInst(unsigned int &st, ALLOCA_TYPE op, GlobalVariable *ptr, IRBase *val, bool force);
 
         AllocaInst(unsigned int &st, ALLOCA_TYPE op, Alloca *ptr);
 

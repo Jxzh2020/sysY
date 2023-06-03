@@ -555,7 +555,6 @@ bool Alloca::isInitialized() const {
 }
 
 void Alloca::Initialize() {
-    assert(!this->initialized);
     this->initialized = true;
 }
 

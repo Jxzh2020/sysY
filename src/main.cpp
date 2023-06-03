@@ -494,7 +494,7 @@ int main(int argc, const char *argv[]) {
     std::ofstream file("demo.ll");
     file << IR::get()->getModule()->print().str();
     file.close();
-
+    return 0 ;
     cout << endl;
     // visualization test
     extern const char *Html;

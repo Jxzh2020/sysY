@@ -4,7 +4,7 @@
 
 #include "Ast/VarDefAST.h"
 #include "Ast/BaseAST.h"
-#include "Ast/InitValAST.h"
+#include "Ast/ExpAST.h"
 #include <string>
 #include <vector>
 
@@ -65,7 +65,7 @@ IRGen::IRBase *VarDefAST::codegen() {
                             {zero, IRGen::Constant::get(IRGen::Type::getInt32(), j)});
                     // Create a constant for the initial value of the j-th element
                     auto initValRawPtr = InitVal.get();
-                    auto initValPtr = dynamic_cast<InitValAST *>(initValRawPtr);
+                    auto initValPtr = dynamic_cast<ExpAST *>(initValRawPtr);
 
                     // Store the initial value into the j-th element
                     builder->CreateStore(initValPtr->vals[j]->codegen(), elemPtr);
