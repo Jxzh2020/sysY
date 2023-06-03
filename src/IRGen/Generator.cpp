@@ -327,7 +327,7 @@ std::string GEPInst::print() {
     std::string out;
     out += (this->output + " = getelementptr inbounds " + this->array_type->print() + ", ");
     if (this->isInst) {
-        out += ("ptr " + this->alloca_load->get_value());
+        out += (this->array_type->print() +"* " + this->alloca_load->get_value());
         //out+=(this->alloca_load->get_type()->print()+" "+this->alloca_load->get_value());
     } else if (this->isAlloca) {
         out += (this->alloca_array_ptr->print_type() + " " + this->alloca_array_ptr->get_value());
