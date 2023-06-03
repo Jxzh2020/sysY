@@ -82,7 +82,7 @@ IRGen::IRBase *VarDefAST::codegen() {
          if (ConstExp.get() == nullptr) // global variable
          {
            // TODO: unknown_usage
-           builder->CreateGlobalVariable(IR::get()->getModule().get(), down->get_type(), true,down, ident);
+           builder->CreateGlobalVariable(IR::get()->getModule().get(), down->get_type(), false,down, ident);
            // IR::get()->AddGlobe(GlobalArray);
          } else // global array
          {

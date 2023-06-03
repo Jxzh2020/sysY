@@ -79,42 +79,36 @@ IRGen::IRBase *ConstDefAST::codegen() {
         }
     } else // global
     {
-        assert(0 && "Global Array Not Implemented");
+        if (ConstExp.get() == nullptr) // global variable
+        {
+            // TODO: unknown_usage
+            builder->CreateGlobalVariable(IR::get()->getModule().get(), down->get_type(), true,down, ident);
+            // IR::get()->AddGlobe(GlobalArray);
+        } else // global array
+        {
+            assert(0 && "Global Array Not Implemented");
+//        return nullptr;
+//           auto index = ConstExp->codegen();
+//           auto arraySize = index->dyn_cast<IRGen::Constant*>();
+//           auto *arrayType = IRGen::Type::getArray(this->typeast->get_type(), std::atoi(arraySize->get_value().c_str()));
+//
+//           std::vector<llvm::Constant *> arrayValue;
+//           for (int j = 0; j < arraySize->getLimitedValue(); j++) {
+//             // arrayValue.push_back(llvm::ConstantInt::get((down->getType(),
+//             // ConstInitVal->vals[j]->codegen()->getLimitedValue())));
+//             arrayValue.push_back(llvm::dyn_cast<llvm::Constant>(
+//                 dynamic_cast<ConstInitValAST *>(ConstInitVal.get())
+//                     ->vals[j]
+//                     ->codegen()));
+//           }
+//           llvm::Constant *initValue =
+//               llvm::ConstantArray::get(arrayType, arrayValue);
+//           auto GlobalArray = new llvm::GlobalVariable(
+//               *IR::get()->getModule(), arrayType, true,
+//               llvm::GlobalValue::ExternalLinkage, initValue, ident);
+//           // IR::get()->AddGlobe(GlobalArray);
+        }
         return nullptr;
-        // if (ConstExp.get() == nullptr) // global variable
-        // {
-        //   // TODO: unknown_usage
-        //   auto GlobalArray =
-        //       new llvm::GlobalVariable(*IR::get()->getModule(), down->getType(),
-        //                                true, llvm::GlobalValue::ExternalLinkage,
-        //                                llvm::dyn_cast<llvm::Constant>(down), ident);
-        //   // IR::get()->AddGlobe(GlobalArray);
-        // } else // global array
-        // {
-        //   auto index = ConstExp->codegen();
-        //   llvm::LLVMContext *c = IR::get()->getContext().get();
-        //   llvm::LLVMContext &context = *c;
-        //   llvm::ConstantInt *arraySize = llvm::dyn_cast<llvm::ConstantInt>(index);
-        //   llvm::ArrayType *arrayType = llvm::ArrayType::get(
-        //       /*down->getType()*/ llvm::Type::getInt32Ty(context),
-        //       arraySize->getLimitedValue());
-        //   std::vector<llvm::Constant *> arrayValue;
-        //   for (int j = 0; j < arraySize->getLimitedValue(); j++) {
-        //     // arrayValue.push_back(llvm::ConstantInt::get((down->getType(),
-        //     // ConstInitVal->vals[j]->codegen()->getLimitedValue())));
-        //     arrayValue.push_back(llvm::dyn_cast<llvm::Constant>(
-        //         dynamic_cast<ConstInitValAST *>(ConstInitVal.get())
-        //             ->vals[j]
-        //             ->codegen()));
-        //   }
-        //   llvm::Constant *initValue =
-        //       llvm::ConstantArray::get(arrayType, arrayValue);
-        //   auto GlobalArray = new llvm::GlobalVariable(
-        //       *IR::get()->getModule(), arrayType, true,
-        //       llvm::GlobalValue::ExternalLinkage, initValue, ident);
-        //   // IR::get()->AddGlobe(GlobalArray);
-        // }
-        // return nullptr;
     }
     //************
 }
