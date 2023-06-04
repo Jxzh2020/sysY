@@ -13,7 +13,8 @@ std::string AddExpAST::astJson(int size) {
     // UnaryOp type;
     std::vector<std::string> children;
     if (AddExp == nullptr) {
-        children.push_back(Json("Mul Expression", {MulExp->astJson(sizeplus(size))}, sizeplus(size)));
+        // children.push_back(Json("Mul Expression", {MulExp->astJson(sizeplus(size))}, sizeplus(size)));
+        return MulExp->astJson(sizeplus(size));
     } else {
         std::string op = "";
         switch (type) {
@@ -27,11 +28,11 @@ std::string AddExpAST::astJson(int size) {
                 op = "~";
                 break;
         }
-        children.push_back(Json("Add Expression operation", {Escape(op)}, sizeplus(size)));
-        children.push_back(Json("Add Expression Left Side", {AddExp->astJson(sizeplus(size))}, sizeplus(size)));
-        children.push_back(Json("Add Expression Right Side", {MulExp->astJson(sizeplus(size))}, sizeplus(size)));
+        children.push_back(Json("op", {("{\"name\": "+Escape(op)+"}")}, sizeplus(size)));
+        children.push_back(Json("LHS", {AddExp->astJson(sizeplus(size))}, sizeplus(size)));
+        children.push_back(Json("RHS", {MulExp->astJson(sizeplus(size))}, sizeplus(size)));
     }
-    return Json("Add Expression", children, size);
+    return Json("Add Exp", children, size);
 }
 
 IRGen::IRBase *AddExpAST::codegen() {

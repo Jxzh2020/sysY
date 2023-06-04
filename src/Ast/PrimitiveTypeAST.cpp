@@ -7,7 +7,8 @@
 std::string PrimitiveTypeAST::astJson(int size) {
     // std::string type;
 
-    return Json("Type", {Escape(type)}, size);
+    // return Json("Type", {Escape(type)}, size);
+    return Json(type, size);
 }
 
 IRGen::Type *PrimitiveTypeAST::get_type() const {

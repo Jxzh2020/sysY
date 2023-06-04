@@ -36,19 +36,20 @@ std::string UnaryExpAST::astJson(int size) {
         }
             // PrimaryExp form
         else {
-            children.push_back(Json("Primary Expression", {PrimaryExp->astJson(sizeplus(size))}, sizeplus(size)));
-            return Json("Primary Expression", children, size);
+            // children.push_back(Json("Primary Expression", {PrimaryExp->astJson(sizeplus(size))}, sizeplus(size)));
+            // return Json("Primary Expression", children, size);
+            return PrimaryExp->astJson(sizeplus(size));
         }
     } else {   // a function call
-        children.push_back(Json("Function Name", {Escape(ident)}, sizeplus(size)));
+        children.push_back(Json("Func Name", {Escape(ident)}, sizeplus(size)));
         if (!params.empty()) { // no parameters
             std::vector<std::string> paras;
             for (auto &p: params) {
                 paras.push_back(p->astJson(sizeplus(size)));
             }
-            children.push_back(Json("Parameters", paras, sizeplus(size)));
+            children.push_back(Json("Paras", paras, sizeplus(size)));
         }
-        return Json("Function", children, size);
+        return Json("Func", children, size);
     }
 }
 

@@ -26,66 +26,66 @@ std::string StmtAST::astJson(int size) {
     switch (type) {
         case ASSIGN:
             op = "Assign";
-            children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
-            children.push_back(Json("Expression", {Exp->astJson(sizeplus(size))}, sizeplus(size)));
-            children.push_back(Json("Load Value", {LVal->astJson(sizeplus(size))}, sizeplus(size)));
+            children.push_back(Json("Op", {("{\"name\": "+Escape(op)+"}")}, sizeplus(size)));
+            children.push_back(Json("Exp", {Exp->astJson(sizeplus(size))}, sizeplus(size)));
+            children.push_back(Json("Ld Val", {LVal->astJson(sizeplus(size))}, sizeplus(size)));
             break;
         case EXP:
             if (Exp != nullptr) {
-                op = "Expression";
-                children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
-                children.push_back(Json("Expression", {Exp->astJson(sizeplus(size))}, sizeplus(size)));
+                op = "Exp";
+                children.push_back(Json("Op", {("{\"name\": "+Escape(op)+"}")}, sizeplus(size)));
+                children.push_back(Json("Exp", {Exp->astJson(sizeplus(size))}, sizeplus(size)));
             }
             break;
         case BLOCK:
-            op = "Block";
-            children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
-            children.push_back(Json("Block", {Block->astJson(sizeplus(size))}, sizeplus(size)));
+            op = "Blk";
+            children.push_back(Json("Op", {("{\"name\": "+Escape(op)+"}")}, sizeplus(size)));
+            children.push_back(Json("Blk", {Block->astJson(sizeplus(size))}, sizeplus(size)));
             break;
         case RET:
-            op = "Return";
-            children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
+            op = "Ret";
+            children.push_back(Json("Op", {("{\"name\": "+Escape(op)+"}")}, sizeplus(size)));
             // return ; void
             if (Exp == nullptr) {
-                children.push_back(Json("Expression", {Escape("void")}, sizeplus(size)));
+                children.push_back(Json("Exp", {Escape("void")}, sizeplus(size)));
             } else {
-                children.push_back(Json("Expression", {Exp->astJson(sizeplus(size))}, sizeplus(size)));
+                children.push_back(Json("Exp", {Exp->astJson(sizeplus(size))}, sizeplus(size)));
             }
             break;
         case IF:
             op = "If";
-            children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
+            children.push_back(Json("Op", {("{\"name\": "+Escape(op)+"}")}, sizeplus(size)));
             // has only if stmt, false_bb is the next bb.
-            children.push_back(Json("If Statement", {if_stmt->astJson(sizeplus(size))}, sizeplus(size)));
+            children.push_back(Json("If Stmt", {if_stmt->astJson(sizeplus(size))}, sizeplus(size)));
             if (else_stmt != nullptr) {
-                children.push_back(Json("Else Statement", {else_stmt->astJson(sizeplus(size))}, sizeplus(size)));
+                children.push_back(Json("Else Stmt", {else_stmt->astJson(sizeplus(size))}, sizeplus(size)));
             }
             break;
         case WHILE:
             op = "While";
-            children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
-            children.push_back(Json("If Statement", {if_stmt->astJson(sizeplus(size))}, sizeplus(size)));
+            children.push_back(Json("Op", {("{\"name\": "+Escape(op)+"}")}, sizeplus(size)));
+            children.push_back(Json("If Stmt", {if_stmt->astJson(sizeplus(size))}, sizeplus(size)));
             break;
         case BREAK:
             op = "Break";
-            children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
+            children.push_back(Json("Op", {("{\"name\": "+Escape(op)+"}")}, sizeplus(size)));
             if (!IR::get()->isInWhile()) {
-                children.push_back(Json("Break Condition", {Escape("break not in loop")}, sizeplus(size)));
+                children.push_back(Json("Break Cond", {Escape("not in loop")}, sizeplus(size)));
             } else {
-                children.push_back(Json("Break Condition", {Escape("break in loop")}, sizeplus(size)));
+                children.push_back(Json("Break Cond", {Escape("in loop")}, sizeplus(size)));
             }
             break;
         case CONTINUE:
             op = "Continue";
-            children.push_back(Json("Operation", {Escape(op)}, sizeplus(size)));
+            children.push_back(Json("Op", {("{\"name\": "+Escape(op)+"}")}, sizeplus(size)));
             if (!IR::get()->isInWhile()) {
-                children.push_back(Json("Continue Condition", {Escape("continue not in loop")}, sizeplus(size)));
+                children.push_back(Json("Continue Cond", {Escape("not in loop")}, sizeplus(size)));
             } else {
-                children.push_back(Json("Continue Condition", {Escape("continue in loop")}, sizeplus(size)));
+                children.push_back(Json("Continue Cond", {Escape("in loop")}, sizeplus(size)));
             }
             break;
     }
-    return Json("Statement", children, size);
+    return Json("Stmt", children, size);
 }
 
 IRGen::IRBase *StmtAST::codegen() {

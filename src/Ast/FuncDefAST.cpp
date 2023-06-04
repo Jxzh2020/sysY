@@ -3,6 +3,7 @@
 //
 
 #include "Ast/FuncDefAST.h"
+#include "Ast/PrimitiveTypeAST.h"
 
 std::string FuncDefAST::astJson(int size) {
     // std::unique_ptr<BaseAST> func_type;
@@ -12,18 +13,18 @@ std::string FuncDefAST::astJson(int size) {
     std::vector<std::string> children;
     std::vector<std::string> paras;
 
-    children.push_back(Json("Function Type", {func_type->astJson(sizeplus(size))}, sizeplus(size)));
+    children.push_back(Json("Func Type", {("{\"name\": "+Escape(dynamic_cast<PrimitiveTypeAST*>(func_type.get())->type)+"}")}, sizeplus(size)));
 
-    children.push_back(Json("Function Name", {Escape(ident)}, sizeplus(size)));
+    children.push_back(Json("Func Name", {("{\"name\": "+Escape(ident)+"}")}, sizeplus(size)));
 
     for (auto &p: params) {
         paras.push_back(p->astJson(sizeplus(size)));
     }
-    children.push_back(Json("Parameters", paras, sizeplus(size)));
+    children.push_back(Json("Paras", paras, sizeplus(size)));
 
-    children.push_back(Json("Function Block", {block->astJson(sizeplus(size))}, sizeplus(size)));
+    children.push_back(Json("Func Block", {block->astJson(sizeplus(size))}, sizeplus(size)));
 
-    return Json("Function Definition", children, size);
+    return Json("Func Def", children, size);
 }
 
 IRGen::IRBase *FuncDefAST::codegen() {

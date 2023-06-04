@@ -82,6 +82,10 @@ include_directories(${INC_DIR})
 
 # *****************
 # Clean Use of customized LLVM
+find_package(LLVM REQUIRED CONFIG)
+
+include_directories(${LLVM_INCLUDE_DIRS} ${CLANG_INCLUDE_DIRS} SYSTEM)
+link_directories(${LLVM_LIBRARY_DIRS})
 
 # *****************
 
@@ -102,7 +106,11 @@ string(REPLACE " " ";" llvm_libs ${llvm_libs})
 set(CMAKE_BUILD_TYPE "Debug")
 add_executable(sysY ${SOURCES} ${INCLUDE_FILES})
 set_target_properties(sysY PROPERTIES C_STANDARD 11 CXX_STANDARD 17)
-
+target_link_libraries(sysY
+${llvm_libs}
+        z
+        ncurses
+        )
 
 #target_include_directories(sysY
 #    PRIVATE

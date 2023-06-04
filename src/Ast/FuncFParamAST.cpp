@@ -11,9 +11,9 @@ std::string FuncFParamAST::astJson(int size) {
 
     children.push_back(Json("Type Name", {Escape(ident)}, sizeplus(size)));
 
-    children.push_back(Json("Primitive Type", {PrimitiveType->astJson(sizeplus(size))}, sizeplus(size)));
+    children.push_back(Json("Pri Type", {PrimitiveType->astJson(sizeplus(size))}, sizeplus(size)));
 
-    return Json("Function Parameter", children, size);
+    return Json("Func Para", children, size);
 }
 
 const std::string &FuncFParamAST::getName() const {

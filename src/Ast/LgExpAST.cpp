@@ -3,6 +3,7 @@
 //
 
 #include "Ast/LgExpAST.h"
+#include "Ast/BaseAST.h"
 
 std::string LgExpAST::astJson(int size) {
     // LogicOp type;
@@ -11,7 +12,10 @@ std::string LgExpAST::astJson(int size) {
     // std::unique_ptr<BaseAST> RHS;
     std::vector<std::string> children;
     if (RHS == nullptr) {
-        children.push_back(Json("Logical Left-Hand-Side", {LHS->astJson(sizeplus(size))}, sizeplus(size)));
+        // children.push_back(Json("Left-Hand-Side", LHS->astJson(sizeplus(size)), sizeplus(size)));
+        // children.push_back(Json(LHS->astJson(sizeplus(size)), sizeplus(size)));
+        // return Json("Left Hand Side", LHS->astJson(sizeplus(size)), sizeplus(size));
+        return LHS->astJson(sizeplus(size));
     } else {
         std::string op;
         switch (type) {
@@ -22,11 +26,11 @@ std::string LgExpAST::astJson(int size) {
                 op = "&&";
                 break;
         }
-        children.push_back(Json("Logical Operation", {Escape(op)}, sizeplus(size)));
-        children.push_back(Json("Left-Hand_Side", {LHS->astJson(sizeplus(size))}, sizeplus(size)));
-        children.push_back(Json("Right-Hand-Side", {RHS->astJson(sizeplus(size))}, sizeplus(size)));
+        children.push_back(Json("Lg Op", {("{\"name\": "+Escape(op)+"}")}, sizeplus(size)));
+        children.push_back(Json("LHS", {LHS->astJson(sizeplus(size))}, sizeplus(size)));
+        children.push_back(Json("RHS", {RHS->astJson(sizeplus(size))}, sizeplus(size)));
     }
-    return Json("Logical Expression", children, size);
+    return Json("Lg Exp", children, size);
 }
 
 IRGen::IRBase *LgExpAST::codegen() {

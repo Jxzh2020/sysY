@@ -14,7 +14,8 @@ std::string MulExpAST::astJson(int size) {
     std::vector<std::string> children;
     std::string op = "";
     if (MulExp == nullptr) {
-        children.push_back(Json("Unary Expression", {UnaryExp->astJson(sizeplus(size))}, sizeplus(size)));
+        // children.push_back(Json("Unary Expression", {UnaryExp->astJson(sizeplus(size))}, sizeplus(size)));
+        return UnaryExp->astJson(sizeplus(size));
     } else {
         switch (type) {
             case MUL:
@@ -27,11 +28,11 @@ std::string MulExpAST::astJson(int size) {
                 op = "%";
                 break;
         }
-        children.push_back(Json("Mul-Left-Side", {MulExp->astJson(sizeplus(size))}, sizeplus(size)));
-        children.push_back(Json("Mul-Right-Side", {UnaryExp->astJson(sizeplus(size))}, sizeplus(size)));
-        children.push_back(Json("Mul Type", {Escape(op)}, size));
+        children.push_back(Json("LHS", {MulExp->astJson(sizeplus(size))}, sizeplus(size)));
+        children.push_back(Json("RHS", {UnaryExp->astJson(sizeplus(size))}, sizeplus(size)));
+        children.push_back(Json("Mul Type", {("{\"name\": "+Escape(op)+"}")}, size));
     }
-    return Json("Mul Expression", children, size);
+    return Json("Mul Exp", children, size);
 }
 
 IRGen::IRBase *MulExpAST::codegen() {

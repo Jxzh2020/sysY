@@ -13,8 +13,9 @@ std::string CompExpAST::astJson(int size) {
     // std::unique_ptr<BaseAST> RHS;
     std::vector<std::string> children;
     if (RHS == nullptr) {
-        children.push_back(Json("Compare Left-Hand-Side",
-                                {LHS->astJson(sizeplus(size))}, sizeplus(size)));
+        // children.push_back(Json("Compare Left-Hand-Side",
+        //                         {LHS->astJson(sizeplus(size))}, sizeplus(size)));
+        return LHS->astJson(sizeplus(size));
     } else {
         std::string op;
         switch (type) {
@@ -37,13 +38,13 @@ std::string CompExpAST::astJson(int size) {
                 op = "!=";
                 break;
         }
-        children.push_back(Json("Compare Operation", {Escape(op)}, sizeplus(size)));
+        children.push_back(Json("Comp Op", {("{\"name\": "+Escape(op)+"}")}, sizeplus(size)));
         children.push_back(
-                Json("Left-Hand-Side", {LHS->astJson(sizeplus(size))}, sizeplus(size)));
-        children.push_back(Json("Right-Hand-Side", {RHS->astJson(sizeplus(size))},
+                Json("LHS", {LHS->astJson(sizeplus(size))}, sizeplus(size)));
+        children.push_back(Json("RHS", {RHS->astJson(sizeplus(size))},
                                 sizeplus(size)));
     }
-    return Json("Compare Expression", children, size);
+    return Json("Comp Exp", children, size);
 }
 
 IRGen::IRBase *CompExpAST::codegen() {

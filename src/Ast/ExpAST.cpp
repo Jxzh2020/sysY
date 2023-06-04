@@ -9,8 +9,9 @@
 std::string ExpAST::astJson(int size) {
     // std::unique_ptr<BaseAST> LgExp;
     std::vector<std::string> children;
-    children.push_back(Json("Logical Expression", {LgExp->astJson(sizeplus(size))}, sizeplus(size)));
-    return Json("Expression", children, size);
+    // children.push_back(Json("Logical Expression", {LgExp->astJson(sizeplus(size))}, sizeplus(size)));
+    // return Json("Expression", {LgExp->astJson(sizeplus(size))}, size);
+    return LgExp->astJson(size);
 }
 
 IRGen::IRBase *ExpAST::codegen() {

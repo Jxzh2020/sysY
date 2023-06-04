@@ -3,6 +3,7 @@
 //
 
 #include "Ast/VarDeclAST.h"
+#include "Ast/PrimitiveTypeAST.h"
 
 std::string VarDeclAST::astJson(int size) {
     // std::unique_ptr<BaseAST> PrimitiveType;
@@ -10,15 +11,14 @@ std::string VarDeclAST::astJson(int size) {
     std::vector<std::string> children;
     std::vector<std::string> defs;
 
-    children.push_back(Json("Variable Type",
-                            {PrimitiveType->astJson(sizeplus(size))},
-                            sizeplus(size)));
+    children.push_back(Json("Var Type", {("{\"name\": "+Escape(dynamic_cast<PrimitiveTypeAST*>(PrimitiveType.get())->type)+"}")},sizeplus(size)));
 
     for (auto &v: VarDefs) {
-        defs.push_back(v->astJson(sizeplus(size)));
+        // defs.push_back(v->astJson(sizeplus(size)));
+        children.push_back(v->astJson(sizeplus(size)));
     }
-    children.push_back(Json("Variable Definitions", defs, sizeplus(size)));
-    return Json("Variable Declaration", children, size);
+    // children.push_back(Json("Variable Definitions", defs, sizeplus(size)));
+    return Json("Var Decl", children, size);
 }
 
 IRGen::IRBase *VarDeclAST::codegen() {

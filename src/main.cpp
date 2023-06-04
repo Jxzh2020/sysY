@@ -140,9 +140,63 @@ level influence ?
 #include <map>
 #include <memory>
 #include <string>
+#include <cstdlib>
+
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/PassManager.h"
+#include "llvm/IRReader/IRReader.h"
+#include "llvm/Support/SourceMgr.h"
+#include "llvm/Support/TargetSelect.h"
+#include "llvm/Support/ToolOutputFile.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/CodeGen/CommandFlags.h"
+#include "llvm/Support/CommandLine.h"
+#include "llvm/CodeGen/LinkAllAsmWriterComponents.h"
+#include "llvm/CodeGen/TargetLoweringObjectFileImpl.h"
+#include "llvm/MC/SubtargetFeature.h"
+#include "llvm/Target/TargetOptions.h"
+#include "llvm/Target/TargetMachine.h"
+#include "llvm/ExecutionEngine/ExecutionEngine.h"
+#include "llvm/Transforms/IPO/PassManagerBuilder.h"
+#include "llvm/IR/LegacyPassManager.h"
+#include "llvm/PassRegistry.h"
+
+#include <llvm/AsmParser/Parser.h>
+#include <llvm/Support/TargetParser.h>
+#include <llvm/MC/TargetRegistry.h>
+#include <llvm/Support/FileSystem.h>
+#include <llvm/CodeGen/CommandFlags.h>
+#include <llvm/IR/LegacyPassManager.h>
+#include <llvm/Target/TargetMachine.h>
+#include <llvm/Support/CodeGen.h>
+#include "llvm/IR/LegacyPassManager.h"
+#include "llvm/IR/PassManager.h"
+#include "llvm/IR/Verifier.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/IRReader/IRReader.h"
+#include "llvm/Support/SourceMgr.h"
+#include "llvm/Transforms/Scalar.h"
+
+#include <llvm/Analysis/TargetLibraryInfo.h>
+#include <llvm/IR/LegacyPassManager.h>
+#include <llvm/IR/Verifier.h>
+#include <llvm/IRReader/IRReader.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/Error.h>
+#include <llvm/Support/SourceMgr.h>
+#include <llvm/Transforms/IPO/PassManagerBuilder.h>
+#include <llvm/Transforms/Scalar.h>
+
+#include "llvm/Bitcode/BitcodeWriter.h"
+#include "llvm/Analysis/LoopAnalysisManager.h"
+#include "llvm/Analysis/CGSCCPassManager.h"
+#include "llvm/Passes/PassBuilder.h"
+
 
 // #define GEP_TEST
 using namespace std;
+// using namespace llvm;
 
 // 声明 lexer 的输入, 以及 parser 函数
 // 为什么不引用 sysy.tab.hpp 呢? 因为首先里面没有 yyin 的定义
@@ -154,335 +208,308 @@ extern FILE *yyin;
 
 extern int yyparse(unique_ptr<BaseAST> &ast);
 
-void gep_test();
+void printhelp() {
+  cout << "How to use MySysY compiler:" << endl;
+  cout << "-help: print this message" << endl;
+  cout << "-i: A MUST ARGUMENT, source code .c file." << endl;
+  cout << "-o: generate output file, which is a .o file. If you ignore this argument, the output file will be named a.o" << endl;
+  cout << "-l: generate llvm ir code file, which is a .ll file. If you ignore this argument, llvm ir will be print in the console"<< endl;
+  cout << "-v: generate a HTML visualization file, which is a .html file, in which the syntax tree structure are shown. If you ignore this argument, the HTML file will not generate" << endl;
+  cout << "-O: the level of optimization, supported levels: -O0, -O1, -O2, -O3. If you ignore this argument, it will not be optimized" << endl;
+  cout << "For a instance: " << endl;
+  cout << "If you want to compile source file test.c, get the output file out.o, get the llvm ir code file ir.ll, get the visualization file " "visual.html and optimize program in level O2"
+       << endl;
+  cout << "You should use command line: ./SysY -i test.c -o out.o -l -v -O2"
+       << endl;
+  return;
+}
 
-// void printhelp() {
-//   cout << "How to use MySysY compiler:" << endl;
-//   cout << "-help: print this message" << endl;
-//   cout << "-i: A MUST ARGUMENT, source code .c file." << endl;
-//   cout << "-o: generate output file, which is a .o file. If you ignore
-//   this "
-//           "argument, the output file will be named a.o"
-//        << endl;
-//   cout << "-l: generate llvm ir code file, which is a .ll file. If you
-//   ignore "
-//           "this argument, llvm ir will be print in the console"
-//        << endl;
-//   cout << "-v: generate a HTML visualization file, which is a .html file,
-//   in "
-//           "which the syntax tree structure are shown. If you ignore this
-//           " "argument, the HTML file will not generate"
-//        << endl;
-//   cout << "-O: the level of optimization, supported levels: -O0, -O1,
-//   -O2, "
-//           "-O3, -Oz, -Os. If you ignore this argument, it will not
-//           optimize"
-//        << endl;
-//   cout << "For a instance: " << endl;
-//   cout << "If you want to compile source file test.c, get the output file
-//   "
-//           "out.o, get the llvm ir code file ir.ll, get the visualization
-//           file " "visual.html and optimize program in level O2"
-//        << endl;
-//   cout << "You should use command line: MySysY -i test.c -o out.o -l -v
-//   -O2"
-//        << endl;
-//   return;
-// }
+void GenerateVisualization(unique_ptr<BaseAST> &ast, string VisualizationFile) {
+  // visualization test
+  extern const char *Html;
+  std::string OutputString = Html;
+  std::string Json = ast->astJson(1000);
+  // std::cout << Json;
+  std::string Target = "${ASTJson}";
+  auto Pos = OutputString.find(Target);
+  OutputString.replace(Pos, Target.length(), Json.c_str());
+  std::ofstream HTMLFile(VisualizationFile);
+  HTMLFile << OutputString;
+  HTMLFile.close();
+}
 
-// void GenerateVisualization(unique_ptr<BaseAST> &ast, string
-// VisualizationFile) {
-//   // visualization test
-//   extern const char *Html;
-//   std::string OutputString = Html;
-//   std::string Json = ast->astJson(1000);
-//   // std::cout << Json;
-//   std::string Target = "${ASTJson}";
-//   auto Pos = OutputString.find(Target);
-//   OutputString.replace(Pos, Target.length(), Json.c_str());
-//   std::ofstream HTMLFile(VisualizationFile);
-//   HTMLFile << OutputString;
-//   HTMLFile.close();
-// }
+bool GenerateObject(string OutputFile, string IRFile) {
+    llvm::LLVMContext llvm_context;
+    llvm::SMDiagnostic error;
+    llvm::SourceMgr source_mgr;
+    source_mgr.setDiagHandler([](const llvm::SMDiagnostic& diag, void* ctx) {});
 
-// void GenerateObject(string OutputFile) {
-//   auto TargetTriple = llvm::sys::getDefaultTargetTriple();
-//   llvm::InitializeAllTargetInfos();
-//   llvm::InitializeAllTargets();
-//   llvm::InitializeAllTargetMCs();
-//   llvm::InitializeAllAsmParsers();
-//   llvm::InitializeAllAsmPrinters();
-//   std::string Error;
-//   auto Target = llvm::TargetRegistry::lookupTarget(TargetTriple, Error);
-//   if (!Target) {
-//     throw runtime_error(Error);
-//     return;
-//   }
-//   auto CPU = "generic";
-//   auto Features = "";
-//   llvm::TargetOptions opt;
-//   auto RM = llvm::Optional<llvm::Reloc::Model>();
-//   auto TargetMachine =
-//       Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
-//   IR::get()->getModule()->setDataLayout(TargetMachine->createDataLayout());
-//   IR::get()->getModule()->setTargetTriple(TargetTriple);
-//   std::error_code EC;
-//   llvm::raw_fd_ostream Dest(OutputFile, EC, llvm::sys::fs::OF_None);
-//   if (EC) {
-//     throw std::runtime_error("Could not open file: " + EC.message());
-//     return;
-//   }
-//   auto FileType = llvm::CGFT_ObjectFile;
-//   llvm::legacy::PassManager PM;
-//   if (TargetMachine->addPassesToEmitFile(PM, Dest, nullptr, FileType)) {
-//     throw std::runtime_error("TargetMachine can't emit a file of this
-//     type"); return;
-//   }
-//   PM.run(*IR::get()->getModule());
-//   Dest.flush();
-// }
+    auto module = llvm::parseAssemblyFile(IRFile, error, llvm_context);
+    std::cout << error.getMessage().str() << std::endl;
 
-// void IROptimize(string OptimizeLevel) {
-//   llvm::LoopAnalysisManager LAM;
-//   llvm::FunctionAnalysisManager FAM;
-//   llvm::CGSCCAnalysisManager CGAM;
-//   llvm::ModuleAnalysisManager MAM;
-//   // Create the new pass manager builder.
-//   llvm::PassBuilder PB;
-//   // Register all the basic analyses with the managers.
-//   PB.registerModuleAnalyses(MAM);
-//   PB.registerCGSCCAnalyses(CGAM);
-//   PB.registerFunctionAnalyses(FAM);
-//   PB.registerLoopAnalyses(LAM);
-//   PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
-//   const llvm::OptimizationLevel *OptLevel;
-//   if (OptimizeLevel == "") {
-//     OptLevel = &llvm::OptimizationLevel::O0;
-//   }
-//   if (OptimizeLevel != "") {
-//     if (OptimizeLevel == "O0")
-//       OptLevel = &llvm::OptimizationLevel::O0;
-//     else if (OptimizeLevel == "O1")
-//       OptLevel = &llvm::OptimizationLevel::O1;
-//     else if (OptimizeLevel == "O2")
-//       OptLevel = &llvm::OptimizationLevel::O2;
-//     else if (OptimizeLevel == "O3")
-//       OptLevel = &llvm::OptimizationLevel::O3;
-//     else if (OptimizeLevel == "Os")
-//       OptLevel = &llvm::OptimizationLevel::Os;
-//     else if (OptimizeLevel == "Oz")
-//       OptLevel = &llvm::OptimizationLevel::Oz;
-//   }
-//   llvm::ModulePassManager MPM =
-//   PB.buildPerModuleDefaultPipeline(*OptLevel);
-//   // Optimize the IR
-//   MPM.run(*IR::get()->getModule(), MAM);
-//   return;
-// }
+    llvm::InitializeAllTargetInfos();
+    llvm::InitializeAllTargets();
+    llvm::InitializeAllTargetMCs();
+    llvm::InitializeAllAsmParsers();
+    llvm::InitializeAllAsmPrinters();
 
-int main(int argc, const char *argv[]) {
-#ifdef GEP_TEST
-    gep_test();
+    std::string target_triple = llvm::Triple(module->getTargetTriple()).normalize();
+    std::string error_string;
+
+    const llvm::Target* target = llvm::TargetRegistry::lookupTarget(target_triple, error_string);
+    if (!target) {
+        return false;
+        // Handle error
+    }
+    llvm::CodeGenOpt::Level opt_level = llvm::CodeGenOpt::Default;
+
+    auto cpu = "";
+    auto features = "";
+
+    llvm::TargetOptions opt;
+    opt.MCOptions.AsmVerbose = true;
+    opt.MCOptions.PreserveAsmComments = true;
+
+    std::unique_ptr<llvm::TargetMachine> tm(target->createTargetMachine(target_triple, cpu, features, opt, llvm::None));
+
+    std::error_code error_code;
+    llvm::raw_fd_ostream output_file(OutputFile, error_code, llvm::sys::fs::OF_None);
+
+    if (error_code) {
+        return false;
+        // Handle error
+    }
+    llvm::legacy::PassManager pass_manager;
+    tm->addPassesToEmitFile(pass_manager, output_file, nullptr, llvm::CGFT_AssemblyFile);//static_cast<llvm::CodeGenFileType>(0));
+    pass_manager.run(*module);
+    output_file.flush();
+
+    auto engineBuilder = llvm::EngineBuilder(std::move(module));
+    engineBuilder.setTargetOptions(opt);
+    engineBuilder.setEngineKind(llvm::EngineKind::JIT);
+
+    auto executionEngine = engineBuilder.create(tm.get());
+    executionEngine->finalizeObject();
+
+    llvm::raw_fd_ostream outputStream("output.bin", error_code, llvm::sys::fs::OF_None);
+
+    llvm::WriteBitcodeToFile(*module, outputStream);
+
+    module.release();
+    return true;
+}
+
+unsigned getOptimizationLevel(const std::string &OptimizeLevel) {
+  if (OptimizeLevel == "-O0") {
     return 0;
-#endif
+  }else if (OptimizeLevel == "-O1") {
+    return 1;
+  } else if (OptimizeLevel == "-O2") {
+    return 2;
+  } else if (OptimizeLevel == "-O3") {
+    return 3;
+  } else {
+    llvm::errs() << "Unknown optimization level: " << OptimizeLevel << "\n";
+    exit(1);
+  }
+}
 
-    // 解析命令行参数. 测试脚本/评测平台要求你的编译器能接收如下参数:
-    // compiler 模式 输入文件 -o 输出文件
-    // assert(argc == 5);
-    // bool help = false;
-    // for(int i = 1; i < argc; i++)
-    // {
-    //     string s(argv[i]);
-    //     if(s=="-help")
-    //     {
-    //         help = true;
-    //         break;
-    //     }
-    // }
-    // if (help || argc == 1)
-    // {
-    //     printhelp();
-    //     return 1;
-    // }
+void IROptimize(string IRFile, string OptimizeLevel){
+  // Create a module from the input IR file.
+  llvm::SMDiagnostic Err;
+  llvm::LLVMContext Context;
+  auto Module = parseIRFile(IRFile, Err, Context);
+  if (!Module) {
+    Err.print("IROptimize", llvm::errs());
+    return;
+  }
 
-    // string InputFile = "";
-    // string OutputFile = "";
-    // string IRFile = "";
-    // string VisualizationFile = "";
-    // string OptimizeLevel = "";
-    // for(int i = 1; i < argc; i++)
-    // {
-    //     string s(argv[i]);
-    //     string tmp;
-    //     if(s == "-i")
-    //     {
-    //         if(i + 1 <= argc - 1)
-    //         {
-    //             tmp = argv[i + 1];
-    //             if(tmp[0] == '-')
-    //             {
-    //                 cout << "Fatal error: no input file." << endl;
-    //                 printhelp();
-    //                 return 1;
-    //             }
-    //             else
-    //             {
-    //                 if(tmp.length() < 2 || tmp.substr(tmp.size() - 2) != ".c")
-    //                 {
-    //                     cout << "There is a formatting error" << endl;
-    //                     cout << "The source file is a C source file" << endl;
-    //                     printhelp();
-    //                     return 1;
-    //                 }
-    //                 else
-    //                 {
-    //                     InputFile = tmp;
-    //                     i++;
-    //                     continue;
-    //                 }
-    //             }
-    //         }
-    //         else {
-    //             cout << "Fatal error: no input file." << endl;
-    //             printhelp();
-    //             return 1;
-    //         }
-    //     }
-    //     else if(s == "-l")
-    //     {
-    //         if(!InputFile.empty())
-    //         {
-    //             auto it = InputFile.end();
-    //             advance(it, -2);
-    //             IRFile = InputFile.substr(0, distance(InputFile.begin(), it));
-    //             IRFile += ".ll";
-    //         }
-    //         else {
-    //             IRFile = "-";
-    //         }
-    //     }
-    //     else if(s == "-v")
-    //     {
-    //         if(!InputFile.empty())
-    //         {
-    //             auto it = InputFile.end();
-    //             advance(it, -2);
-    //             VisualizationFile = InputFile.substr(0,
-    //             distance(InputFile.begin(), it)); VisualizationFile += ".html";
-    //         }
-    //         else {
-    //             VisualizationFile = "-";
-    //         }
-    //     }
-    //     else if(s[0] == '-' && s[1] == 'O')
-    //     {
-    //         if(s == "-O0" || s == "-O1"|| s == "-O2" || s == "-O3"|| s == "-Oz"
-    //         || s == "-Os")
-    //         {
-    //             OptimizeLevel = s;
-    //         }
-    //         else
-    //         {
-    //             cout << "Unsupported optimization level" << endl;
-    //             printhelp();
-    //             return 1;;
-    //         }
-    //     }
-    //     else if(s == "-o")
-    //     {
-    //         if(i + 1 <= argc - 1)
-    //         {
-    //             tmp = argv[i + 1];
-    //             if(tmp[0] == '-')
-    //             {
-    //                 OutputFile = "a.o";
-    //             }
-    //             else
-    //             {
-    //                 if(tmp.length() < 2 || tmp.substr(tmp.size() - 2) != ".o")
-    //                 {
-    //                     OutputFile = tmp + ".o";
-    //                 }
-    //                 else
-    //                 {
-    //                     OutputFile = tmp;
-    //                 }
-    //                 i++;
-    //                 continue;
-    //             }
-    //         }
-    //         else
-    //         {
-    //             OutputFile = "a.o";
-    //         }
-    //     }
-    //     else
-    //     {
-    //         cout << "There is a formatting error" << endl;
-    //         printhelp();
-    //         return 1;
-    //     }
-    // }
-    // if(OutputFile == "-")
-    // {
-    //     OutputFile = "a.o";
-    // }
-    // if(IRFile == "-")
-    // {
-    //     auto it = InputFile.end();
-    //     advance(it, -2);
-    //     IRFile = InputFile.substr(0, distance(InputFile.begin(), it));
-    //     IRFile += ".ll";
-    // }
-    // if(VisualizationFile == "-")
-    // {
-    //     auto it = InputFile.end();
-    //             advance(it, -2);
-    //             VisualizationFile = InputFile.substr(0,
-    //             distance(InputFile.begin(), it)); VisualizationFile += ".html";
-    // }
+  llvm::PassBuilder PB;
+  llvm::LoopAnalysisManager LAM;
+  llvm::FunctionAnalysisManager FAM;
+  llvm::CGSCCAnalysisManager CGAM;
+  llvm::ModuleAnalysisManager MAM;
+  PB.registerModuleAnalyses(MAM);
+  PB.registerCGSCCAnalyses(CGAM);
+  PB.registerFunctionAnalyses(FAM);
+  PB.registerLoopAnalyses(LAM);
+  PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
 
-    // yyin = fopen(InputFile.c_str(), "r");
-    // assert(yyin);
-    // std::cout << "lexer pass" << std::endl;
-    // unique_ptr<BaseAST> ast;
+  llvm::PassManagerBuilder PMBuilder;
+  PMBuilder.OptLevel = getOptimizationLevel(OptimizeLevel);
 
-    // auto ret = yyparse(ast);
-    // assert(!ret);
-    // std::cout << "passer pass" << std::endl;
+  llvm::legacy::PassManager PM;
+  PMBuilder.populateModulePassManager(PM);
+  PM.run(*Module);
 
-    // ast->codegen();
-    // IROptimize(OptimizeLevel);
+  std::error_code EC;
+  llvm::raw_fd_ostream OS(IRFile, EC, llvm::sys::fs::OF_None);
+  if (EC) {
+    llvm::errs() << "Could not open file: " << EC.message() << "\n";
+    return;
+  }
+  llvm::WriteBitcodeToFile(*Module, OS);
+}
 
-    // GenerateObject(OutputFile);
-    // std::error_code EC;
-    // if(IRFile != "")
-    // {
-    //     //llvm::raw_fd_ostream ofs(output, EC);
-    //     llvm::raw_fd_ostream ofs(IRFile, EC);
-    //     IR::get()->getModule()->print(ofs, nullptr);
-    // }
-    // else
-    // {
-    //     (IR::get()->getModule())->print(llvm::outs(),
-    //     nullptr);;//直接输出在终端
-    // }
 
-    // if(VisualizationFile != "")
-    // {
-    //     GenerateVisualization(ast, VisualizationFile);
-    // }
+int main(int argc, const char *argv[])
+{
+    bool help = false;
+    for(int i = 1; i < argc; i++)
+    {
+        string s(argv[i]);
+        if(s=="-help")
+        {
+            help = true;
+            break;
+        }
+    }
+    if (help || argc == 1)
+    {
+        printhelp();
+        return 1;
+    }
 
-    auto mode = argv[1];
-    auto input = argv[2];
-    auto output = argv[4];
+    string InputFile = "";
+    string OutputFile = "";
+    string IRFile = "";
+    string VisualizationFile = "";
+    string OptimizeLevel = "";
+    for(int i = 1; i < argc; i++)
+    {
+        string s(argv[i]);
+        string tmp;
+        if(s == "-i")
+        {
+            if(i + 1 <= argc - 1)
+            {
+                tmp = argv[i + 1];
+                if(tmp[0] == '-')
+                {
+                    cout << "Fatal error: no input file." << endl;
+                    printhelp();
+                    return 1;
+                }
+                else
+                {
+                    if(tmp.length() < 2 || tmp.substr(tmp.size() - 2) != ".c")
+                    {
+                        cout << "There is a formatting error" << endl;
+                        cout << "The source file is a C source file" << endl;
+                        printhelp();
+                        return 1;
+                    }
+                    else
+                    {
+                        InputFile = tmp;
+                        i++;
+                        continue;
+                    }
+                }
+            }
+            else {
+                cout << "Fatal error: no input file." << endl;
+                printhelp();
+                return 1;
+            }
+        }
+        else if(s == "-l")
+        {
+            if(!InputFile.empty())
+            {
+                auto it = InputFile.end();
+                advance(it, -2);
+                IRFile = InputFile.substr(0, distance(InputFile.begin(), it));
+                IRFile += ".ll";
+            }
+            else {
+                IRFile = "-";
+            }
+        }
+        else if(s == "-v")
+        {
+            if(!InputFile.empty())
+            {
+                auto it = InputFile.end();
+                advance(it, -2);
+                VisualizationFile = InputFile.substr(0,
+                distance(InputFile.begin(), it)); VisualizationFile += ".html";
+            }
+            else {
+                VisualizationFile = "-";
+            }
+        }
+        else if(s[0] == '-' && s[1] == 'O')
+        {
+            if(s == "-O0" || s == "-O1"|| s == "-O2" || s == "-O3"|| s == "-Oz"
+            || s == "-Os")
+            {
+                OptimizeLevel = s;
+            }
+            else
+            {
+                cout << "Unsupported optimization level" << endl;
+                printhelp();
+                return 1;;
+            }
+        }
+        else if(s == "-o")
+        {
+            if(i + 1 <= argc - 1)
+            {
+                tmp = argv[i + 1];
+                if(tmp[0] == '-')
+                {
+                    OutputFile = "a.o";
+                }
+                else
+                {
+                    if(tmp.length() < 2 || tmp.substr(tmp.size() - 2) != ".o")
+                    {
+                        OutputFile = tmp + ".o";
+                    }
+                    else
+                    {
+                        OutputFile = tmp;
+                    }
+                    i++;
+                    continue;
+                }
+            }
+            else
+            {
+                OutputFile = "a.o";
+            }
+        }
+        else
+        {
+            cout << "There is a formatting error" << endl;
+            printhelp();
+            return 1;
+        }
+    }
+    if(OutputFile == "-")
+    {
+        OutputFile = "a.o";
+    }
+    if(IRFile == "-")
+    {
+        auto it = InputFile.end();
+        advance(it, -2);
+        IRFile = InputFile.substr(0, distance(InputFile.begin(), it));
+        IRFile += ".ll";
+    }
+    if(VisualizationFile == "-")
+    {
+        auto it = InputFile.end();
+                advance(it, -2);
+                VisualizationFile = InputFile.substr(0,
+                distance(InputFile.begin(), it)); VisualizationFile += ".html";
+    }
 
-    // 打开输入文件, 并且指定 lexer 在解析的时候读取这个文件
-    // yyin = fopen(input, "r");
-    yyin = fopen("demo.c", "r");
+    yyin = fopen(InputFile.c_str(), "r");
     assert(yyin);
     std::cout << "lexer pass" << std::endl;
-    // 调用 parser 函数, parser 函数会进一步调用 lexer 解析输入文件的
     unique_ptr<BaseAST> ast;
 
     auto ret = yyparse(ast);
@@ -491,86 +518,74 @@ int main(int argc, const char *argv[]) {
 
     ast->codegen();
 
-    std::ofstream file("demo.ll");
-    file << IR::get()->getModule()->print().str();
-    file.close();
-    return 0 ;
-    cout << endl;
-    // visualization test
-    extern const char *Html;
-    std::string OutputString = Html;
-    std::string Json = ast->astJson(1000);
-    // std::cout << Json;
-    std::string Target = "${ASTJson}";
-    auto Pos = OutputString.find(Target);
-    OutputString.replace(Pos, Target.length(), Json.c_str());
-    std::ofstream HTMLFile("visualization.html");
-    HTMLFile << OutputString;
-    HTMLFile.close();
-    // std::cout << Json;
+    if(VisualizationFile != "")
+    {
+        GenerateVisualization(ast, VisualizationFile);
+    }
+
+    std::ofstream file(IRFile);
+    if(IRFile != "")
+    {
+        file << IR::get()->getModule()->print().str();
+        file.close();
+    }
+    else
+    {
+        // (IR::get()->getModule())->print(llvm::outs(), nullptr);;//直接输出在终端
+        std::cout << IR::get()->getModule()->print().str();
+    }
+
+    // IROptimize(IRFile, OptimizeLevel);
+
+    ifstream file1("lib.ll");
+    ifstream file2(IRFile);
+    ofstream file3("Combined.ll");
+    if (!file1.is_open()) {
+        return 1;
+    }
+    if (!file2.is_open()) {
+        return 1;
+    }
+    if (!file3.is_open()) {
+        return 1;
+    }
+    // 从第一个文件中读取内容并写入新文件
+    std::string line;
+    while (std::getline(file1, line)) {
+        file3 << line << '\n';
+    }
+
+    // 从第二个文件中读取内容并写入新文件
+    int i = 0;
+    while (std::getline(file2, line)) {
+        if(i < 4)
+        {
+            i++;
+        }
+        else {
+            file3 << line << '\n';
+        }
+    }
+
+    // 关闭文件流
+    file1.close();
+    file2.close();
+    file3.close();
+    // if(GenerateObject(OutputFile, "Combined.ll"))
+    // {
+    //     cout << "object file generated successfully." << endl;
+    // }
+    // else
+    // {
+    //     cout << "object file generated failed." << endl;
+    // }
+    IROptimize("ComBined.ll", OptimizeLevel);
+
+    int res = system(std::string("clang Combined.ll -o "+ OutputFile /*+" "+OptimizeLevel*/).c_str());
+    if(res != 0)
+    {
+        cout << "Error command" << endl;
+    }
+
     return 0;
-}
-
-void gep_test() {
-    auto builder = IR::get()->getBuilder().get();
-    auto F = IRGen::Function::Create(
-            IRGen::FunctionType::get(IRGen::Type::getInt32()),
-            IRGen::Function::ExternalLinkage, "main", IR::get()->getModule().get());
-    IR::get()->EnterFunc(F);
-    F = IRGen::Function::Create(IRGen::FunctionType::get(IRGen::Type::getInt32(),
-                                                         {IRGen::Type::getPtr()}),
-                                IRGen::Function::ExternalLinkage, "test",
-                                IR::get()->getModule().get());
-
-    IR::get()->NewLogicalBlockStart();
-    auto inst = builder->CreateAlloca(
-            IRGen::Type::getArray(IRGen::Type::getInt32(), 5), "array");
-    IR::get()->AddAlloca(inst, "array");
-
-    inst = builder->CreateGEP(IRGen::Type::getArray(IRGen::Type::getInt32(), 5),
-                              IR::get()->GetAlloca("array"),
-                              {IRGen::Constant::get(IRGen::Type::getInt32(), 0),
-                               IRGen::Constant::get(IRGen::Type::getInt32(), 0)});
-    builder->CreateStore(IRGen::Constant::get(IRGen::Type::getInt32(), 2233),
-                         inst);
-    builder->CreateCall(IR::get()->getModule()->get_function("test"), {inst});
-    builder->CreateStore(IRGen::Constant::get(IRGen::Type::getInt32(), 3322),
-                         inst);
-    inst = builder->CreateLoad(inst);
-    builder->CreateCall(IR::get()->getModule()->get_function("putint"), {inst});
-
-    builder->CreateRet(IRGen::Constant::get(IRGen::Type::getInt32(), 1));
-    IR::get()->IR::NewLogicalBlockEnd();
-
-    auto argIter = F->arg_begin();
-    argIter->get()->set_name("array");
-    IR::get()->EnterFunc(F);
-    IR::get()->NewLogicalBlockStart();
-    {
-        auto arg = builder->CreateAlloca(argIter->get()->get_type(),
-                                         argIter->get()->get_name(), false);
-        IR::get()->AddAlloca(arg, argIter->get()->get_name());
-        builder->CreateStore(argIter->get(), arg);
-    }
-    {
-
-        auto temp = IR::get()->GetAlloca("array");
-        inst =
-                builder->CreateGEP(IRGen::Type::getArray(IRGen::Type::getInt32(), 5),
-                                   builder->CreateLoad(temp),
-                                   {IRGen::Constant::get(IRGen::Type::getInt32(), 0),
-                                    IRGen::Constant::get(IRGen::Type::getInt32(), 0)});
-
-        inst = builder->CreateLoad(inst);
-        builder->CreateCall(IR::get()->getModule()->get_function("putint"), {inst});
-
-        builder->CreateRet(IRGen::Constant::get(IRGen::Type::getInt32(), 1));
-
-        IR::get()->IR::NewLogicalBlockEnd();
-    }
-
-    std::ofstream file("demo.ll");
-    file << IR::get()->getModule()->print().str();
-
-    file.close();
 }

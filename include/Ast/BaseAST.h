@@ -213,7 +213,9 @@ std::string Escape(std::string input);
 
 std::string Json(std::string name, std::vector<std::string> children, int size = 10);
 
-std::string Json(std::string name, int size);
+std::string Json(std::string name, std::string child, int size = 10);
+
+std::string Json(std::string name, int size = 10);
 
 int sizeplus(int size);
 

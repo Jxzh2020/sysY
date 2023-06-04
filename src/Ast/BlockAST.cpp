@@ -9,7 +9,7 @@ std::string BlockAST::astJson(int size) {
     std::vector<std::string> children;
     for (auto &b: BlockItems)
         children.push_back(b->astJson(sizeplus(size)));
-    return Json("Block", children, size);
+    return Json("Blk", children, size);
 }
 
 IRGen::IRBase *BlockAST::codegen() {

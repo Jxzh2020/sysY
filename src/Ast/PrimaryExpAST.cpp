@@ -11,7 +11,8 @@ std::string PrimaryExpAST::astJson(int size) {
     // std::unique_ptr<BaseAST> LVal;
     // std::unique_ptr<BaseAST> Number;
     if (Number != nullptr) {
-        return Json("Number", {Number->astJson(sizeplus(size))}, size);
+        // return Json("Number", {Number->astJson(sizeplus(size))}, size);
+        return Number->astJson(sizeplus(size));
     }
         // ( Exp ) form
     else if (LVal == nullptr) {

@@ -7,7 +7,7 @@
 
 std::string NumberAST::astJson(int size) {
     // int value;
-    return Json("Number", {Escape(std::to_string(value))}, size);
+    return Json("Num", {("{\"name\": "+Escape(std::to_string(value))+"}")}, size);
 }
 
 IRGen::IRBase *NumberAST::codegen() {

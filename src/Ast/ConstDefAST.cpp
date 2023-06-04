@@ -15,19 +15,21 @@ std::string ConstDefAST::astJson(int size) {
     // std::unique_ptr<BaseAST> ConstExp;
     // std::unique_ptr<BaseAST> ConstInitVal;
     std::vector<std::string> children;
-    children.push_back(Json("identifier", {Escape(ident)}, sizeplus(size)));
+    // children.push_back(Json("identifier", {Escape(ident)}, sizeplus(size)));
+    children.push_back(Json(Escape(ident), sizeplus(size)));
     if (ConstExp == nullptr) {
-        children.push_back(Json("Constant Init",
-                                {ConstInitVal->astJson(sizeplus(size))},
-                                sizeplus(size)));
-        return Json("Constant Definition", children, size);
+        // children.push_back(Json("Constant Init",
+        //                         {ConstInitVal->astJson(sizeplus(size))},
+        //                         sizeplus(size)));
+        children.push_back(ConstInitVal->astJson(sizeplus(size)));
+        return Json("Const Def", children, size);
     } else {
         children.push_back(
                 Json("Index", {ConstExp->astJson(sizeplus(size))}, sizeplus(size)));
         children.push_back(Json("Constant Init",
                                 {ConstInitVal->astJson(sizeplus(size))},
                                 sizeplus(size)));
-        return Json("Constant Array Definition", children, size);
+        return Json("Arr Define", children, size);
     }
 }
 

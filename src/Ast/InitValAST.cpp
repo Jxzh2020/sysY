@@ -6,9 +6,9 @@
 
 std::string InitValAST::astJson(int size) {
     // std::unique_ptr<BaseAST> Exp;
-    std::vector<std::string> children;
-    children.push_back(Json("Expression", {Exp->astJson(sizeplus(size))}, sizeplus(size)));
-    return Json("Init Value Expression", children, size);
+    // std::vector<std::string> children;
+    // children.push_back(Json("Expression", {Exp->astJson(sizeplus(size))}, sizeplus(size)));
+    return Exp->astJson(size);
 }
 
 IRGen::IRBase *InitValAST::codegen() {

@@ -13,13 +13,13 @@ std::string ConstInitValAST::astJson(int size) {
     // std::vector<std::unique_ptr<BaseAST>> vals;
 
     if (vals.empty()) {
-        return Json("Constant Initiate", {ConstExp->astJson(sizeplus(size))}, size);
+        return Json("Const Init", {ConstExp->astJson(sizeplus(size))}, size);
     } else {
         std::vector<std::string> children;
         for (auto &v: vals) {
             children.push_back(v->astJson(sizeplus(size)));
         }
-        return Json("Constant Array Initiate", {children}, size);
+        return Json("Init", {children}, size);
     }
 }
 

@@ -10,11 +10,11 @@ std::string BlockItemAST::astJson(int size) {
     std::vector<std::string> children;
 
     if (Decl != nullptr)
-        children.push_back(Json("Declaration", {Decl->astJson(sizeplus(size))}, sizeplus(size)));
+        children.push_back(Json("Decl", {Decl->astJson(sizeplus(size))}, sizeplus(size)));
     else
-        children.push_back(Json("Statement", {Stmt->astJson(sizeplus(size))}, sizeplus(size)));
+        children.push_back(Json("Stmt", {Stmt->astJson(sizeplus(size))}, sizeplus(size)));
 
-    return Json("Block Item", children, size);
+    return Json("Blk Item", children, size);
 }
 
 IRGen::IRBase *BlockItemAST::codegen() {
