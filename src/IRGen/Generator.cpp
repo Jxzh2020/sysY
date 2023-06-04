@@ -175,14 +175,15 @@ std::string CallInst::print() {
 
 std::string ArithInst::print() {
 
-    static const std::string list[] = {"add", "sub", "???", "sdiv", "mul", "srem"};
-    std::string opcode = list[this->op];
-    std::string out;
+  static const std::string list[] = {"add", "sub",  "???",
+                                     "mul", "sdiv", "srem"};
+  std::string opcode = list[this->op];
+  std::string out;
 
-    if (this->isConst) {
-        return out;
-        //
-        // return this->con_ptr->get_value();
+  if (this->isConst) {
+    return out;
+    //
+    // return this->con_ptr->get_value();
     } else {
         // imcomplete!
         assert(this->lhs != nullptr && this->rhs != nullptr);
