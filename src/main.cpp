@@ -555,12 +555,17 @@ int main(int argc, const char *argv[])
     }
 
     // 从第二个文件中读取内容并写入新文件
-    int i = 0;
+    std::stringstream ff(result);
+    while (std::getline(ff, line)) {
+      if (line.find("putch") != -1 || line.find("putint") != -1 ||
+          line.find("getint") != -1 || line.find("getch") != -1)
+        continue;
+      
+      file3 << line << '\n';
+    }
 
-    line = result.substr(0, result.find("declare"));
-    result = line + result.substr(result.find("define"), result.length());
+    
 
-    file3 << result;
 
     // 关闭文件流
     file1.close();

@@ -9,20 +9,24 @@
 #include <vector>
 
 std::string ExpAST::astJson(int size) {
-      // std::unique_ptr<BaseAST> LgExp;
+        // std::unique_ptr<BaseAST> LgExp;
     std::vector<std::string> children;
-      // children.push_back(Json("Logical Expression", {LgExp->astJson(sizeplus(size))}, sizeplus(size)));
+        // children.push_back(Json("Logical Expression", {LgExp->astJson(sizeplus(size))}, sizeplus(size)));
     // return Json("Expression", {LgExp->astJson(sizeplus(size))}, size);
-    if(LgExp!=NULL){
-        return LgExp->astJson(size);
-    }
-    else {
-        for (auto &exp: this->vals)
+    if (LgExp != NULL) {
+            return LgExp->astJson(size);
+       
+  }
+      else {
+            for (auto &exp : this->vals)
         {
-            children.push_back(Json(exp->astJson(sizeplus(size)), sizeplus(size)));
-        }
-        return Json("Arr Exp",children, size);
+                  children.push_back(
+          Json("Exp", exp->astJson(sizeplus(size)), sizeplus(size)));
+             
     }
+            return Json("Arr Exp", children, size);
+       
+  }
 }
 
 IRGen::IRBase *ExpAST::codegen() {
