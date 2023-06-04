@@ -300,7 +300,7 @@ bool GenerateObject(string OutputFile, string IRFile) {
 }
 
 unsigned getOptimizationLevel(const std::string &OptimizeLevel) {
-  if (OptimizeLevel == "-O0") {
+  if (OptimizeLevel == "-O0" || OptimizeLevel.empty()) {
     return 0;
   }else if (OptimizeLevel == "-O1") {
     return 1;
@@ -579,7 +579,7 @@ int main(int argc, const char *argv[])
     // {
     //     cout << "object file generated failed." << endl;
     // }
-    IROptimize("ComBined.ll", OptimizeLevel);
+    IROptimize("Combined.ll", OptimizeLevel);
 
     int res = system(std::string("clang Combined.ll -o "+ OutputFile /*+" "+OptimizeLevel*/).c_str());
     if(res != 0)
