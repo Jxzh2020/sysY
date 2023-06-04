@@ -557,10 +557,10 @@ int main(int argc, const char *argv[])
     // 从第二个文件中读取内容并写入新文件
     std::stringstream ff(result);
     while (std::getline(ff, line)) {
-      if (line.find("putch") != -1 || line.find("putint") != -1 ||
-          line.find("getint") != -1 || line.find("getch") != -1)
+      if ((line.find("declare") != -1) && (line.find("putch") != -1  || line.find("putint") != -1 ||
+          line.find("getint") != -1 || line.find("getch") != -1))
         continue;
-      
+
       file3 << line << '\n';
     }
 
