@@ -209,7 +209,7 @@ extern FILE *yyin;
 extern int yyparse(unique_ptr<BaseAST> &ast);
 
 void printhelp() {
-  cout << "How to use MySysY compiler:" << endl;
+  cout << "How to use SysY compiler:" << endl;
   cout << "-help: print this message" << endl;
   cout << "-i: A MUST ARGUMENT, source code .c file." << endl;
   cout << "-o: generate output file, which is a .o file. If you ignore this argument, the output file will be named a.o" << endl;
@@ -525,14 +525,17 @@ int main(int argc, const char *argv[])
 
     std::ofstream file(IRFile);
     auto result = IR::get()->getModule()->print().str();
-    if (IRFile != "") {
-      file << result;
-      file.close();
+    if(IRFile != "")
+    {
+        file << result;
+        file.close();
     }
     else
     {
         // (IR::get()->getModule())->print(llvm::outs(), nullptr);;//直接输出在终端
         std::cout << result;
+        file << result;
+        file.close();
     }
 
     // IROptimize(IRFile, OptimizeLevel);
