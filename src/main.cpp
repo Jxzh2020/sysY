@@ -556,9 +556,10 @@ int main(int argc, const char *argv[])
 
     // 从第二个文件中读取内容并写入新文件
     int i = 0;
-    while (i++ < 4)
-      result = result.substr(result.find('\n')+1, result.length());
-    
+
+    line = result.substr(0, result.find("declare"));
+    result = line + result.substr(result.find("define"), result.length());
+
     file3 << result;
 
     // 关闭文件流
