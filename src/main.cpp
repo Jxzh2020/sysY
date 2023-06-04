@@ -524,26 +524,22 @@ int main(int argc, const char *argv[])
     }
 
     std::ofstream file(IRFile);
-    if(IRFile != "")
-    {
-        file << IR::get()->getModule()->print().str();
-        file.close();
+    auto result = IR::get()->getModule()->print().str();
+    if (IRFile != "") {
+      file << result;
+      file.close();
     }
     else
     {
         // (IR::get()->getModule())->print(llvm::outs(), nullptr);;//直接输出在终端
-        std::cout << IR::get()->getModule()->print().str();
+        std::cout << result;
     }
 
     // IROptimize(IRFile, OptimizeLevel);
 
     ifstream file1("lib.ll");
-    ifstream file2(IRFile);
     ofstream file3("Combined.ll");
     if (!file1.is_open()) {
-        return 1;
-    }
-    if (!file2.is_open()) {
         return 1;
     }
     if (!file3.is_open()) {
@@ -557,19 +553,13 @@ int main(int argc, const char *argv[])
 
     // 从第二个文件中读取内容并写入新文件
     int i = 0;
-    while (std::getline(file2, line)) {
-        if(i < 4)
-        {
-            i++;
-        }
-        else {
-            file3 << line << '\n';
-        }
-    }
+    while (i++ < 4)
+      result = result.substr(result.find('\n')+1, result.length());
+    
+    file3 << result;
 
     // 关闭文件流
     file1.close();
-    file2.close();
     file3.close();
     // if(GenerateObject(OutputFile, "Combined.ll"))
     // {
